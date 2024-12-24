@@ -225,6 +225,112 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function update_profile(Request $request)
+{
+    $users = auth('api')->user(); // Retrieve the authenticated user
+    
+    if (empty($users)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unable to retrieve user details.',
+        ], 200);
+    }
+    $user_id = $request->input('user_id');
+    $avatar_id = $request->input('avatar_id');
+    $interests = $request->input('interests');
+
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+
+    if (empty($interests)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'interests is empty.',
+        ], 200);
+    }
+
+    $user = Users::find($user_id);
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user not found.',
+        ], 200);
+    }
+ 
+    if (empty($avatar_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'avatar_id is empty.',
+        ], 200);
+    }
+
+    $avatar = Avatars::find($avatar_id);
+
+    if (!$avatar) {
+        return response()->json([
+            'success' => false,
+            'message' => 'avatar not found.',
+        ], 200);
+    }
+
+
+    $name = $request->input('name');
+
+    if (!empty($name) && Users::where('name', $name)->where('id', '!=', $user_id)->exists()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'The provided name already exists.',
+        ], 200);
+    }
+
+
+    // Update user details
+    if ($name !== null) {
+        $user->name = $name;
+    }
+    $user->interests = $interests;
+    $user->avatar_id = $avatar_id;
+    $user->datetime = now(); 
+    $user->save();
+
+    $avatar = Avatars::find($user->avatar_id);
+   $gender = $avatar ? $avatar->gender : '';
+
+   $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+   $voicePath = $user && $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
+
+    return response()->json([
+        'success' => true,
+        'message' => 'User details updated successfully.',
+        'data' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'user_gender' => $user->gender,
+            'language' => $user->language,
+            'mobile' => $user->mobile,
+            'avatar_id' => (int) $user->avatar_id,
+            'image' => $imageUrl ?? '',
+            'gender' => $gender,
+             'age' => (int) $user-> age ?? '',
+            'interests' => $user->interests,
+            'describe_yourself' => $user-> describe_yourself ?? '',
+             'voice' => $voicePath ?? '',
+             'status' => $user->status ?? '',
+             'balance' => (int) $user->balance ?? '',
+             'audio_status' =>(int) $user->audio_status ?? '',
+             'video_status' =>(int) $user->video_status ?? '',
+            'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::parse($user->updated_at)->format('Y-m-d H:i:s'),
+            'created_at' => Carbon::parse($user->created_at)->format('Y-m-d H:i:s'),
+        ],
+    ], 200);
+}
+
     public function userdetails(Request $request)
     {
         $users = auth('api')->user(); // Retrieve the authenticated user
