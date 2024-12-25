@@ -28,7 +28,7 @@ class AuthController extends Controller
 {
     
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp']]);
     }
  
         public function register(Request $request)
@@ -519,14 +519,6 @@ class AuthController extends Controller
     
 public function send_otp(Request $request)
 {
-    $users = auth('api')->user(); // Retrieve the authenticated user
-    
-    if (empty($users)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Unable to retrieve user details.',
-        ], 200);
-    }
     $mobile = $request->input('mobile'); 
     $country_code = $request->input('country_code');
     $otp = $request->input('otp');
