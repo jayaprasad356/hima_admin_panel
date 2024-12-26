@@ -110,7 +110,7 @@ class AuthController extends Controller
         
             // Prepare the user details to return
             $avatar = Avatars::find($users->avatar_id);
-            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
             $voicePath = $users && $users->voice ? asset('storage/app/public/voices/' . $users->voice) : '';
         
             // Attempt to log the user in using the mobile number (no need for password)
@@ -194,7 +194,7 @@ class AuthController extends Controller
         $avatar = Avatars::find($users->avatar_id);
         $gender = $avatar ? $avatar->gender : '';
 
-        $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+        $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         $voicePath = $users && $users->voice ? asset('storage/app/public/voices/' . $users->voice) : '';
 
         return response()->json([
@@ -303,7 +303,7 @@ class AuthController extends Controller
     $avatar = Avatars::find($user->avatar_id);
    $gender = $avatar ? $avatar->gender : '';
 
-   $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+   $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
    $voicePath = $user && $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
 
     return response()->json([
@@ -348,7 +348,7 @@ class AuthController extends Controller
         $avatar = Avatars::find($users->avatar_id);
         $gender = $avatar ? $avatar->gender : '';
     
-        $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+        $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         $voicePath = $users && $users->voice ? asset('storage/app/public/voices/' . $users->voice) : '';
     
         return response()->json([
@@ -496,7 +496,7 @@ class AuthController extends Controller
     
         $avatarData = [];
         foreach ($avatars as $avatar) {
-            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
             $avatarData[] = [
                 'id' => $avatar->id,
                 'gender' => $avatar->gender,
@@ -753,7 +753,7 @@ public function user_validations(Request $request)
 
     $avatar = Avatars::find($user->avatar_id);
     $gender = $avatar ? $avatar->gender : '';
-    $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+    $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/' . $avatar->image) : '';
     $voicePath = $user && $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
 
     return response()->json([
@@ -835,7 +835,7 @@ public function update_voice(Request $request)
 
     $avatar = Avatars::find($user->avatar_id);
     $gender = $avatar ? $avatar->gender : '';
-    $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+    $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/' . $avatar->image) : '';
     $voicePath = $user && $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
 
     return response()->json([
@@ -930,7 +930,7 @@ public function female_users_list(Request $request)
     foreach ($users as $user) {
         $avatar = $user->avatar; // Use the avatar relationship to get the avatar
         $gender = $avatar ? $avatar->gender : '';
-        $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+        $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/' . $avatar->image) : '';
         $voicePath = $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
 
         $usersData[] = [
@@ -1099,7 +1099,7 @@ public function calls_status_update(Request $request)
     $gender = $avatar ? $avatar->gender : '';
 
     $imageUrl = $avatar && $avatar->image 
-        ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+        ? asset('storage/app/public/' . $avatar->image) : '';
     $voicePath = $user && $user->voice 
         ? asset('storage/app/public/voices/' . $user->voice) : '';
 
@@ -1237,11 +1237,11 @@ public function call_female_user(Request $request)
 
     // Fetch avatar image for receiver
     $receiverAvatar = Avatars::find($receiver->avatar_id);
-    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/avatars/' . $receiverAvatar->image) : '';
+    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
 
        // Fetch avatar image for caller if needed
        $callerAvatar = Avatars::find($caller->avatar_id);
-       $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/avatars/' . $callerAvatar->image) : '';
+       $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
    
    
     // Return response with success and inserted call data
@@ -1369,11 +1369,11 @@ public function random_user(Request $request)
 
     // Fetch avatar image for receiver
     $receiverAvatar = Avatars::find($receiver->avatar_id);
-    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/avatars/' . $receiverAvatar->image) : '';
+    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
 
        // Fetch avatar image for caller if needed
        $callerAvatar = Avatars::find($caller->avatar_id);
-       $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/avatars/' . $callerAvatar->image) : '';
+       $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
    
    
     // Return response with success and inserted call data
@@ -1628,10 +1628,10 @@ public function calls_list(Request $request)
         $imageUrl = '';
         if ($gender === 'male' && $receiver) {
             $avatar = Avatars::find($receiver->avatar_id);
-            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         } elseif ($gender === 'female' && $receiver) {
             $avatar = Avatars::find($receiver->avatar_id);
-            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/avatars/' . $avatar->image) : '';
+            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         }
 
         // Add data to response array based on gender
@@ -1733,10 +1733,10 @@ public function female_call_attend(Request $request)
     $receiver = users::find($userCall->call_user_id);
 
     $callerAvatar = Avatars::find($caller->avatar_id);
-    $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/avatars/' . $callerAvatar->image) : '';
+    $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
 
     $receiverAvatar = Avatars::find($receiver->avatar_id);
-    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/avatars/' . $receiverAvatar->image) : '';
+    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
 
     // Return response
     return response()->json([
@@ -1801,26 +1801,17 @@ public function reports(Request $request)
             'message' => 'User is not female.',
         ], 200);
     }
+    
 
-    // Fetch the call details for the given user_id
-    $call_id = $request->input('call_id');
-    $call = UserCalls::where('id', $call_id)->where('call_user_id', $user_id)->first();
+    // Fetch the call details for the
+    $call = UserCalls::where('call_user_id', $user_id)
+        ->whereDate('datetime', now()->toDateString())  // Assuming 'datetime' stores the call date
+        ->first();
 
-    if (!$call) {
-        return response()->json([ 
-            'success' => false,
-            'message' => 'Call not found.',
-        ], 200);
-    }
-
-    // Get the total calls today for this user
-    $today_calls = UserCalls::where('call_user_id', $user_id)
-        ->whereDate('datetime', now()->toDateString())  // Assuming created_at stores the call date
-        ->count();
 
     // Get the total earnings today for this user
     $today_earnings = Transactions::where('user_id', $user_id)
-        ->whereDate('datetime', now()->toDateString())  // Assuming 'datetime' stores the transaction date
+        ->where('type', 'add_coins')
         ->sum('amount');
 
     // Prepare and return the response with the data
@@ -1828,9 +1819,9 @@ public function reports(Request $request)
         'success' => true,
         'message' => 'Reports listed successfully.',
         'data' => [
-            'user_id' => $call->user_id,
+           
             'user_name' => $user->name,
-            'today_calls' => $today_calls,
+            'today_calls' => $callCount,
             'today_earnings' => $today_earnings,
         ],
     ], 200);
