@@ -1801,13 +1801,11 @@ public function reports(Request $request)
             'message' => 'User is not female.',
         ], 200);
     }
-    
 
-    // Fetch the call details for the
-    $call = UserCalls::where('call_user_id', $user_id)
-        ->whereDate('datetime', now()->toDateString())  // Assuming 'datetime' stores the call date
-        ->first();
 
+    $callCount = UserCalls::where('call_user_id', $user_id)
+        ->whereDate('datetime', now()->toDateString())
+        ->count();
 
     // Get the total earnings today for this user
     $today_earnings = Transactions::where('user_id', $user_id)
@@ -1818,12 +1816,11 @@ public function reports(Request $request)
     return response()->json([
         'success' => true,
         'message' => 'Reports listed successfully.',
-        'data' => [
-           
+        'data' => [[
             'user_name' => $user->name,
             'today_calls' => $callCount,
             'today_earnings' => $today_earnings,
-        ],
+        ]],
     ], 200);
 }
 
