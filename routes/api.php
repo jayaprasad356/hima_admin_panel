@@ -59,4 +59,5 @@ Route::group([
     Route::post('calls_list', [AuthController::class, 'calls_list']);
     Route::post('call_female_user', [AuthController::class, 'call_female_user']);
     Route::post('female_call_attend', [AuthController::class, 'female_call_attend']);
+    Route::post('reports', [AuthController::class, 'reports']);
 });

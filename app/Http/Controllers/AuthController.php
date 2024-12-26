@@ -217,6 +217,7 @@ class AuthController extends Controller
                 'voice' => $voicePath ?? '',
                 'status' => $users->status ?? '',
                 'balance' =>(int) $users->balance ?? '',
+                'coins' =>(int) $users->coins ?? '',
                 'audio_status' =>(int) $users->audio_status ?? '',
                 'video_status' =>(int) $users->video_status ?? '',
                 'datetime' => Carbon::parse($users->datetime)->format('Y-m-d H:i:s'),
@@ -323,6 +324,7 @@ class AuthController extends Controller
              'voice' => $voicePath ?? '',
              'status' => $user->status ?? '',
              'balance' => (int) $user->balance ?? '',
+             'coins' => (int) $user->coins ?? '',
              'audio_status' =>(int) $user->audio_status ?? '',
              'video_status' =>(int) $user->video_status ?? '',
             'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
@@ -367,6 +369,7 @@ class AuthController extends Controller
                 'voice' => $voicePath ?? '',
                 'status' => $users->status ?? '',
                 'balance' => (int) $users->balance ?? '',
+                'coins' => (int) $users->coins ?? '',
                 'audio_status' => (int) $users->audio_status ?? '',
                 'video_status' => (int) $users->video_status ?? '',
                 'datetime' => Carbon::parse($users->datetime)->format('Y-m-d H:i:s'),
@@ -553,7 +556,7 @@ public function send_otp(Request $request)
 
     // Define the API URL and parameters for OTP sending
     $apiUrl = 'https://api.authkey.io/request'; 
-    $authKey = '64045a300411033f'; // Your authkey here
+    $authKey = '673e807e1f672335'; // Your authkey here
     $sid = '14324'; // SID, if applicable
 
     // Make the HTTP request to the OTP API
@@ -1773,4 +1776,80 @@ public function female_call_attend(Request $request)
         ],
     ], 200);
 }
+
+public function reports(Request $request)
+{
+    // Retrieve the authenticated user
+    $user = auth('api')->user(); // This checks if the user is authenticated
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401); // Return a 401 Unauthorized if no user is authenticated
+    }
+
+    // Get user_id from request
+    $user_id = $request->input('user_id');
+
+    // Validate user_id
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+
+    // Fetch the user based on user_id to check if the user is female
+    $user = users::find($user_id);
+
+    if (!$user) {
+        return response()->json([ 
+            'success' => false,
+            'message' => 'User not found.',
+        ], 200);
+    }
+
+    // Check if the user is female
+    if ($user->gender !== 'female') {
+        return response()->json([
+            'success' => false,
+            'message' => 'User is not female.',
+        ], 200);
+    }
+
+    // Fetch the call details for the given user_id
+    $call_id = $request->input('call_id');
+    $call = UserCalls::where('id', $call_id)->where('call_user_id', $user_id)->first();
+
+    if (!$call) {
+        return response()->json([ 
+            'success' => false,
+            'message' => 'Call not found.',
+        ], 200);
+    }
+
+    // Get the total calls today for this user
+    $today_calls = UserCalls::where('call_user_id', $user_id)
+        ->whereDate('datetime', now()->toDateString())  // Assuming created_at stores the call date
+        ->count();
+
+    // Get the total earnings today for this user
+    $today_earnings = Transactions::where('user_id', $user_id)
+        ->whereDate('datetime', now()->toDateString())  // Assuming 'datetime' stores the transaction date
+        ->sum('amount');
+
+    // Prepare and return the response with the data
+    return response()->json([
+        'success' => true,
+        'message' => 'Reports listed successfully.',
+        'data' => [
+            'user_id' => $call->user_id,
+            'user_name' => $user->name,
+            'today_calls' => $today_calls,
+            'today_earnings' => $today_earnings,
+        ],
+    ], 200);
+}
+
 }
