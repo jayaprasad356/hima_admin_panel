@@ -888,11 +888,11 @@ public function speech_text(Request $request)
     return response()->json([
         'success' => true,
         'message' => 'Speech Text listed successfully.',
-        'data' => [
+        'data' => [[
             'id' => $speech_text->id,
             'text' => $speech_text->text,
             'language' => $speech_text->language,
-        ],
+        ]],
     ], 200);
 }
 
