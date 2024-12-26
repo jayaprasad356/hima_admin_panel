@@ -176,10 +176,7 @@ class AuthController extends Controller
         }
         $mobile = request()->mobile;
         $credentials = request(['mobile']);
-            if (! $token = auth('api')->attempt($credentials)) { 
-                return response()->json(['error' => 'mobile not registered'], 200);
-        } 
-       
+        
         $users = Users::where('mobile', $mobile)->first();
     
         // If user not found, return failure response
@@ -189,6 +186,10 @@ class AuthController extends Controller
             $response['message'] = 'mobile not registered.';
             return response()->json($response, 200);
         }
+
+        if (! $token = auth('api')->attempt($credentials)) { 
+            return response()->json(['error' => 'Unauthorized'], 401);
+        } 
         
         $avatar = Avatars::find($users->avatar_id);
         $gender = $avatar ? $avatar->gender : '';
