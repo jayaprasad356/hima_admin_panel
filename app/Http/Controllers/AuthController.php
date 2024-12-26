@@ -28,7 +28,7 @@ class AuthController extends Controller
 {
     
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text']]);
     }
  
         public function register(Request $request)
@@ -468,15 +468,7 @@ class AuthController extends Controller
     
     public function avatar_list(Request $request)
     {
-        $user = auth('api')->user(); // Retrieve the authenticated user
-    
-        if (empty($user)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unable to retrieve user details.',
-            ], 200);
-        }
-    
+     
         $gender = $request->input('gender'); 
     
         if (empty($gender)) {
@@ -875,14 +867,6 @@ public function update_voice(Request $request)
 
 public function speech_text(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user();
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401);
-    }
 
     $language = $request->input('language');
     if (empty($language)) {
