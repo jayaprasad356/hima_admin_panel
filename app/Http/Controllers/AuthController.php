@@ -28,7 +28,7 @@ class AuthController extends Controller
 {
     
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp']]);
+        $this->middleware('auth:api', ['except' => ['register','send_otp']]);
     }
  
         public function register(Request $request)
@@ -175,20 +175,25 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $mobile = request()->mobile;
-        $credentials = request(['mobile']);
-            if (! $token = auth('api')->attempt($credentials)) { 
-                return response()->json(['error' => 'Unauthorized'], 401);
-        } 
-       
-        $users = Users::where('mobile', $mobile)->first();
-    
-        // If user not found, return failure response
-        if (!$users) {
-            $response['success'] = true;
-            $response['registered'] = false;
-            $response['message'] = 'mobile not registered.';
-            return response()->json($response, 200);
-        }
+
+    // Check if the user exists
+    $users = Users::where('mobile', $mobile)->first();
+
+    // If user not found, return failure response
+    if (!$users) {
+        return response()->json([
+            'success' => true,
+            'registered' => false,
+            'message' => 'Mobile not registered.',
+        ], 200);
+    }
+
+    // Authenticate the user
+    $credentials = request(['mobile']);
+    if (!$token = auth('api')->attempt($credentials)) {
+        return response()->json(['error' => 'Mobile not registered'], 200);
+    }
+
         
         $avatar = Avatars::find($users->avatar_id);
         $gender = $avatar ? $avatar->gender : '';
