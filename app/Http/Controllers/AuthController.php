@@ -1810,6 +1810,7 @@ public function reports(Request $request)
     // Get the total earnings today for this user
     $today_earnings = Transactions::where('user_id', $user_id)
         ->where('type', 'add_coins')
+        ->whereDate('datetime', now()->toDateString())
         ->sum('amount');
 
     // Prepare and return the response with the data
