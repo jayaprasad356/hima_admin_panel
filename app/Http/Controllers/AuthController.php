@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Users;
 use App\Models\Avatars;
 use App\Models\Coins;
-use App\Models\SpeechText;   
+use App\Models\SpeechText;  
+use App\Models\Appsettings; 
 use App\Models\Transactions;
 use App\Models\DeletedUsers; 
 use App\Models\Withdrawals;  
@@ -620,6 +621,46 @@ public function settings_list(Request $request)
         'success' => true,
         'message' => 'Settings listed successfully.',
         'data' => $newsData,
+    ], 200);
+}
+
+public function appsettings_list(Request $request)
+{
+    // Retrieve the authenticated user
+    $user = auth('api')->user(); // This checks if the user is authenticated
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401); // Return a 401 Unauthorized if no user is authenticated
+    }
+
+    // Retrieve all news settings
+    $appsettings = Appsettings::all();
+
+    if ($appsettings->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No appsettings found.',
+        ], 200);
+    }
+
+    // Prepare the data to be returned
+    $appsettingsData = [];
+    foreach ($appsettings as $item) {
+        $appsettingsData[] = [
+            'id' => $item->id,
+            'link' => $item->link,
+            'app_version' => $item->app_version,
+            'description' => $item->description,
+        ];
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'App Settings listed successfully.',
+        'data' => $appsettingsData,
     ], 200);
 }
 
@@ -1808,10 +1849,9 @@ public function reports(Request $request)
         ->count();
 
     // Get the total earnings today for this user
-    $today_earnings = Transactions::where('user_id', $user_id)
-        ->where('type', 'add_coins')
+    $today_earnings = UserCalls::where('call_user_id', $user_id)
         ->whereDate('datetime', now()->toDateString())
-        ->sum('amount');
+        ->sum('income');
 
     // Prepare and return the response with the data
     return response()->json([

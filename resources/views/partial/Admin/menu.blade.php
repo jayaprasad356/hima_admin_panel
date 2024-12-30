@@ -53,6 +53,10 @@
                                 class="ti ti-settings"></i></span><span class="dash-mtext">{{ __('Settings') }}</span></a>
                 </li>
                 <li class="dash-item">
+                    <a href="{{ route('appsettings.edit') }}" class="dash-link"><span class="dash-micon"><i
+                                class="ti ti-settings"></i></span><span class="dash-mtext">{{ __('App Settings') }}</span></a>
+                </li>
+                <li class="dash-item">
                 <a href="{{ route('users-verification.index') }}" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-user-check"></i> <!-- Icon for verifying users -->

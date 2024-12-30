@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AppsettingsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\EmployeeController;
@@ -279,9 +280,11 @@ Route::group(['middleware' => ['verified']], function () {
     Route::resource('speech_texts', SpeechTextController::class);
     Route::get('news/edit', [NewsController::class, 'edit'])->name('news.edit');
     Route::put('news/update', [NewsController::class, 'update'])->name('news.update');
+    Route::get('appsettings/edit', [AppsettingsController::class, 'edit'])->name('appsettings.edit');
+    Route::put('appsettings/update', [AppsettingsController::class, 'update'])->name('appsettings.update');
     Route::resource('users', UsersController::class);
-Route::post('/users-verification/update-status', [UsersVerificationController::class, 'updateStatus'])->name('users-verification.updateStatus');
-Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
+    Route::post('/users-verification/update-status', [UsersVerificationController::class, 'updateStatus'])->name('users-verification.updateStatus');
+    Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
 
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
 
