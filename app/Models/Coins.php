@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Coins extends Model
 {
-    protected $fillable = ['coins', 'price','save','popular'];
+    protected $fillable = ['coins', 'price','save','popular','best_offer'];
 }

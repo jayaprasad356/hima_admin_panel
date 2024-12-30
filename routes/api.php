@@ -43,6 +43,7 @@ Route::group([
     Route::post('/userdetails', [AuthController::class, 'userdetails']);
      Route::post('/update_profile', [AuthController::class, 'update_profile']);
      Route::post('/coins_list', [AuthController::class, 'coins_list']);
+     Route::post('/best_offers', [AuthController::class, 'best_offers']);
      Route::post('/avatar_list', [AuthController::class, 'avatar_list']);
      Route::post('transaction_list', [AuthController::class, 'transaction_list']);
      Route::post('send_otp', [AuthController::class, 'send_otp']);

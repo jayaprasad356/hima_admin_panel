@@ -420,6 +420,7 @@ class AuthController extends Controller
                 'coins' => $coin->coins,
                 'save' => $coin->save,
                 'popular' => $coin->popular,
+                'best_offer' => $coin->best_offer,
                 'updated_at' => Carbon::parse($coin->updated_at)->format('Y-m-d H:i:s'),
                 'created_at' => Carbon::parse($coin->created_at)->format('Y-m-d H:i:s'),
             ];
@@ -432,6 +433,58 @@ class AuthController extends Controller
             'data' => $coinsData,
         ], 200);
     }
+
+    public function best_offers(Request $request)
+{
+    $user = auth('api')->user(); // Retrieve the authenticated user
+
+    if (empty($user)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unable to retrieve user details.',
+        ], 200);
+    }
+
+    $user_id = $user->id; // Get the authenticated user's ID
+    $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
+    $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
+
+    // Fetch coins with best_offer = 1
+    $coins = Coins::where('best_offer', 1) // Filter by best_offer
+                  ->orderBy('price', 'asc')
+                  ->skip($offset)
+                  ->take($limit)
+                  ->get();
+
+    if ($coins->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No Best Offer data available.',
+        ], 200);
+    }
+
+    $coinsData = $coins->map(function ($coin) {
+        return [
+            'id' => $coin->id,
+            'price' => $coin->price,
+            'coins' => $coin->coins,
+            'save' => $coin->save,
+            'popular' => $coin->popular,
+            'best_offer' => $coin->best_offer,
+            'updated_at' => Carbon::parse($coin->updated_at)->format('Y-m-d H:i:s'),
+            'created_at' => Carbon::parse($coin->created_at)->format('Y-m-d H:i:s'),
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Best Offers listed successfully.',
+        'total' => Coins::where('best_offer', 1)->count(), // Count only best_offer = 1
+        'data' => $coinsData,
+    ], 200);
+}
+
+    
     
     public function transaction_list(Request $request)
     {

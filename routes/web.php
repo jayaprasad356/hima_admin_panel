@@ -9,6 +9,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AppsettingsController;
+use App\Http\Controllers\CoinsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\EmployeeController;
@@ -285,6 +286,8 @@ Route::group(['middleware' => ['verified']], function () {
     Route::resource('users', UsersController::class);
     Route::post('/users-verification/update-status', [UsersVerificationController::class, 'updateStatus'])->name('users-verification.updateStatus');
     Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
+    Route::post('/coins/update-status', [CoinsController::class, 'updateStatus'])->name('coins.updateStatus');
+    Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
 
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
 

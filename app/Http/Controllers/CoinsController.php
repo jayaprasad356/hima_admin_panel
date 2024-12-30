@@ -54,26 +54,51 @@ class CoinsController extends Controller
     // Update an existing speech text
     public function update(Request $request, $id)
     {
-        $speechText = SpeechText::findOrFail($id);
+        $coins = Coins::findOrFail($id);
 
         // Validate the input data
         $validated = $request->validate([
-            'text' => 'required|string|max:5000',
-            'language' => 'required|string|max:255',
+            'price' => 'required|string|max:5000',
+            'coins' => 'required|string|max:255',
+            'save' => 'required|string|max:255',
+            'popular' => 'required|string|max:255',
         ]);
 
         // Update speech text details
-        $speechText->update($validated);
+        $coins->update($validated);
 
-        return redirect()->route('speech_texts.index')->with('success', 'Speech text successfully updated.');
+        return redirect()->route('speech_texts.index')->with('success', 'Coins successfully updated.');
     }
 
     // Delete a speech text
     public function destroy($id)
     {
-        $speechText = SpeechText::findOrFail($id);
+        $speechText = Coins::findOrFail($id);
         $speechText->delete();
 
         return redirect()->route('speech_texts.index')->with('success', 'Speech text successfully deleted.');
     }
+    public function updateStatus(Request $request)
+{
+    // Validate that at least one coin is selected
+    $request->validate([
+        'coin_ids' => 'required|array|min:1',
+        'coin_ids.*' => 'exists:coins,id', // Ensure the IDs exist in the database
+    ]);
+
+    // Check if more than one coin is selected
+    if (count($request->coin_ids) > 1) {
+        return redirect()->back()->with('error', 'Please select only one coin to update.');
+    }
+
+    // Get the selected coin ID
+    $selectedCoinId = $request->coin_ids[0];
+
+    // Update the best_offer field for all coins
+    Coins::query()->update(['best_offer' => 0]); // Set all to 0 first
+    Coins::where('id', $selectedCoinId)->update(['best_offer' => 1]); // Set selected to 1
+
+    return redirect()->route('coins.index')->with('success', 'Coins updated successfully.');
+}
+
 }

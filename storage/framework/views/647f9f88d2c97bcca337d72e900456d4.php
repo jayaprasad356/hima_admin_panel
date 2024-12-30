@@ -57,6 +57,10 @@
                                 class="ti ti-settings"></i></span><span class="dash-mtext"><?php echo e(__('App Settings')); ?></span></a>
                 </li>
                 <li class="dash-item">
+                    <a href="<?php echo e(route('coins.index')); ?>" class="dash-link"><span class="dash-micon"><i
+                                class="ti ti-coin"></i></span><span class="dash-mtext"><?php echo e(__('coins')); ?></span></a>
+                </li>
+                <li class="dash-item">
                 <a href="<?php echo e(route('users-verification.index')); ?>" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-user-check"></i> <!-- Icon for verifying users -->
