@@ -13,10 +13,12 @@ class Withdrawals extends Model
         'user_id',
         'amount',
         'datetime',
+        'status',
+        'type',
     ];
 
-    public function customer()
+    public function user()
     {
-        return $this->belongsTo(Customers::class, 'customer_id');
+        return $this->belongsTo(users::class, 'user_id');
     }
 }

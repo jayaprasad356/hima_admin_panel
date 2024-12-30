@@ -62,4 +62,8 @@ Route::group([
     Route::post('call_female_user', [AuthController::class, 'call_female_user']);
     Route::post('female_call_attend', [AuthController::class, 'female_call_attend']);
     Route::post('reports', [AuthController::class, 'reports']);
+    Route::post('update_bank', [AuthController::class, 'update_bank']);
+    Route::post('update_upi', [AuthController::class, 'update_upi']);
+    Route::post('withdrawals', [AuthController::class, 'withdrawals']);
+    Route::post('withdrawals_list', [AuthController::class, 'withdrawals_list']);
 });
