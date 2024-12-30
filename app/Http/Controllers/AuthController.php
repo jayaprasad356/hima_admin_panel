@@ -27,126 +27,129 @@ use Kreait\Firebase\ServiceAccount;
 
 class AuthController extends Controller
 {
-    
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list']]);
     }
  
-        public function register(Request $request)
-        {
-            // Validate the incoming request
-            $validator = Validator::make($request->all(), [
-                'mobile' => 'required|digits:10|unique:users',
-                'language' => 'required',
-                'avatar_id' => 'required|exists:avatars,id',
-                'gender' => 'required|in:Male,Female,male,female,MALE,FEMALE',
-            ]);
-        
-            // If validation fails, return errors
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
-            }
-        
-            $mobile = $request->input('mobile');
-            $language = $request->input('language');
-            $name = $request->input('name');
-            $avatar_id = $request->input('avatar_id');
-            $gender = $request->input('gender');
-            $age = $request->input('age');
-            $interests = $request->input('interests');
-            $describe_yourself = $request->input('describe_yourself');
-        
-            // Check if avatar exists
-            $avatar = Avatars::find($avatar_id);
-            if (!$avatar) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Avatar not found.',
-                ], 200);
-            }
-        
-            // Gender-specific validation for female users
-            if (strtolower($gender) === 'female') {
-                if (empty($age)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Age is required for female users.',
-                    ], 200);
-                }
-                if (empty($interests)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Interests are required for female users.',
-                    ], 200);
-                }
-                if (empty($describe_yourself)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Describe Yourself is required for female users.',
-                    ], 200);
-                }
-            }
-        
-            // Generate random name for female users if not provided
-            if (strtolower($gender) === 'female' && empty($name)) {
-                $name = $this->generateRandomFemaleName();
-            } elseif (empty($name)) {
-                // Fallback for male users or unspecified gender
-                $name = $this->generateRandomName();
-            }
-        
-            // Create the new user
-            $users = new Users();
-            $users->name = $name;
-            $users->mobile = $mobile;
-            $users->language = $language;
-            $users->avatar_id = $avatar_id;
-            $users->gender = $gender;
-            $users->age = $age;
-            $users->interests = $interests;
-            $users->describe_yourself = $describe_yourself;
-            $users->datetime = Carbon::now();
-        
-            $users->save();
-        
-            // Prepare the user details to return
-            $avatar = Avatars::find($users->avatar_id);
-            $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
-            $voicePath = $users && $users->voice ? asset('storage/app/public/voices/' . $users->voice) : '';
-        
-            // Attempt to log the user in using the mobile number (no need for password)
-            $credentials = ['mobile' => $mobile];
-            $token = auth('api')->attempt($credentials);
-        
-            // Return the response
-            $userDetails = [
-                'id' => $users->id,
-                'name' => $users->name,
-                'user_gender' => $users->gender,
-                'mobile' => $users->mobile,
-                'language' => $users->language,
-                'avatar_id' => (int) $users->avatar_id,
-                'image' => $imageUrl ?? '',
-                'gender' => $gender,
-                'age' => (int) $users->age ?? '',
-                'interests' => $users->interests,
-                'describe_yourself' =>  $users->describe_yourself ?? '',
-                'voice' =>  $voicePath ?? '',
-                'status' => 0,
-                'balance' => (int) $users->balance ?? '',
-                'datetime' => Carbon::parse($users->datetime)->format('Y-m-d H:i:s'),
-                'created_at' => Carbon::parse($users->created_at)->format('Y-m-d H:i:s'),
-                'updated_at' => Carbon::parse($users->updated_at)->format('Y-m-d H:i:s'),
-            ];
-        
+    public function register(Request $request)
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'mobile' => 'required|digits:10|unique:users',
+            'language' => 'required',
+            'avatar_id' => 'required|exists:avatars,id',
+            'gender' => 'required|in:Male,Female,male,female,MALE,FEMALE',
+        ]);
+    
+        // If validation fails, return errors
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+    
+        $mobile = $request->input('mobile');
+        $language = $request->input('language');
+        $name = $request->input('name');
+        $avatar_id = $request->input('avatar_id');
+        $gender = $request->input('gender');
+        $age = $request->input('age');
+        $interests = $request->input('interests');
+        $describe_yourself = $request->input('describe_yourself');
+    
+        // Check if avatar exists
+        $avatar = Avatars::find($avatar_id);
+        if (!$avatar) {
             return response()->json([
-                'success' => true,
-                'message' => 'Registered successfully.',
-                'token' => $token,
-                'data' => $userDetails,
+                'success' => false,
+                'message' => 'Avatar not found.',
             ], 200);
         }
-        
+    
+        // Gender-specific validation for female users
+        if (strtolower($gender) === 'female') {
+            if (empty($age)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Age is required for female users.',
+                ], 200);
+            }
+            if (empty($interests)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interests are required for female users.',
+                ], 200);
+            }
+            if (empty($describe_yourself)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Describe Yourself is required for female users.',
+                ], 200);
+            }
+        }
+    
+        // Generate random name for female users if not provided
+        if (strtolower($gender) === 'female' && empty($name)) {
+            $name = $this->generateRandomFemaleName();
+        } elseif (empty($name)) {
+            // Fallback for male users or unspecified gender
+            $name = $this->generateRandomName();
+        }
+    
+        // Create the new user
+        $users = new Users();
+        $users->name = $name;
+        $users->mobile = $mobile;
+        $users->language = $language;
+        $users->avatar_id = $avatar_id;
+        $users->gender = $gender;
+        $users->age = $age;
+        $users->interests = $interests;
+        $users->describe_yourself = $describe_yourself;
+        $users->datetime = Carbon::now();
+    
+        $users->save();
+    
+        // Prepare the user details to return
+        $avatar = Avatars::find($users->avatar_id);
+        $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
+        $voicePath = $users && $users->voice ? asset('storage/app/public/voices/' . $users->voice) : '';
+    
+        // Attempt to log the user in using the mobile number (no need for password)
+        $credentials = ['mobile' => $mobile];
+        config(['jwt.ttl' => 60 * 24 * 90]); // 90 days in minutes
+
+        // Attempt authentication
+        if (! $token = auth('api')->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        // Return the response
+        $userDetails = [
+            'id' => $users->id,
+            'name' => $users->name,
+            'user_gender' => $users->gender,
+            'mobile' => $users->mobile,
+            'language' => $users->language,
+            'avatar_id' => (int) $users->avatar_id,
+            'image' => $imageUrl ?? '',
+            'gender' => $gender,
+            'age' => (int) $users->age ?? '',
+            'interests' => $users->interests,
+            'describe_yourself' =>  $users->describe_yourself ?? '',
+            'voice' =>  $voicePath ?? '',
+            'status' => 0,
+            'balance' => (int) $users->balance ?? '',
+            'datetime' => Carbon::parse($users->datetime)->format('Y-m-d H:i:s'),
+            'created_at' => Carbon::parse($users->created_at)->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::parse($users->updated_at)->format('Y-m-d H:i:s'),
+        ];
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Registered successfully.',
+            'token' => $token,
+            'data' => $userDetails,
+        ], 200);
+    }
+    
     private function generateRandomFemaleName(){
         // Fetch a random name from female_users table
         $randomFemaleName = DB::table('female_users')->inRandomOrder()->value('name');
@@ -188,9 +191,12 @@ class AuthController extends Controller
             return response()->json($response, 200);
         }
 
-        if (! $token = auth('api')->attempt($credentials)) { 
+        config(['jwt.ttl' => 60 * 24 * 90]); // 30 days in minutes
+
+        // Attempt authentication
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
-        } 
+        }
         
         $avatar = Avatars::find($users->avatar_id);
         $gender = $avatar ? $avatar->gender : '';
@@ -380,7 +386,6 @@ class AuthController extends Controller
         ], 200);
     }
     
-
     public function coins_list(Request $request)
     {
         $user = auth('api')->user(); // Retrieve the authenticated user
@@ -393,8 +398,13 @@ class AuthController extends Controller
         }
     
         $user_id = $user->id; // Get the authenticated user's ID
+        $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
+        $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
     
-        $coins = Coins::orderBy('price', 'asc')->get(); 
+        $coins = Coins::orderBy('price', 'asc')
+                      ->skip($offset)
+                      ->take($limit)
+                      ->get(); 
     
         if ($coins->isEmpty()) {
             return response()->json([
@@ -418,6 +428,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Coins listed successfully.',
+            'total' => Coins::count(),
             'data' => $coinsData,
         ], 200);
     }
@@ -434,9 +445,13 @@ class AuthController extends Controller
         }
     
         $user_id = $user->id; // Get the authenticated user's ID
+        $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
+        $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
     
         $transactions = Transactions::where('user_id', $user_id)
                      ->orderBy('datetime', 'desc')
+                     ->skip($offset)
+                     ->take($limit)
                      ->get();
     
         if ($transactions->isEmpty()) {
@@ -463,14 +478,16 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User transaction list retrieved successfully.',
+            'total' => Transactions::where('user_id', $user_id)->count(),
             'data' => $transactionsData,
         ], 200);
     }
     
     public function avatar_list(Request $request)
     {
-     
         $gender = $request->input('gender'); 
+        $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
+        $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
     
         if (empty($gender)) {
             return response()->json([
@@ -486,7 +503,10 @@ class AuthController extends Controller
             ], 200);
         }
     
-        $avatars = Avatars::where('gender', strtolower($gender))->get();
+        $avatars = Avatars::where('gender', strtolower($gender))
+                          ->skip($offset)
+                          ->take($limit)
+                          ->get();
     
         if ($avatars->isEmpty()) {
             return response()->json([
@@ -510,6 +530,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Avatars listed successfully.',
+            'total' => Avatars::where('gender', strtolower($gender))->count(),
             'data' => $avatarData,
         ], 200);
     }
@@ -585,16 +606,7 @@ public function send_otp(Request $request)
 }
 public function settings_list(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user(); // This checks if the user is authenticated
-
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401); // Return a 401 Unauthorized if no user is authenticated
-    }
-
+   
     // Retrieve all news settings
     $news = News::all();
 
@@ -626,16 +638,7 @@ public function settings_list(Request $request)
 
 public function appsettings_list(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user(); // This checks if the user is authenticated
-
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401); // Return a 401 Unauthorized if no user is authenticated
-    }
-
+ 
     // Retrieve all news settings
     $appsettings = Appsettings::all();
 
@@ -908,8 +911,10 @@ public function update_voice(Request $request)
 
 public function speech_text(Request $request)
 {
-
     $language = $request->input('language');
+    $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
+    $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
+
     if (empty($language)) {
         return response()->json([
             'success' => false,
@@ -917,23 +922,35 @@ public function speech_text(Request $request)
         ], 200);
     }
 
-    $speech_text = SpeechText::where('language', $language)->inRandomOrder()->first();
+    $totalCount = SpeechText::where('language', $language)->count();
 
-    if (!$speech_text) {
+    $speech_texts = SpeechText::where('language', $language)
+        ->inRandomOrder()
+        ->skip($offset)
+        ->take($limit)
+        ->get();
+
+    if ($speech_texts->isEmpty()) {
         return response()->json([
             'success' => false,
             'message' => 'No Speech Text found for the specified language.',
+            'total' => $totalCount,
         ], 200);
     }
+
+    $speechTextData = $speech_texts->map(function ($speech_text) {
+        return [
+            'id' => $speech_text->id,
+            'text' => $speech_text->text,
+            'language' => $speech_text->language,
+        ];
+    });
 
     return response()->json([
         'success' => true,
         'message' => 'Speech Text listed successfully.',
-        'data' => [[
-            'id' => $speech_text->id,
-            'text' => $speech_text->text,
-            'language' => $speech_text->language,
-        ]],
+        'total' => $totalCount,
+        'data' => $speechTextData,
     ], 200);
 }
 
@@ -950,16 +967,18 @@ public function female_users_list(Request $request)
     $offset = $request->input('offset', 0);
     $limit = $request->input('limit', 10);
 
-    $totalCount = users::where('gender', 'female')->count();
+    $totalCount = Users::where('gender', 'female')->where('status', 2)->count();
 
-    // Retrieve paginated female users
-    $users = users::where('gender', 'female')
+    // Retrieve paginated female users with status = 1 and order by latest
+    $Users = Users::where('gender', 'female')
+        ->where('status', 2)
+        ->orderBy('datetime', 'desc')
         ->skip($offset)
         ->take($limit)
         ->with('avatar') // Only eager load the avatar relationship if necessary
         ->get();
 
-    if ($users->isEmpty()) {
+    if ($Users->isEmpty()) {
         return response()->json([
             'success' => false,
             'message' => 'No female users found.',
@@ -968,7 +987,7 @@ public function female_users_list(Request $request)
     }
 
     $usersData = [];
-    foreach ($users as $user) {
+    foreach ($Users as $user) {
         $avatar = $user->avatar; // Use the avatar relationship to get the avatar
         $gender = $avatar ? $avatar->gender : '';
         $imageUrl = $avatar && $avatar->image ? asset('storage/app/public/' . $avatar->image) : '';
@@ -1571,17 +1590,20 @@ public function update_connected_call(Request $request)
 
 public function calls_list(Request $request)
 {
-      // Retrieve the authenticated user
-      $user = auth('api')->user(); // This checks if the user is authenticated
+    // Retrieve the authenticated user
+    $user = auth('api')->user(); // This checks if the user is authenticated
 
-      if (!$user) {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized. Please provide a valid token.',
-          ], 401); // Return a 401 Unauthorized if no user is authenticated
-      }
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401); // Return a 401 Unauthorized if no user is authenticated
+    }
+
     $user_id = $request->input('user_id');
-    $gender = $request->input('gender'); 
+    $gender = $request->input('gender');
+    $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
+    $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
 
     // Validate user_id
     if (empty($user_id)) {
@@ -1592,11 +1614,11 @@ public function calls_list(Request $request)
     }
 
     // Find the user
-    $user = users::find($user_id);
+    $user = Users::find($user_id);
     if (!$user) {
         return response()->json([
             'success' => false,
-            'message' => 'user not found.',
+            'message' => 'User not found.',
         ], 200);
     }
 
@@ -1621,13 +1643,25 @@ public function calls_list(Request $request)
         $calls = UserCalls::where('user_id', $user_id)
             ->whereNotNull('started_time')
             ->where('started_time', '!=', '')
+            ->skip($offset)
+            ->take($limit)
             ->get();
+        $totalCalls = UserCalls::where('user_id', $user_id)
+            ->whereNotNull('started_time')
+            ->where('started_time', '!=', '')
+            ->count();
     } else {
         // Female: Check where call_user_id matches and started_time is not empty
         $calls = UserCalls::where('call_user_id', $user_id)
             ->whereNotNull('started_time')
             ->where('started_time', '!=', '')
+            ->skip($offset)
+            ->take($limit)
             ->get();
+        $totalCalls = UserCalls::where('call_user_id', $user_id)
+            ->whereNotNull('started_time')
+            ->where('started_time', '!=', '')
+            ->count();
     }
 
     // Check if no calls found
@@ -1650,28 +1684,27 @@ public function calls_list(Request $request)
             // Calculate difference in seconds
             $durationSeconds = $startTime->diffInSeconds($endTime);
             
-            // Convert total seconds to minutes and seconds
-            $durationMinutes = floor($durationSeconds / 60); // Minutes
-            $durationSeconds = $durationSeconds % 60; // Remaining seconds
+            // Convert total seconds to minutes (round up to the next minute)
+            $durationMinutes = ceil($durationSeconds / 60);
 
-            // Format duration as i:s (e.g., 5:45)
-            $duration = sprintf('%d:%02d', $durationMinutes, $durationSeconds);
+            // Format duration as minutes
+            $duration = sprintf('%d min', $durationMinutes);
         }
 
         // For female gender, we return income
         $income = $gender === 'female' ? $call->income : '';
 
         // Fetch user names for both user_id and call_user_id
-        $caller = users::find($call->user_id);
-        $receiver = users::find($call->call_user_id);
+        $caller = Users::find($call->user_id);
+        $receiver = Users::find($call->call_user_id);
 
         $avatar = null;
         $imageUrl = '';
         if ($gender === 'male' && $receiver) {
             $avatar = Avatars::find($receiver->avatar_id);
             $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
-        } elseif ($gender === 'female' && $receiver) {
-            $avatar = Avatars::find($receiver->avatar_id);
+        } elseif ($gender === 'female' && $caller) {
+            $avatar = Avatars::find($caller->avatar_id);
             $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         }
 
@@ -1679,7 +1712,7 @@ public function calls_list(Request $request)
         if ($gender === 'male') {
             // For male users, include audio and video status
             $callData[] = [
-                'id' =>$call->call_user_id,
+                'id' => $call->call_user_id,
                 'name' => $receiver ? $receiver->name : '',
                 'image' => $imageUrl,
                 'started_time' => $call->started_time ?? '',
@@ -1690,12 +1723,12 @@ public function calls_list(Request $request)
         } elseif ($gender === 'female') {
             // For female users, include income
             $callData[] = [
-                'id' =>$call->call_user_id,
-                'name' => $receiver ? $receiver->name : '',
+                'id' => $call->user_id,
+                'name' => $caller ? $caller->name : '',
                 'image' => $imageUrl,
                 'started_time' => $call->started_time ?? '',
                 'duration' => $duration,
-                'income' => $income, 
+                'income' => $income,
             ];
         }
     }
@@ -1704,6 +1737,7 @@ public function calls_list(Request $request)
     return response()->json([
         'success' => true,
         'message' => 'Calls listed successfully.',
+        'total' => $totalCalls,
         'data' => $callData,
     ], 200);
 }
@@ -1763,15 +1797,15 @@ public function female_call_attend(Request $request)
     $userCall->save();
 
     // Find the user and fetch balance time
-    $user = users::find($user_id);
+    $user = Users::find($user_id);
     $coins = $user ? $user->coins : 0;
     $minutes = floor($coins / 10); // For every 10 coins, 1 minute
     $seconds = 0;
     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
 
     // Fetch names and avatar images for caller and receiver
-    $caller = users::find($userCall->user_id);
-    $receiver = users::find($userCall->call_user_id);
+    $caller = Users::find($userCall->user_id);
+    $receiver = Users::find($userCall->call_user_id);
 
     $callerAvatar = Avatars::find($caller->avatar_id);
     $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
@@ -1864,5 +1898,4 @@ public function reports(Request $request)
         ]],
     ], 200);
 }
-
 }
