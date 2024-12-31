@@ -343,69 +343,93 @@ class AuthController extends Controller
 }
     public function userdetails(Request $request)
     {
-        $users = auth('api')->user(); // Retrieve the authenticated user
+        $authenticatedUser = auth('api')->user(); // Retrieve the authenticated user
 
-        if (empty($users)) {
+        if (empty($authenticatedUser)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to retrieve user details.',
             ], 200);
         }
 
-        $avatar = Avatars::find($users->avatar_id);
+        $user_id = $request->input('user_id');
+        
+        if (empty($user_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user_id is empty.',
+            ], 200);
+        }
+
+        $user = Users::find($user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 200);
+        }
+
+        $avatar = Avatars::find($user->avatar_id);
         $gender = $avatar ? $avatar->gender : '';
 
         $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
-        $voicePath = $users && $users->voice ? asset('storage/app/public/voices/' . $users->voice) : '';
+        $voicePath = $user && $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
 
-        $upi = Upis::where('user_id', $users->id)->first();
+        $upi = Upis::where('user_id', $user->id)->first();
         $upi_id = $upi ? $upi->upi_id : '';
 
         return response()->json([
             'success' => true,
             'message' => 'User details retrieved successfully.',
             'data' => [
-                'id' => $users->id,
-                'name' => $users->name,
-                'user_gender' => $users->gender,
-                'avatar_id' => (int) $users->avatar_id,
+                'id' => $user->id,
+                'name' => $user->name,
+                'user_gender' => $user->gender,
+                'avatar_id' => (int) $user->avatar_id,
                 'image' => $imageUrl ?? '',
                 'gender' => $gender,
-                'language' => $users->language,
-                'age' => (int) $users->age ?? '',
-                'mobile' => $users->mobile ?? '',
-                'interests' => $users->interests ?? '',
-                'describe_yourself' => $users->describe_yourself ?? '',
+                'language' => $user->language,
+                'age' => (int) $user->age ?? '',
+                'mobile' => $user->mobile ?? '',
+                'interests' => $user->interests ?? '',
+                'describe_yourself' => $user->describe_yourself ?? '',
                 'voice' => $voicePath ?? '',
-                'status' => $users->status ?? '',
-                'balance' => (int) $users->balance ?? '',
-                'coins' => (int) $users->coins ?? '',
-                'audio_status' => (int) $users->audio_status ?? '',
-                'video_status' => (int) $users->video_status ?? '',
-                'bank' => $users->bank ?? '',
-                'account_num' => $users->account_num ?? '',
-                'branch' => $users->branch ?? '',
-                'ifsc' => $users->ifsc ?? '',
-                'holder_name' => $users->holder_name ?? '',
+                'status' => $user->status ?? '',
+                'balance' => (int) $user->balance ?? '',
+                'coins' => (int) $user->coins ?? '',
+                'audio_status' => (int) $user->audio_status ?? '',
+                'video_status' => (int) $user->video_status ?? '',
+                'bank' => $user->bank ?? '',
+                'account_num' => $user->account_num ?? '',
+                'branch' => $user->branch ?? '',
+                'ifsc' => $user->ifsc ?? '',
+                'holder_name' => $user->holder_name ?? '',
                 'upi_id' => $upi_id,
-                'datetime' => Carbon::parse($users->datetime)->format('Y-m-d H:i:s'),
-                'updated_at' => Carbon::parse($users->updated_at)->format('Y-m-d H:i:s'),
-                'created_at' => Carbon::parse($users->created_at)->format('Y-m-d H:i:s'),
+                'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::parse($user->updated_at)->format('Y-m-d H:i:s'),
+                'created_at' => Carbon::parse($user->created_at)->format('Y-m-d H:i:s'),
             ],
         ], 200);
     }
     public function coins_list(Request $request)
     {
-        $user = auth('api')->user(); // Retrieve the authenticated user
-        
-        if (empty($user)) {
+        $authenticatedUser = auth('api')->user();
+        if (!$authenticatedUser) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to retrieve user details.',
-            ], 200);
+                'message' => 'Unauthorized. Please provide a valid token.',
+            ], 401);
         }
     
-        $user_id = $user->id; // Get the authenticated user's ID
+        $user_id = $request->input('user_id');
+        
+        if (empty($user_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user_id is empty.',
+            ], 200);
+        }
         $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
         $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
     
@@ -444,16 +468,14 @@ class AuthController extends Controller
 
     public function best_offers(Request $request)
 {
-    $user = auth('api')->user(); // Retrieve the authenticated user
-
-    if (empty($user)) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
-            'message' => 'Unable to retrieve user details.',
-        ], 200);
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
     }
 
-    $user_id = $user->id; // Get the authenticated user's ID
     $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
     $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
 
@@ -496,16 +518,23 @@ class AuthController extends Controller
     
     public function transaction_list(Request $request)
     {
-        $user = auth('api')->user(); // Retrieve the authenticated user
-    
-        if (empty($user)) {
+        $authenticatedUser = auth('api')->user();
+        if (!$authenticatedUser) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to retrieve user details.',
-            ], 200);
+                'message' => 'Unauthorized. Please provide a valid token.',
+            ], 401);
         }
     
-        $user_id = $user->id; // Get the authenticated user's ID
+        $user_id = $request->input('user_id');
+        
+        if (empty($user_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user_id is empty.',
+            ], 200);
+        }
+
         $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
         $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
     
@@ -730,16 +759,14 @@ public function appsettings_list(Request $request)
 
 public function delete_users(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user();
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
-
-    $user_id = $user->id;
+    $user_id = $request->input('user_id');
     $delete_reason = $request->input('delete_reason');
 
     if (empty($user_id)) {
@@ -789,16 +816,15 @@ public function delete_users(Request $request)
 
 public function user_validations(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user();
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
 
-    $user_id = $user->id;
+    $user_id = $request->input('user_id');
     $name = $request->input('name');
 
     if (empty($user_id)) {
@@ -889,16 +915,15 @@ public function user_validations(Request $request)
 
 public function update_voice(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user();
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
 
-    $user_id = $user->id;
+    $user_id = $request->input('user_id');
     $voice = $request->file('voice');
 
     if (empty($user_id)) {
@@ -1016,8 +1041,8 @@ public function speech_text(Request $request)
 
 public function female_users_list(Request $request)
 {
-    $user = auth('api')->user();
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
@@ -1087,17 +1112,14 @@ public function female_users_list(Request $request)
 public function withdrawals_list(Request $request)
 {
 
-      // Retrieve the authenticated user
-      $user = auth('api')->user(); // This checks if the user is authenticated
-
-      if (!$user) {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized. Please provide a valid token.',
-          ], 401); // Return a 401 Unauthorized if no user is authenticated
-      }
-    // Retrieve user_id, offset, and limit from request
-    $user_id = $user->id;
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+      $user_id = $request->input('user_id');
     $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
     $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
 
@@ -1153,17 +1175,15 @@ public function withdrawals_list(Request $request)
 
 public function calls_status_update(Request $request)
 {
-      // Retrieve the authenticated user
-      $user = auth('api')->user(); // This checks if the user is authenticated
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+      $user_id = $request->input('user_id');
 
-      if (!$user) {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized. Please provide a valid token.',
-          ], 401); // Return a 401 Unauthorized if no user is authenticated
-      }
-    // Retrieve input values
-    $user_id = $user->id;
     $call_type = $request->input('call_type'); // Should be 'audio' or 'video'
     $status = $request->input('status');       // Should be 1 or 0
 
@@ -1254,17 +1274,14 @@ public function calls_status_update(Request $request)
 
 public function call_female_user(Request $request)
 {
-      // Retrieve the authenticated user
-      $user = auth('api')->user(); // This checks if the user is authenticated
-
-      if (!$user) {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized. Please provide a valid token.',
-          ], 401); // Return a 401 Unauthorized if no user is authenticated
-      }
-    // Retrieve input values
-    $user_id = $user->id;
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+      $user_id = $request->input('user_id');
     $call_user_id = $request->input('call_user_id');
     $call_type = $request->input('call_type');
 
@@ -1390,17 +1407,14 @@ public function call_female_user(Request $request)
 }
 public function random_user(Request $request)
 {
-      // Retrieve the authenticated user
-      $user = auth('api')->user(); // This checks if the user is authenticated
-
-      if (!$user) {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized. Please provide a valid token.',
-          ], 401); // Return a 401 Unauthorized if no user is authenticated
-      }
-    // Retrieve input values
-    $user_id = $user->id;
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+      $user_id = $request->input('user_id');
     $call_type = $request->input('call_type'); // Should be 'audio' or 'video'
 
     // Validate user_id
@@ -1524,16 +1538,14 @@ public function random_user(Request $request)
 
 public function update_connected_call(Request $request)
 {
-      // Retrieve the authenticated user
-      $user = auth('api')->user(); // This checks if the user is authenticated
-
-      if (!$user) {
-          return response()->json([
-              'success' => false,
-              'message' => 'Unauthorized. Please provide a valid token.',
-          ], 401); // Return a 401 Unauthorized if no user is authenticated
-      }
-      $user_id = $user->id;
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+      $user_id = $request->input('user_id');
     $call_id = $request->input('call_id'); 
     $started_time = $request->input('started_time'); 
     $ended_time = $request->input('ended_time'); 
@@ -1652,17 +1664,15 @@ public function update_connected_call(Request $request)
 
 public function calls_list(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user(); // This checks if the user is authenticated
-
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401); // Return a 401 Unauthorized if no user is authenticated
+        ], 401);
     }
 
-    $user_id = $user->id;
+    $user_id = $request->input('user_id');
     $gender = $request->input('gender');
     $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
     $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
@@ -1806,18 +1816,16 @@ public function calls_list(Request $request)
 
 public function female_call_attend(Request $request)
 {
-      // Retrieve the authenticated user
-    $user = auth('api')->user(); // This checks if the user is authenticated
-
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401); // Return a 401 Unauthorized if no user is authenticated
+        ], 401);
     }
     // Retrieve input values
     $call_id = $request->input('call_id');
-    $user_id = $user->id;
+    $user_id = $request->input('user_id');
     $started_time = $request->input('started_time');
 
     if (empty($call_id)) {
@@ -1900,18 +1908,16 @@ public function female_call_attend(Request $request)
 
 public function reports(Request $request)
 {
-    // Retrieve the authenticated user
-    $user = auth('api')->user(); // This checks if the user is authenticated
-
-    if (!$user) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
             'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401); // Return a 401 Unauthorized if no user is authenticated
+        ], 401);
     }
 
     // Use the authenticated user's ID
-    $user_id = $user->id;
+    $user_id = $request->input('user_id');
 
     // Fetch the user based on authenticated user's ID to check if the user is female
     $user = users::find($user_id);
@@ -1954,21 +1960,27 @@ public function reports(Request $request)
 }
 public function update_bank(Request $request)
 {
-    $users = auth('api')->user(); // Retrieve the authenticated user
-    
-    if (empty($users)) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
-            'message' => 'Unable to retrieve user details.',
-        ], 200);
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
     }
-    $user_id = $users->id; // Get user_id from authenticated user
+ 
+    $user_id = $request->input('user_id');
     $bank = $request->input('bank');
     $account_num = $request->input('account_num');
     $branch = $request->input('branch');
     $ifsc = $request->input('ifsc');
     $holder_name = $request->input('holder_name');
 
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
     if (empty($bank)) {
         return response()->json([
             'success' => false,
@@ -2066,21 +2078,26 @@ public function update_bank(Request $request)
 
 public function update_upi(Request $request)
 {
-    $users = auth('api')->user(); // Retrieve the authenticated user
-    
-    if (empty($users)) {
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
-            'message' => 'Unable to retrieve user details.',
-        ], 200);
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
     }
-    $user_id = $users->id; // Get user_id from authenticated user
+    $user_id = $request->input('user_id');
     $upi_id = $request->input('upi_id');
 
     if (empty($upi_id)) {
         return response()->json([
             'success' => false,
             'message' => 'upi_id is empty.',
+        ], 200);
+    }
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
         ], 200);
     }
 
@@ -2143,27 +2160,51 @@ public function update_upi(Request $request)
 }
 public function withdrawals(Request $request)
 {
-    $users = auth('api')->user(); // Retrieve the authenticated user
-    
-    if (empty($users)) {
+    // Authenticate user
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
         return response()->json([
             'success' => false,
-            'message' => 'Unable to retrieve user details.',
-        ], 200);
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
     }
-    $user_id = $users->id; // Get user_id from authenticated user
-    $amount = $request->input('amount');
-    $type = $request->input('type'); 
 
-    // Check if the amount is provided
+    // Retrieve the user ID from the request
+    $user_id = $request->input('user_id');
+    $amount = $request->input('amount');
+    $type = $request->input('type');
+
+    // Validate input fields
     if (empty($amount)) {
         return response()->json([
             'success' => false,
             'message' => 'Amount is empty.',
         ], 200);
     }
+    
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User ID is required.',
+        ], 200);
+    }
+     // Retrieve the user by ID
+     $user = Users::find($user_id);
 
-    // Check if the type is provided (either 'bank_transfer' or 'upi_transfer')
+     if (!$user) {
+         return response()->json([
+             'success' => false,
+             'message' => 'User not found.',
+         ], 404);
+     }
+
+    if (!is_numeric($amount) || $amount <= 0) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Amount must be a positive number.',
+        ], 200);
+    }
+
     if (empty($type)) {
         return response()->json([
             'success' => false,
@@ -2171,20 +2212,24 @@ public function withdrawals(Request $request)
         ], 200);
     }
 
-    // Get the user's balance from the Users table
-    $user_balance = $users->balance;
+    if (!in_array($type, ['bank_transfer', 'upi_transfer'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid transfer type. Use either "bank_transfer" or "upi_transfer".',
+        ], 200);
+    }
 
-    // Check if the amount exceeds the user's available balance
-    if ($amount > $user_balance) {
+    // Check user's balance
+    if ($user->balance < $amount) {
         return response()->json([
             'success' => false,
             'message' => 'Insufficient balance.',
         ], 200);
     }
 
-    // Check if the user has pending withdrawal
+    // Check for pending withdrawals
     $pendingWithdrawal = Withdrawals::where('user_id', $user_id)
-                                     ->where('status', 0)  // Status 0 means pending
+                                     ->where('status', 0) // Pending status
                                      ->first();
 
     if ($pendingWithdrawal) {
@@ -2194,19 +2239,18 @@ public function withdrawals(Request $request)
         ], 200);
     }
 
-    // Check if the type is bank_transfer
-    if ($type == 'bank_transfer') {
-        // Check if the user has bank details in the Users table
-        if (empty($users->account_num) || empty($users->holder_name) || empty($users->bank) || empty($users->branch) || empty($users->ifsc)) {
+    // Handle bank transfer
+    if ($type === 'bank_transfer') {
+        if (empty($user->account_num) || empty($user->holder_name) || empty($user->bank) || empty($user->branch) || empty($user->ifsc)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please update your bank details before making a withdrawal.',
             ], 200);
         }
     }
-    // Check if the type is upi_transfer
-    elseif ($type == 'upi_transfer') {
-        // Check if the user has a UPI ID
+
+    // Handle UPI transfer
+    if ($type === 'upi_transfer') {
         $upi = upis::where('user_id', $user_id)->first();
 
         if (!$upi || empty($upi->upi_id)) {
@@ -2215,33 +2259,27 @@ public function withdrawals(Request $request)
                 'message' => 'Please update your UPI ID before making a withdrawal.',
             ], 200);
         }
-    } else {
-        // If type is not valid
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid transfer type. Use either "bank_transfer" or "upi_transfer".',
-        ], 200);
     }
 
-    // Deduct the withdrawal amount from the Users table balance
-    $users->balance -= $amount;
-    $users->save(); // Save the updated user balance
+    // Deduct the withdrawal amount from the user's balance
+    $user->balance -= $amount;
+    $user->save();
 
-    // Insert the withdrawal into the Withdrawals table with specific withdrawal_date and status = 0 (pending)
+    // Create the withdrawal record
     Withdrawals::create([
         'user_id' => $user_id,
         'amount' => $amount,
-        'datetime' => now(), // Set the current datetime
-        'status' => 0, // Set status to 0 for pending withdrawal
+        'datetime' => now(),
+        'status' => 0, // Pending
         'type' => $type,
     ]);
 
-    // Return response with the updated user balance
     return response()->json([
         'success' => true,
-        'message' => 'Withdrawal successful.',
-        'balance' => $users->balance,
+        'message' => 'Withdrawal request submitted successfully.',
+        'balance' => $user->balance,
     ], 200);
 }
+
 
 }
