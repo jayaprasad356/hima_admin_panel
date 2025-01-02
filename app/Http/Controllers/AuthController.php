@@ -1564,6 +1564,13 @@ public function update_connected_call(Request $request)
             'message' => 'user_id is empty.',
         ], 200);
     }
+    $user = users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found for the provided user_id.',
+        ], 200);
+    }
 
     if (empty($call_id)) {
         return response()->json([
@@ -1860,6 +1867,13 @@ public function female_call_attend(Request $request)
         return response()->json([
             'success' => false,
             'message' => 'user_id is empty.',
+        ], 200);
+    }
+    $user = users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found for the provided user_id.',
         ], 200);
     }
 
