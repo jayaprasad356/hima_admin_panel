@@ -30,7 +30,7 @@ use Kreait\Firebase\ServiceAccount;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins']]);
     }
  
     public function register(Request $request)
@@ -2422,13 +2422,7 @@ public function ratings(Request $request)
 
 public function add_coins(Request $request)
 {
-    $authenticatedUser = auth('api')->user();
-    if (!$authenticatedUser) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthorized. Please provide a valid token.',
-        ], 401);
-    }
+  
     $user_id = $request->input('user_id'); 
     $coins_id = $request->input('coins_id');
 
