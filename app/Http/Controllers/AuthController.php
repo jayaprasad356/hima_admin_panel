@@ -11,6 +11,7 @@ use App\Models\Avatars;
 use App\Models\Coins;
 use App\Models\SpeechText;  
 use App\Models\Appsettings; 
+use App\Models\Ratings; 
 use App\Models\Transactions;
 use App\Models\DeletedUsers; 
 use App\Models\Withdrawals;  
@@ -1421,7 +1422,7 @@ public function random_user(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
-      $user_id = $request->input('user_id');
+    $user_id = $request->input('user_id');
     $call_type = $request->input('call_type'); // Should be 'audio' or 'video'
 
     // Validate user_id
@@ -1456,16 +1457,21 @@ public function random_user(Request $request)
         ], 200);
     }
 
-    if ($user->coins < 10) {
+    if ($call_type == 'video' && $user->coins < 60) {
         return response()->json([
             'success' => false,
-            'message' => 'Insufficient coins.',
+            'message' => 'Insufficient coins for video call. Minimum 60 coins required.',
+        ], 200);
+    } elseif ($call_type == 'audio' && $user->coins < 10) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Insufficient coins for audio call. Minimum 10 coins required.',
         ], 200);
     }
 
     $balance_time = '';
     $coins = $user->coins;
-    
+
     // Calculate balance time in minutes and seconds
     $minutes = floor($coins / 10); // For every 10 coins, 1 minute
     $seconds = 0; // Assume no partial seconds for simplicity
@@ -1492,8 +1498,6 @@ public function random_user(Request $request)
         ], 200);
     }
 
-  
-
     // Insert call data into users_call table
     $usersCalls = UserCalls::create([
         'user_id' => $user->id,
@@ -1509,16 +1513,14 @@ public function random_user(Request $request)
     $caller = users::find($insertedCallData->user_id);
     $receiver = users::find($insertedCallData->call_user_id);
 
-
     // Fetch avatar image for receiver
     $receiverAvatar = Avatars::find($receiver->avatar_id);
     $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
 
-       // Fetch avatar image for caller if needed
-       $callerAvatar = Avatars::find($caller->avatar_id);
-       $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
-   
-   
+    // Fetch avatar image for caller if needed
+    $callerAvatar = Avatars::find($caller->avatar_id);
+    $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
+
     // Return response with success and inserted call data
     return response()->json([
         'success' => true,
@@ -1535,13 +1537,12 @@ public function random_user(Request $request)
             'started_time' => $insertedCallData->started_time ?? '',
             'ended_time' => $insertedCallData->ended_time ?? '',
             'coins_spend' => $insertedCallData->coins_spend ?? '',
-            'income' => $insertedCallData->income?? '',
+            'income' => $insertedCallData->income ?? '',
             'balance_time' => $balance_time,
             'date_time' => Carbon::parse($insertedCallData->date_time)->format('Y-m-d H:i:s'),
         ],
     ], 200);
 }
-
 
 public function update_connected_call(Request $request)
 {
@@ -2320,6 +2321,103 @@ public function withdrawals(Request $request)
         'message' => 'Withdrawal request submitted successfully.',
         'balance' => $user->balance,
     ], 200);
+}
+
+
+public function ratings(Request $request)
+{
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+
+    $user_id = $request->input('user_id');
+    $call_user_id = $request->input('call_user_id');
+    $ratings = $request->input('ratings');
+    $description = $request->input('description');
+    $title = $request->input('title');
+
+    // Validate input
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'user_id is empty.'
+        ], 200);
+    }
+    if (empty($call_user_id)) {
+        return response()->json([
+            'success' => false,
+             'message' => 'call_user_id is empty.'
+        ], 200);
+    }
+    if (empty($ratings)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'ratings is empty.'
+        ], 200);
+    }
+    if (empty($title)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'title is empty.'
+        ], 200);
+    }
+    if (empty($description)) {
+        return response()->json([
+            'success' => false,
+             'message' => 'description is empty.'
+        ], 200);
+    }
+
+    // Validate users
+    $user = Users::find($user_id);
+    $callUser = Users::find($call_user_id);
+
+    if (!$user) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'User not found.'
+        ], 200);
+    }
+    if (!$callUser) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'Call user not found.'
+        ], 200);
+    }
+
+    // Insert into ratings table
+    $rating = new Ratings(); // Ensure you have a Rating model for the ratings table
+    $rating->user_id = $user_id;
+    $rating->call_user_id = $call_user_id;
+    $rating->ratings = $ratings;
+    $rating->title = $title;
+    $rating->description = $description;
+
+    if ($rating->save()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Ratings inserted successfully.',
+            'data' => [[
+                'id' => $rating->id,
+                'user_id' => $rating->user_id,
+                'call_user_id' => $rating->call_user_id,
+                'ratings' => number_format($rating->ratings, 1), // Format ratings to one decimal place
+                'title' => $rating->title,
+                'description' => $rating->description,
+                'updated_at' => $rating->updated_at->format('Y-m-d H:i:s'),
+                'created_at' => $rating->created_at->format('Y-m-d H:i:s'),
+            ]],
+        ], 200);
+    }
+
+    return response()->json([
+        'success' => false, 
+        'message' => 'Failed to insert ratings.'
+    ], 500);
 }
 
 

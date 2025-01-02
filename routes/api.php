@@ -66,4 +66,5 @@ Route::group([
     Route::post('update_upi', [AuthController::class, 'update_upi']);
     Route::post('withdrawals', [AuthController::class, 'withdrawals']);
     Route::post('withdrawals_list', [AuthController::class, 'withdrawals_list']);
+    Route::post('ratings', [AuthController::class, 'ratings']);
 });
