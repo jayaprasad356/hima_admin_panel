@@ -430,6 +430,13 @@ class AuthController extends Controller
                 'message' => 'user_id is empty.',
             ], 200);
         }
+        $user = users::find($user_id);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user not found.',
+            ], 200);
+        }
         $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
         $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
     
@@ -1598,12 +1605,26 @@ public function update_connected_call(Request $request)
     $call = UserCalls::where('id', $call_id)->first();
 
     if (!$call) {
-        return response()->json([ 
+        return response()->json([
             'success' => false,
-            'message' => 'Call not found.',
+             'message' => 'Call not found.'
         ], 200);
     }
-    
+
+    if ($call->user_id != $user_id) {
+        return response()->json([
+            'success' => false,
+             'message' => 'No matching record found for the provided call_id and user_id.'
+        ], 200);
+    }
+
+    if (!empty($call->started_time)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'Call has already been updated.'
+        ], 200);
+    }
+
     $user = users::find($user_id);
 
     // Convert the times to Carbon instances with today's date
@@ -1859,6 +1880,12 @@ public function female_call_attend(Request $request)
         return response()->json([
             'success' => false,
             'message' => 'No matching record found for the provided call_id and user_id.',
+        ], 200);
+    }
+    if (!empty($userCall->started_time)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'started_time has already been updated.',
         ], 200);
     }
 
