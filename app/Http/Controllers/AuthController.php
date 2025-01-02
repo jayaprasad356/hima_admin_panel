@@ -2420,5 +2420,90 @@ public function ratings(Request $request)
     ], 500);
 }
 
+public function add_coins(Request $request)
+{
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+    $user_id = $request->input('user_id'); 
+    $coins_id = $request->input('coins_id');
 
+    // Validate user_id
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+
+    // Validate points_id
+    if (empty($coins_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'coins_id is empty.',
+        ], 200);
+    }
+
+    // Check if user exists
+    $user = Users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found.',
+        ], 200);
+    }
+
+    // Check if points entry exists
+    $coins_entry = Coins::find($coins_id);
+    if (!$coins_entry) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Coins entry not found.',
+        ], 200);
+    }
+
+    // Get points from the points entry
+    $coins = $coins_entry->coins;
+    $price = $coins_entry->price;
+
+    // Add points to the user's points field
+    $user->coins += $coins;
+    $user->total_coins += $coins;
+    if (!$user->save()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update user coins.',
+        ], 500);
+    }
+
+    // Record the transaction
+    $transaction = new Transactions();
+    $transaction->user_id = $user_id;
+    $transaction->coins = $coins;
+    $transaction->type = 'add_coins';
+    $transaction->amount = $price;
+    $transaction->datetime = now();
+
+    if (!$transaction->save()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to save transaction.',
+        ], 500);
+    }
+    $user = Users::select('name', 'coins', 'total_coins')->find($user_id);
+    // Return success response
+    return response()->json([
+        'success' => true,
+        'message' => 'Coins added successfully.',
+        'data' => [
+            'name' => $user->name,
+            'coins' => (string) $user->coins,
+            'total_coins' => (string) $user->total_coins,
+        ],
+    ], 200);
+}
 }

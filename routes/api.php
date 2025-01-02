@@ -67,4 +67,5 @@ Route::group([
     Route::post('withdrawals', [AuthController::class, 'withdrawals']);
     Route::post('withdrawals_list', [AuthController::class, 'withdrawals_list']);
     Route::post('ratings', [AuthController::class, 'ratings']);
+    Route::post('add_coins', [AuthController::class, 'add_coins']);
 });
