@@ -1350,10 +1350,15 @@ public function call_female_user(Request $request)
         ], 200);
     }
 
-    if ($user->coins < 10) {
+    if ($call_type == 'video' && $user->coins < 60) {
         return response()->json([
             'success' => false,
-            'message' => 'Insufficient coins.',
+            'message' => 'Insufficient coins for video call. Minimum 60 coins required.',
+        ], 200);
+    } elseif ($call_type == 'audio' && $user->coins < 10) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Insufficient coins for audio call. Minimum 10 coins required.',
         ], 200);
     }
 
@@ -1553,7 +1558,7 @@ public function update_connected_call(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
-      $user_id = $request->input('user_id');
+    $user_id = $request->input('user_id');
     $call_id = $request->input('call_id'); 
     $started_time = $request->input('started_time'); 
     $ended_time = $request->input('ended_time'); 
@@ -1776,6 +1781,18 @@ public function calls_list(Request $request)
     // Prepare the call data
     $callData = [];
     foreach ($calls as $call) {
+        if ($gender === 'male') {
+            $receiver = Users::find($call->call_user_id);
+            if (!$receiver) {
+                continue; // Skip this call if call_user_id doesn't exist in Users
+            }
+        }
+        if ($gender === 'female') {
+            $caller = Users::find($call->user_id);
+            if (!$caller) {
+                continue; // Skip this call if user_id doesn't exist in Users
+            }
+        }
         // Calculate duration if gender is male
         $duration = '';
         if ($call->started_time && $call->ended_time) {
@@ -1818,8 +1835,8 @@ public function calls_list(Request $request)
                 'image' => $imageUrl,
                 'started_time' => $call->started_time ?? '',
                 'duration' => $duration,
-                'audio_status' => $receiver->audio_status,
-                'video_status' => $receiver->video_status,
+                'audio_status' => $receiver->audio_status ?? '',
+                'video_status' => $receiver->video_status ?? '',
             ];
         } elseif ($gender === 'female') {
             // For female users, include income
@@ -1944,6 +1961,66 @@ public function female_call_attend(Request $request)
             'income' => $userCall->income ?? '',
             'remaining_time' => $balance_time,
             'date_time' => Carbon::parse($userCall->date_time)->format('Y-m-d H:i:s'),
+        ],
+    ], 200);
+}
+
+public function get_remaining_time(Request $request)
+{
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+    $user_id = $request->input('user_id');
+    $call_type = $request->input('call_type');
+
+
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+    $user = users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found for the provided user_id.',
+        ], 200);
+    }
+
+    if (empty($call_type)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'call_type is empty.',
+        ], 200);
+    }
+
+    // Validate call_type
+    if (!in_array($call_type, ['audio', 'video'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid call_type. It must be either "audio" or "video".',
+        ], 200);
+    }
+
+    // Find the user and fetch balance time
+    $user = Users::find($user_id);
+    $coins = $user ? $user->coins : 0;
+    $minutes = floor($coins / 10); // For every 10 coins, 1 minute
+    $seconds = 0;
+    $balance_time = sprintf('%d:%02d',$minutes, $seconds);
+
+    // Return response
+    return response()->json([
+        'success' => true,
+        'message' => 'Remaining Time Listed successfully.',
+        'data' => [
+            'remaining_time' => $balance_time,
+
         ],
     ], 200);
 }
