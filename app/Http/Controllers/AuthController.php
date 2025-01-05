@@ -1695,7 +1695,6 @@ public function update_connected_call(Request $request)
 }
 
 
-
 public function calls_list(Request $request)
 {
     $authenticatedUser = auth('api')->user();
@@ -1708,8 +1707,8 @@ public function calls_list(Request $request)
 
     $user_id = $request->input('user_id');
     $gender = $request->input('gender');
-    $offset = $request->input('offset', 0);  // Default offset to 0 if not provided
-    $limit = $request->input('limit', 10);  // Default limit to 10 if not provided
+    $offset = (int) $request->input('offset', 0); // Default offset to 0
+    $limit = (int) $request->input('limit', 10); // Default limit to 10
 
     // Validate user_id
     if (empty($user_id)) {
@@ -1743,35 +1742,46 @@ public function calls_list(Request $request)
         ], 200);
     }
 
-    // Query based on gender and filter out calls with empty started_time
+    // Query calls based on gender
+    $validCalls = [];
     if ($gender === 'male') {
-        // Male: Check where user_id matches and started_time is not empty
-        $calls = UserCalls::where('user_id', $user_id)
+        // Male: Get calls where user_id matches
+        $callsQuery = UserCalls::where('user_id', $user_id)
             ->whereNotNull('started_time')
-            ->where('started_time', '!=', '')
-            ->skip($offset)
-            ->take($limit)
-            ->get();
-        $totalCalls = UserCalls::where('user_id', $user_id)
-            ->whereNotNull('started_time')
-            ->where('started_time', '!=', '')
-            ->count();
+            ->where('started_time', '!=', '');
+
+        // Fetch all calls and filter valid ones
+        $calls = $callsQuery->get();
+        foreach ($calls as $call) {
+            $receiver = Users::find($call->call_user_id);
+            if ($receiver) {
+                $validCalls[] = $call;
+            }
+        }
     } else {
-        // Female: Check where call_user_id matches and started_time is not empty
-        $calls = UserCalls::where('call_user_id', $user_id)
+        // Female: Get calls where call_user_id matches
+        $callsQuery = UserCalls::where('call_user_id', $user_id)
             ->whereNotNull('started_time')
-            ->where('started_time', '!=', '')
-            ->skip($offset)
-            ->take($limit)
-            ->get();
-        $totalCalls = UserCalls::where('call_user_id', $user_id)
-            ->whereNotNull('started_time')
-            ->where('started_time', '!=', '')
-            ->count();
+            ->where('started_time', '!=', '');
+
+        // Fetch all calls and filter valid ones
+        $calls = $callsQuery->get();
+        foreach ($calls as $call) {
+            $caller = Users::find($call->user_id);
+            if ($caller) {
+                $validCalls[] = $call;
+            }
+        }
     }
 
+    // Calculate total valid calls
+    $totalCalls = count($validCalls);
+
+    // Apply offset and limit to valid calls
+    $calls = array_slice($validCalls, $offset, $limit);
+
     // Check if no calls found
-    if ($calls->isEmpty()) {
+    if (empty($calls)) {
         return response()->json([
             'success' => false,
             'message' => 'Data not found.',
@@ -1781,54 +1791,32 @@ public function calls_list(Request $request)
     // Prepare the call data
     $callData = [];
     foreach ($calls as $call) {
-        if ($gender === 'male') {
-            $receiver = Users::find($call->call_user_id);
-            if (!$receiver) {
-                continue; // Skip this call if call_user_id doesn't exist in Users
-            }
-        }
-        if ($gender === 'female') {
-            $caller = Users::find($call->user_id);
-            if (!$caller) {
-                continue; // Skip this call if user_id doesn't exist in Users
-            }
-        }
-        // Calculate duration if gender is male
+        // Calculate duration
         $duration = '';
         if ($call->started_time && $call->ended_time) {
             $startTime = Carbon::parse($call->started_time);
             $endTime = Carbon::parse($call->ended_time);
-
-            // Calculate difference in seconds
             $durationSeconds = $startTime->diffInSeconds($endTime);
-            
-            // Convert total seconds to minutes (round up to the next minute)
             $durationMinutes = ceil($durationSeconds / 60);
-
-            // Format duration as minutes
             $duration = sprintf('%d min', $durationMinutes);
         }
 
-        // For female gender, we return income
-        $income = $gender === 'female' ? $call->income : '';
-
-        // Fetch user names for both user_id and call_user_id
-        $caller = Users::find($call->user_id);
-        $receiver = Users::find($call->call_user_id);
-
+        // Prepare avatar and image URL
         $avatar = null;
         $imageUrl = '';
-        if ($gender === 'male' && $receiver) {
+        if ($gender === 'male') {
+            $receiver = Users::find($call->call_user_id);
             $avatar = Avatars::find($receiver->avatar_id);
             $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
-        } elseif ($gender === 'female' && $caller) {
+        } elseif ($gender === 'female') {
+            $caller = Users::find($call->user_id);
             $avatar = Avatars::find($caller->avatar_id);
             $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         }
 
-        // Add data to response array based on gender
+        // Add data to response array
         if ($gender === 'male') {
-            // For male users, include audio and video status
+            $receiver = Users::find($call->call_user_id);
             $callData[] = [
                 'id' => $call->call_user_id,
                 'name' => $receiver ? $receiver->name : '',
@@ -1839,19 +1827,19 @@ public function calls_list(Request $request)
                 'video_status' => $receiver->video_status ?? '',
             ];
         } elseif ($gender === 'female') {
-            // For female users, include income
+            $caller = Users::find($call->user_id);
             $callData[] = [
                 'id' => $call->user_id,
                 'name' => $caller ? $caller->name : '',
                 'image' => $imageUrl,
                 'started_time' => $call->started_time ?? '',
                 'duration' => $duration,
-                'income' => $income,
+                'income' => $call->income ?? '',
             ];
         }
     }
 
-    // Return the call data response
+    // Return the response with valid data
     return response()->json([
         'success' => true,
         'message' => 'Calls listed successfully.',
