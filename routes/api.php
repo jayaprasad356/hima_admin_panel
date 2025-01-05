@@ -58,6 +58,7 @@ Route::group([
     Route::post('calls_status_update', [AuthController::class, 'calls_status_update']);
     Route::post('random_user', [AuthController::class, 'random_user']);
     Route::post('update_connected_call', [AuthController::class, 'update_connected_call']);
+    Route::post('individual_update_connected_call', [AuthController::class, 'individual_update_connected_call']);
     Route::post('calls_list', [AuthController::class, 'calls_list']);
     Route::post('call_female_user', [AuthController::class, 'call_female_user']);
     Route::post('female_call_attend', [AuthController::class, 'female_call_attend']);

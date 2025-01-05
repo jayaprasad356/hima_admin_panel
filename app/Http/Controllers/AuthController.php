@@ -1694,7 +1694,143 @@ public function update_connected_call(Request $request)
     ], 200);
 }
 
+public function individual_update_connected_call(Request $request)
+{
+    $authenticatedUser = auth('api')->user();
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+    $user_id = $request->input('user_id');
+    $call_id = $request->input('call_id'); 
+    $started_time = $request->input('started_time'); 
+    $ended_time = $request->input('ended_time'); 
 
+    // Validate user_id
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+    $user = users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found for the provided user_id.',
+        ], 200);
+    }
+
+    if (empty($call_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'call_id is empty.',
+        ], 200);
+    }
+
+    if (empty($started_time)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'started_time is empty.',
+        ], 200);
+    }
+
+    if (empty($ended_time)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'ended_time is empty.',
+        ], 200);
+    }
+
+    $timeFormat = 'H:i:s';
+    
+    if (!Carbon::hasFormat($started_time, $timeFormat)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'started_time must be in H:i:s format (e.g., 14:00:00).'
+        ], 200);
+    }
+    
+    if (!Carbon::hasFormat($ended_time, $timeFormat)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'ended_time must be in H:i:s format (e.g., 14:00:00).'
+        ], 200);
+    }
+
+    $call = UserCalls::where('id', $call_id)->first();
+
+    if (!$call) {
+        return response()->json([
+            'success' => false,
+             'message' => 'Call not found.'
+        ], 200);
+    }
+
+    if ($call->user_id != $user_id) {
+        return response()->json([
+            'success' => false,
+             'message' => 'No matching record found for the provided call_id and user_id.'
+        ], 200);
+    }
+
+    $user = users::find($user_id);
+
+    // Convert the times to Carbon instances with today's date
+    $currentDate = Carbon::now()->format('Y-m-d'); // Current date
+    $startTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $started_time"); // Add the date
+    $endTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $ended_time"); // Add the date
+
+    // Calculate the duration in seconds
+    $durationSeconds = $endTime->diffInSeconds($startTime);
+
+    // Calculate duration in minutes (ensure at least 1 minute)
+    $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
+
+    // Calculate spend coins and income
+    $coinsPerMinute = 10;
+    $incomePerMinute = 2;
+
+    $coins_spend = $durationMinutes * $coinsPerMinute;
+    $income = $durationMinutes * $incomePerMinute;
+
+    // Only deduct coins if the duration is 10 seconds or more
+    if ($durationSeconds >= 10) {
+        $user->coins -= $coins_spend; // Deduct coins only if duration >= 10 seconds
+        $user->save();
+    } else {
+        $coins_spend = 0; // No coins deducted if duration is less than 10 seconds
+        $income = 0; // No coins deducted if duration is less than 10 seconds
+    }
+
+    // Update call details
+    $call->started_time = $startTime->format('H:i:s');
+    $call->ended_time = $endTime->format('H:i:s'); 
+    $call->coins_spend = $coins_spend;
+    $call->income = $income;
+    $call->save();
+
+    $receiver = users::find($call->call_user_id);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Individual Connected call updated successfully.',
+        'data' => [
+            'call_id' => $call->id,
+            'user_id' => $call->user_id,
+            'user_name' => $user->name,
+            'call_user_id' => $call->call_user_id,
+            'call_user_name' => $receiver ? $receiver->name : '',
+            'coins_spend' => $call->coins_spend,
+            'income' => $call->income,
+            'started_time' => $call->started_time,
+            'ended_time' => $call->ended_time,
+            'date_time' => Carbon::parse($call->datetime)->format('Y-m-d H:i:s'),
+        ],
+    ], 200);
+}
 public function calls_list(Request $request)
 {
     $authenticatedUser = auth('api')->user();
