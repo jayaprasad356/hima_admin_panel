@@ -1631,7 +1631,7 @@ public function update_connected_call(Request $request)
         ], 200);
     }
 
-    if (!empty($call->started_time)) {
+    if (!empty($call->ended_time)) {
         return response()->json([
             'success' => false, 
             'message' => 'Call has already been updated.'
