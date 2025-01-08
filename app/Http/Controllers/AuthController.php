@@ -1657,6 +1657,7 @@ public function update_connected_call(Request $request)
     // Calculate the duration in seconds
     $durationSeconds = $endTime->diffInSeconds($startTime);
 
+
     // Handle calls with less than 10 seconds duration
     if ($durationSeconds < 10) {
         DB::table('not_repeat_call_users')->insert([
@@ -1668,13 +1669,19 @@ public function update_connected_call(Request $request)
             'updated_at' => Carbon::now(),
         ]);
     }
+    $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
     // Calculate duration in minutes (ensure at least 1 minute)
     $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
 
-    // Calculate spend coins and income
-    $coinsPerMinute = 10;
-    $incomePerMinute = 2;
+    
+    if ($callType == 'audio') {
+        $coinsPerMinute = 10;
+        $incomePerMinute = 2;
+    } elseif ($callType == 'video') {
+        $coinsPerMinute = 60;
+        $incomePerMinute = 10;
+    }
 
     $coins_spend = $durationMinutes * $coinsPerMinute;
     $income = $durationMinutes * $incomePerMinute;
@@ -1836,12 +1843,18 @@ public function individual_update_connected_call(Request $request)
         ]);
     }
 
+    $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
+
     // Calculate duration in minutes (ensure at least 1 minute)
     $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
 
-    // Calculate spend coins and income
-    $coinsPerMinute = 10;
-    $incomePerMinute = 2;
+    if ($callType == 'audio') {
+        $coinsPerMinute = 10;
+        $incomePerMinute = 2;
+    } elseif ($callType == 'video') {
+        $coinsPerMinute = 60;
+        $incomePerMinute = 10;
+    }
 
     $coins_spend = $durationMinutes * $coinsPerMinute;
     $income = $durationMinutes * $incomePerMinute;
@@ -1952,7 +1965,8 @@ public function calls_list(Request $request)
         // Male: Get calls where user_id matches
         $callsQuery = UserCalls::where('user_id', $user_id)
             ->whereNotNull('started_time')
-            ->where('started_time', '!=', '');
+            ->where('started_time', '!=', '')
+            ->orderBy('datetime', 'desc'); // Order by datetime
 
         // Fetch all calls and filter valid ones
         $calls = $callsQuery->get();
@@ -1966,7 +1980,8 @@ public function calls_list(Request $request)
         // Female: Get calls where call_user_id matches
         $callsQuery = UserCalls::where('call_user_id', $user_id)
             ->whereNotNull('started_time')
-            ->where('started_time', '!=', '');
+            ->where('started_time', '!=', '')
+            ->orderBy('datetime', 'desc'); // Order by datetime
 
         // Fetch all calls and filter valid ones
         $calls = $callsQuery->get();
