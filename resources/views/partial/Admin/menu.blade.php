@@ -67,6 +67,13 @@
                     </span>
                     <span class="dash-mtext">{{ __('userVerifications') }}</span>
                 </a>
+                <li class="dash-item">
+                <a href="{{ route('transactions.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-user-check"></i> <!-- Icon for verifying users -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Transactions') }}</span>
+                </a>
 
                 </li>
             <!--dashboard-->

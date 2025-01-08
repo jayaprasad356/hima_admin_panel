@@ -5,6 +5,7 @@ use App\Models\Employee;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
@@ -288,6 +289,8 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
     Route::post('/coins/update-status', [CoinsController::class, 'updateStatus'])->name('coins.updateStatus');
     Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
+    Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
+
 
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
 

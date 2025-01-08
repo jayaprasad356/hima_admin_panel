@@ -24,7 +24,7 @@ class Users extends Authenticatable implements JWTSubject
         'state', 'city', 'unique_name', 'verified', 'last_seen', 'online_status',
         'cover_img', 'dummy', 'introduction', 'message_notify', 'add_friend_notify',
         'view_notify', 'profile_verified', 'cover_img_verified', 'verification_end_date',
-        'language', 'voice', 'describe_yourself', 'interests', 'status','balance','audio_status','video_status','bank','branch','ifsc','account_num','holder_name'
+        'language', 'voice', 'describe_yourself', 'interests', 'status','balance','audio_status','video_status','bank','branch','ifsc','account_num','holder_name','total_income'
     ];
 
     public function avatar()

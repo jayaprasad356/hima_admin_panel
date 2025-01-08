@@ -70,4 +70,5 @@ Route::group([
     Route::post('ratings', [AuthController::class, 'ratings']);
     Route::post('add_coins', [AuthController::class, 'add_coins']);
     Route::post('get_remaining_time', [AuthController::class, 'get_remaining_time']);
+    Route::post('cron_jobs', [AuthController::class, 'cron_jobs']);
 });

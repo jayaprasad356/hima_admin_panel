@@ -64,7 +64,142 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-user"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted">{{ __('Today') }}</small>
+                                                <h6 class="m-0">{{ __('Male Users Count') }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary">{{ $male_users_count }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-user"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted">{{ __('Today') }}</small>
+                                                <h6 class="m-0">{{ __('Female Users Count') }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary">{{ $female_users_count }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-microphone"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted">{{ __('Total') }}</small>
+                                                <h6 class="m-0">{{ __('Active Audio Users') }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary">{{ $active_audio_users_count }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-video"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted">{{ __('Total') }}</small>
+                                                <h6 class="m-0">{{ __('Active Video Users') }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary">{{ $active_video_users_count }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                        <div class="theme-avtar bg-primary">
+                                            <i class="ti ti-currency-dollar"></i>
+                                        </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted">{{ __('Today') }}</small>
+                                                <h6 class="m-0">{{ __('Recharge Count') }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary">{{ $today_recharge_count }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-wallet"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted">{{ __('Total') }}</small>
+                                                <h6 class="m-0">{{ __('Pending Withdrawals') }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary">{{ $pending_withdrawals }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                  
                  
                 </div>

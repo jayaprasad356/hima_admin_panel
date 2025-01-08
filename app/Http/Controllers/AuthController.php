@@ -30,7 +30,7 @@ use Kreait\Firebase\ServiceAccount;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs']]);
     }
  
     public function register(Request $request)
@@ -1062,9 +1062,13 @@ public function female_users_list(Request $request)
 
     $totalCount = Users::where('gender', 'female')->where('status', 2)->count();
 
-    // Retrieve paginated female users with status = 1 and order by latest
+    // Retrieve paginated female users with status = 1 and active in audio or video
     $Users = Users::where('gender', 'female')
         ->where('status', 2)
+        ->where(function($query) {
+            $query->where('audio_status', 1)
+                  ->orWhere('video_status', 1);
+        })
         ->orderBy('datetime', 'desc')
         ->skip($offset)
         ->take($limit)
@@ -1482,9 +1486,14 @@ public function random_user(Request $request)
     $seconds = 0; // Assume no partial seconds for simplicity
     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
 
-    // Filter female users with status = 1 based on call_type
-    $query = users::where('gender', 'female')
-        ->where('id', '!=', $user_id); // Exclude the requesting user
+      // Filter female users with status = 1 based on call_type and exclude users from not_repeat_call_users
+      $query = users::where('gender', 'female')
+      ->where('id', '!=', $user_id)
+      ->whereNotIn('id', function ($subquery) use ($user_id) {
+          $subquery->select('call_user_id')
+                   ->from('not_repeat_call_users')
+                   ->where('user_id', $user_id);
+      });
 
     if ($call_type == 'video') {
         $query->where('video_status', 1);
@@ -1558,6 +1567,7 @@ public function update_connected_call(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
+
     $user_id = $request->input('user_id');
     $call_id = $request->input('call_id'); 
     $started_time = $request->input('started_time'); 
@@ -1637,16 +1647,27 @@ public function update_connected_call(Request $request)
             'message' => 'Call has already been updated.'
         ], 200);
     }
-
     $user = users::find($user_id);
 
     // Convert the times to Carbon instances with today's date
-    $currentDate = Carbon::now()->format('Y-m-d'); // Current date
-    $startTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $started_time"); // Add the date
-    $endTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $ended_time"); // Add the date
+    $currentDate = Carbon::now()->format('Y-m-d'); 
+    $startTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $started_time");
+    $endTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $ended_time");
 
     // Calculate the duration in seconds
     $durationSeconds = $endTime->diffInSeconds($startTime);
+
+    // Handle calls with less than 10 seconds duration
+    if ($durationSeconds < 10) {
+        DB::table('not_repeat_call_users')->insert([
+            'user_id' => $user_id,
+            'call_user_id' => $call->call_user_id,
+            'reason' => 'Duration less than 10 seconds',
+            'datetime' => Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+    }
 
     // Calculate duration in minutes (ensure at least 1 minute)
     $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
@@ -1658,13 +1679,30 @@ public function update_connected_call(Request $request)
     $coins_spend = $durationMinutes * $coinsPerMinute;
     $income = $durationMinutes * $incomePerMinute;
 
-    // Only deduct coins if the duration is 10 seconds or more
-    if ($durationSeconds >= 10) {
+      // Only deduct coins if the duration is 10 seconds or more
+      if ($durationSeconds >= 10) {
         $user->coins -= $coins_spend; // Deduct coins only if duration >= 10 seconds
         $user->save();
     } else {
         $coins_spend = 0; // No coins deducted if duration is less than 10 seconds
         $income = 0; // No coins deducted if duration is less than 10 seconds
+    }
+
+    // Update the balance of the call_user_id user
+    $callUser = Users::find($call->call_user_id);
+    if ($callUser) {
+        $callUser->balance += $income;
+        $callUser->total_income += $income;
+        $callUser->save();
+
+        // Record the transaction for the call_user_id user
+        $transaction = new Transactions();
+        $transaction->user_id = $callUser->id;
+        $transaction->coins = 0;
+        $transaction->type = 'call_income';
+        $transaction->amount = $income; // Assuming no monetary amount for call income
+        $transaction->datetime = now();
+        $transaction->save();
     }
 
     // Update call details
@@ -1786,6 +1824,18 @@ public function individual_update_connected_call(Request $request)
     // Calculate the duration in seconds
     $durationSeconds = $endTime->diffInSeconds($startTime);
 
+    // Handle calls with less than 10 seconds duration
+    if ($durationSeconds < 10) {
+        DB::table('not_repeat_call_users')->insert([
+            'user_id' => $user_id,
+            'call_user_id' => $call->call_user_id,
+            'reason' => 'Duration less than 10 seconds',
+            'datetime' => Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+    }
+
     // Calculate duration in minutes (ensure at least 1 minute)
     $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
 
@@ -1803,6 +1853,24 @@ public function individual_update_connected_call(Request $request)
     } else {
         $coins_spend = 0; // No coins deducted if duration is less than 10 seconds
         $income = 0; // No coins deducted if duration is less than 10 seconds
+    }
+
+   
+    // Update the balance of the call_user_id user
+    $callUser = Users::find($call->call_user_id);
+    if ($callUser) {
+        $callUser->balance += $income;
+        $callUser->total_income += $income;
+        $callUser->save();
+
+        // Record the transaction for the call_user_id user
+        $transaction = new Transactions();
+        $transaction->user_id = $callUser->id;
+        $transaction->coins = 0;
+        $transaction->type = 'call_income';
+        $transaction->amount = $income; // Assuming no monetary amount for call income
+        $transaction->datetime = now();
+        $transaction->save();
     }
 
     // Update call details
@@ -2502,6 +2570,8 @@ public function withdrawals(Request $request)
                 'message' => 'Please update your UPI ID before making a withdrawal.',
             ], 200);
         }
+        $deductedAmount = $amount - ($amount * 0.05);  // Deduct 5% from the withdrawal amount
+        $amount = $deductedAmount;
     }
 
     // Deduct the withdrawal amount from the user's balance
@@ -2699,6 +2769,28 @@ public function add_coins(Request $request)
             'coins' => (string) $user->coins,
             'total_coins' => (string) $user->total_coins,
         ],
+    ], 200);
+}
+
+public function cron_jobs(Request $request)
+{
+    // Get the current time
+    $currentDateTime = Carbon::now();
+
+    // Fetch users whose datetime is more than 1 hour ago
+    $usersToDelete = DB::table('not_repeat_call_users')
+        ->where('datetime', '<', $currentDateTime->subHour())
+        ->get();
+
+    // Delete those users
+    DB::table('not_repeat_call_users')
+        ->whereIn('id', $usersToDelete->pluck('id'))
+        ->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data Deleted successfully.',
+        'deleted_users_count' => $usersToDelete->count(),
     ], 200);
 }
 }
