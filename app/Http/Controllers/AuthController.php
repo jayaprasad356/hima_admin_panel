@@ -2076,6 +2076,7 @@ public function female_call_attend(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
+
     // Retrieve input values
     $call_id = $request->input('call_id');
     $user_id = $request->input('user_id');
@@ -2094,7 +2095,8 @@ public function female_call_attend(Request $request)
             'message' => 'user_id is empty.',
         ], 200);
     }
-    $user = users::find($user_id);
+
+    $user = Users::find($user_id);
     if (!$user) {
         return response()->json([
             'success' => false,
@@ -2121,6 +2123,7 @@ public function female_call_attend(Request $request)
             'message' => 'No matching record found for the provided call_id and user_id.',
         ], 200);
     }
+
     if (!empty($userCall->started_time)) {
         return response()->json([
             'success' => false,
@@ -2135,18 +2138,24 @@ public function female_call_attend(Request $request)
     // Find the user and fetch balance time
     $user = Users::find($user_id);
     $coins = $user ? $user->coins : 0;
-    $minutes = floor($coins / 10); // For every 10 coins, 1 minute
+
+    // Calculate remaining time based on call type
+    if ($userCall->type === 'video') {
+        $minutes = floor($coins / 60); // 60 coins = 1 minute for video
+    } else {
+        $minutes = floor($coins / 10); // 10 coins = 1 minute for audio
+    }
+
     $seconds = 0;
     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
 
     // Fetch names and avatar images for caller and receiver
     $caller = Users::find($userCall->user_id);
+    $callerAvatar = $caller ? Avatars::find($caller->avatar_id) : '';
     $receiver = Users::find($userCall->call_user_id);
 
-    $callerAvatar = Avatars::find($caller->avatar_id);
+    $receiverAvatar = $receiver ? Avatars::find($receiver->avatar_id) : '';
     $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
-
-    $receiverAvatar = Avatars::find($receiver->avatar_id);
     $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
 
     // Return response
@@ -2172,6 +2181,7 @@ public function female_call_attend(Request $request)
     ], 200);
 }
 
+
 public function get_remaining_time(Request $request)
 {
     $authenticatedUser = auth('api')->user();
@@ -2181,9 +2191,9 @@ public function get_remaining_time(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
+
     $user_id = $request->input('user_id');
     $call_type = $request->input('call_type');
-
 
     if (empty($user_id)) {
         return response()->json([
@@ -2191,7 +2201,8 @@ public function get_remaining_time(Request $request)
             'message' => 'user_id is empty.',
         ], 200);
     }
-    $user = users::find($user_id);
+
+    $user = Users::find($user_id);
     if (!$user) {
         return response()->json([
             'success' => false,
@@ -2214,12 +2225,17 @@ public function get_remaining_time(Request $request)
         ], 200);
     }
 
+    // Determine coin-to-minute conversion rate based on call type
+    $conversion_rate = ($call_type === 'video') ? 60 : 10;
+
     // Find the user and fetch balance time
     $user = Users::find($user_id);
     $coins = $user ? $user->coins : 0;
-    $minutes = floor($coins / 10); // For every 10 coins, 1 minute
+
+    // Calculate remaining time based on conversion rate
+    $minutes = floor($coins / $conversion_rate);
     $seconds = 0;
-    $balance_time = sprintf('%d:%02d',$minutes, $seconds);
+    $balance_time = sprintf('%d:%02d', $minutes, $seconds);
 
     // Return response
     return response()->json([
@@ -2227,7 +2243,6 @@ public function get_remaining_time(Request $request)
         'message' => 'Remaining Time Listed successfully.',
         'data' => [
             'remaining_time' => $balance_time,
-
         ],
     ], 200);
 }
