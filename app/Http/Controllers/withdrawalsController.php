@@ -13,7 +13,7 @@ class WithdrawalsController extends Controller
         // Get the status filter from the query string, default to 1 (Pending)
         $status = $request->get('status', 0);
 
-        $withdrawals = Withdrawals::with('user') // Assuming a relation with Users model
+        $withdrawals = Withdrawals::with('users') // Assuming a relation with Users model
         ->when($status, function ($query, $status) {
             return $query->where('status', $status);
         })
