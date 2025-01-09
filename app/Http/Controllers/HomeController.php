@@ -50,9 +50,10 @@ class HomeController extends Controller
         $active_audio_users_count = Users::where('audio_status', 1)->count();
         $active_video_users_count = Users::where('video_status', 1)->count();
         $today_recharge_count = Transactions::where('type', 'add_coins')->whereDate('datetime', $today)->sum('amount');
-        $pending_withdrawals = Withdrawals::where('status', 0)->count();
+        $pending_withdrawals = Withdrawals::where('status', 0)->sum('amount');
+        $today_registration_count = Users::whereDate('datetime', $today)->count();
              
-                return view('dashboard.dashboard', compact('avatar_count','users_count','male_users_count','female_users_count','active_audio_users_count','active_video_users_count','today_recharge_count','pending_withdrawals'));
+                return view('dashboard.dashboard', compact('avatar_count','users_count','male_users_count','female_users_count','active_audio_users_count','active_video_users_count','today_recharge_count','pending_withdrawals','today_registration_count'));
             }
        
     }
