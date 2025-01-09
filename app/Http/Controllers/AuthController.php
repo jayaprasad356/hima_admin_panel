@@ -1194,8 +1194,8 @@ public function calls_status_update(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
-      $user_id = $request->input('user_id');
 
+    $user_id = $request->input('user_id');
     $call_type = $request->input('call_type'); // Should be 'audio' or 'video'
     $status = $request->input('status');       // Should be 1 or 0
 
@@ -1238,15 +1238,18 @@ public function calls_status_update(Request $request)
         ], 200);
     }
 
-   
+    // Update status and relevant timestamp
+    $currentTime = now();
     if ($call_type === 'audio') {
         $user->audio_status = $status;
+        $user->last_audio_time_updated = $currentTime; // Update only audio timestamp
     } elseif ($call_type === 'video') {
         $user->video_status = $status;
+        $user->last_video_time_updated = $currentTime; // Update only video timestamp
     }
 
-    $user->datetime = now(); 
-    $user->save(); 
+    $user->datetime = $currentTime;
+    $user->save();
 
     // Fetch additional details for response
     $avatar = Avatars::find($user->avatar_id);
@@ -1275,14 +1278,19 @@ public function calls_status_update(Request $request)
             'voice' => $voicePath,
             'status' => $user->status ?? '',
             'balance' => (int) $user->balance ?? '',
-            'audio_status' =>(int) $user->audio_status ?? '',
-            'video_status' =>(int) $user->video_status ?? '',
+            'audio_status' => (int) $user->audio_status ?? '',
+            'video_status' => (int) $user->video_status ?? '',
+            'last_audio_time_updated' => $user->last_audio_time_updated 
+                ? Carbon::parse($user->last_audio_time_updated)->format('Y-m-d H:i:s') : '',
+            'last_video_time_updated' => $user->last_video_time_updated 
+                ? Carbon::parse($user->last_video_time_updated)->format('Y-m-d H:i:s') : '',
             'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::parse($user->updated_at)->format('Y-m-d H:i:s'),
             'created_at' => Carbon::parse($user->created_at)->format('Y-m-d H:i:s'),
         ],
     ], 200);
 }
+
 
 public function call_female_user(Request $request)
 {
@@ -2801,10 +2809,9 @@ public function add_coins(Request $request)
         ],
     ], 200);
 }
-
 public function cron_jobs(Request $request)
 {
-    // Get the current time
+    // Get the current time in 24-hour format
     $currentDateTime = Carbon::now();
 
     // Fetch users whose datetime is more than 1 hour ago
@@ -2817,9 +2824,41 @@ public function cron_jobs(Request $request)
         ->whereIn('id', $usersToDelete->pluck('id'))
         ->delete();
 
+    // Fetch users to check if audio_status or video_status should be updated
+    $usersToUpdate = DB::table('users')->get();
+
+    $currentDateTime = Carbon::now('UTC');  // Adjust timezone as needed
+
+    foreach ($usersToUpdate as $user) {
+        // Check if last_audio_time_updated exists and calculate the difference in hours
+        if ($user->last_audio_time_updated) {
+            $lastAudioTime = Carbon::parse($user->last_audio_time_updated, 'UTC'); // Use the same timezone
+            $AudioTimeDiffInHours = $lastAudioTime->diffInHours($currentDateTime);
+    
+            // If the difference is greater than 1 hour, update the video_status
+            if ($AudioTimeDiffInHours > 1) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->update(['audio_status' => 0]);
+            }
+        }
+
+        if ($user->last_video_time_updated) {
+            $lastVideoTime = Carbon::parse($user->last_video_time_updated, 'UTC'); // Use the same timezone
+            $videoTimeDiffInHours = $lastVideoTime->diffInHours($currentDateTime);
+    
+            // If the difference is greater than 1 hour, update the video_status
+            if ($videoTimeDiffInHours > 1) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->update(['video_status' => 0]);
+            }
+        }
+    }
+
     return response()->json([
         'success' => true,
-        'message' => 'Data Deleted successfully.',
+        'message' => 'Data Deleted and status Updated successfully.',
         'deleted_users_count' => $usersToDelete->count(),
     ], 200);
 }
