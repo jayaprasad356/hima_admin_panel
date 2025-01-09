@@ -66,7 +66,7 @@
                                             <td>{{ $user->mobile }}</td>
                                             <td>
                                                 @if($user->voice && $user->voice)
-                                                    <a href="{{ asset('storage/app/public/voice/' . $user->voice) }}" target="_blank">Play Voice</a>
+                                                    <a href="{{ asset('storage/app/public/voices/' . $user->voice) }}" target="_blank">Play Voice</a>
                                                 @else
                                                     {{ __('No Voice File') }}
                                                 @endif
