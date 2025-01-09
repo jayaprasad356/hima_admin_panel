@@ -61,6 +61,15 @@
                                 class="ti ti-coin"></i></span><span class="dash-mtext"><?php echo e(__('coins')); ?></span></a>
                 </li>
                 <li class="dash-item">
+                <a href="<?php echo e(route('ratings.index')); ?>" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-star"></i> <!-- Icon for ratings -->
+                    </span>
+                    <span class="dash-mtext"><?php echo e(__('Ratings')); ?></span>
+                </a>
+
+                </li>
+                <li class="dash-item">
                 <a href="<?php echo e(route('users-verification.index')); ?>" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-user-check"></i> <!-- Icon for verifying users -->
@@ -70,9 +79,16 @@
                 <li class="dash-item">
                 <a href="<?php echo e(route('transactions.index')); ?>" class="dash-link">
                     <span class="dash-micon">
-                        <i class="ti ti-user-check"></i> <!-- Icon for verifying users -->
+                        <i class="ti ti-credit-card"></i> <!-- Icon for transactions -->
                     </span>
                     <span class="dash-mtext"><?php echo e(__('Transactions')); ?></span>
+                </a>
+                <li class="dash-item">
+                <a href="<?php echo e(route('withdrawals.index')); ?>" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-wallet"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext"><?php echo e(__('Withdrawals')); ?></span>
                 </a>
 
                 </li>

@@ -96,8 +96,8 @@
                                                 <i class="ti ti-user"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <small class="text-muted"><?php echo e(__('Today')); ?></small>
-                                                <h6 class="m-0"><?php echo e(__('Male Users Count')); ?></h6>
+                                                <small class="text-muted"><?php echo e(__('Today Male')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Users Count')); ?></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -119,8 +119,8 @@
                                                 <i class="ti ti-user"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <small class="text-muted"><?php echo e(__('Today')); ?></small>
-                                                <h6 class="m-0"><?php echo e(__('Female Users Count')); ?></h6>
+                                                <small class="text-muted"><?php echo e(__('Today Female')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Users Count')); ?></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -141,8 +141,8 @@
                                                 <i class="ti ti-microphone"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <small class="text-muted"><?php echo e(__('Total')); ?></small>
-                                                <h6 class="m-0"><?php echo e(__('Active Audio Users')); ?></h6>
+                                                <small class="text-muted"><?php echo e(__('Total Active')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Audio Users')); ?></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -164,8 +164,8 @@
                                                 <i class="ti ti-video"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <small class="text-muted"><?php echo e(__('Total')); ?></small>
-                                                <h6 class="m-0"><?php echo e(__('Active Video Users')); ?></h6>
+                                                <small class="text-muted"><?php echo e(__('Total Active')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Video Users')); ?></h6>
                                             </div>
                                         </div>
                                     </div>

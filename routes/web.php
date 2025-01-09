@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\WithdrawalsController;
+use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
@@ -290,7 +292,9 @@ Route::group(['middleware' => ['verified']], function () {
     Route::post('/coins/update-status', [CoinsController::class, 'updateStatus'])->name('coins.updateStatus');
     Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
-
+    Route::get('/withdrawals', [WithdrawalsController::class, 'index'])->name('withdrawals.index');
+    Route::get('/ratings', [RatingsController::class, 'index'])->name('ratings.index');
+    Route::patch('/withdrawals/bulk-update-status', [WithdrawalsController::class, 'bulkUpdateStatus'])->name('withdrawals.bulkUpdateStatus');
 
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
 

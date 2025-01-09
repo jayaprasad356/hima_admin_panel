@@ -1167,8 +1167,8 @@ public function withdrawals_list(Request $request)
     foreach ($withdrawals as $withdrawal) {
         $withdrawalsData[] = [
             'id' => $withdrawal->id,
-            'user_id' => $withdrawal->user_id,
-            'amount' => $withdrawal->amount,
+            'user_id' =>(int) $withdrawal->user_id,
+            'amount' =>(int) $withdrawal->amount,
             'status' => $withdrawal->status,
             'type' => $withdrawal->type,
             'datetime' => $withdrawal->datetime, // Assuming this field exists
