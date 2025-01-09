@@ -12,7 +12,7 @@ class Ratings extends Model
 
     public function users()
     {
-        return $this->belongsTo(users::class, 'user_id');
+        return $this->belongsTo(Users::class, 'user_id');
     }
     public function callusers()
     {
