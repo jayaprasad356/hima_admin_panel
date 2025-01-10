@@ -2666,25 +2666,7 @@ public function ratings(Request $request)
              'message' => 'call_user_id is empty.'
         ], 200);
     }
-    if (empty($ratings)) {
-        return response()->json([
-            'success' => false, 
-            'message' => 'ratings is empty.'
-        ], 200);
-    }
-    if (empty($title)) {
-        return response()->json([
-            'success' => false, 
-            'message' => 'title is empty.'
-        ], 200);
-    }
-    if (empty($description)) {
-        return response()->json([
-            'success' => false,
-             'message' => 'description is empty.'
-        ], 200);
-    }
-
+ 
     // Validate users
     $user = Users::find($user_id);
     $callUser = Users::find($call_user_id);
@@ -2718,9 +2700,9 @@ public function ratings(Request $request)
                 'id' => $rating->id,
                 'user_id' => $rating->user_id,
                 'call_user_id' => $rating->call_user_id,
-                'ratings' => number_format($rating->ratings, 1), // Format ratings to one decimal place
-                'title' => $rating->title,
-                'description' => $rating->description,
+                'ratings' => number_format($rating->ratings, 1) ?? '',// Format ratings to one decimal place
+                'title' => $rating->title ?? '',
+                'description' => $rating->description ?? '',
                 'updated_at' => $rating->updated_at->format('Y-m-d H:i:s'),
                 'created_at' => $rating->created_at->format('Y-m-d H:i:s'),
             ]],
