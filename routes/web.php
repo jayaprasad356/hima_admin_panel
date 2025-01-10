@@ -13,6 +13,7 @@ use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AppsettingsController;
 use App\Http\Controllers\CoinsController;
+use App\Http\Controllers\UserCallsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\EmployeeController;
@@ -294,6 +295,7 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
     Route::get('/withdrawals', [WithdrawalsController::class, 'index'])->name('withdrawals.index');
     Route::get('/ratings', [RatingsController::class, 'index'])->name('ratings.index');
+    Route::get('/usercalls', [UserCallsController::class, 'index'])->name('usercalls.index');
     Route::patch('/withdrawals/bulk-update-status', [WithdrawalsController::class, 'bulkUpdateStatus'])->name('withdrawals.bulkUpdateStatus');
 
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');

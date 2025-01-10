@@ -24,4 +24,9 @@ class UserCalls extends Model
     {
         return $this->belongsTo(Users::class);
     }
+   
+    public function callusers()
+    {
+        return $this->belongsTo(Users::class, 'call_user_id'); // Assuming the foreign key is 'call_user_id'
+    }
 }

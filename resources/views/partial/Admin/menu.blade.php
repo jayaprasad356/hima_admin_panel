@@ -67,6 +67,13 @@
                     </span>
                     <span class="dash-mtext">{{ __('Ratings') }}</span>
                 </a>
+                <li class="dash-item">
+                <a href="{{ route('usercalls.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-phone"></i> <!-- Icon for user calls -->
+                    </span>
+                    <span class="dash-mtext">{{ __('UserCalls') }}</span>
+                </a>
 
                 </li>
                 <li class="dash-item">
