@@ -21,4 +21,9 @@ class Withdrawals extends Model
     {
         return $this->belongsTo(Users::class, 'user_id');
     }
+    public function upi()
+{
+    return $this->hasOne(Upis::class, 'user_id', 'user_id');
+}
+
 }

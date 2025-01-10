@@ -18,16 +18,19 @@
                 <!-- Filter by Type Form -->
                 <form action="<?php echo e(route('withdrawals.index')); ?>" method="GET" class="mb-3">
                     <div class="row align-items-end">
+                        <!-- Existing Status Filter -->
                         <div class="col-md-3">
-                            <label for="type"><?php echo e(__('Filter by Type')); ?></label>
-                           <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
-                        <option value="0" <?php echo e(request()->get('status') == '0' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
-                        <option value="1" <?php echo e(request()->get('status') == '1' ? 'selected' : ''); ?>><?php echo e(__('Paid')); ?></option>
-                        <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Cancelled')); ?></option>
-                    </select>
+                            <label for="status"><?php echo e(__('Filter by Status')); ?></label>
+                            <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
+                                <option value="0" <?php echo e(request()->get('status', 0) == '0' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
+                                <option value="1" <?php echo e(request()->get('status') == '1' ? 'selected' : ''); ?>><?php echo e(__('Paid')); ?></option>
+                                <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Cancelled')); ?></option>
+                            </select>
                         </div>
+
                     </div>
                 </form>
+
                 <form action="<?php echo e(route('withdrawals.bulkUpdateStatus')); ?>" method="POST">
                     <?php echo csrf_field(); ?>
                     <?php echo method_field('PATCH'); ?>
@@ -52,6 +55,11 @@
                     <th><?php echo e(__('Amount')); ?></th>
                     <th><?php echo e(__('Type')); ?></th>
                     <th><?php echo e(__('Status')); ?></th>
+                    <th><?php echo e(__('Bank')); ?></th>
+                    <th><?php echo e(__('Branch')); ?></th>
+                    <th><?php echo e(__('Ifsc Code')); ?></th>
+                    <th><?php echo e(__('Account Number')); ?></th>
+                    <th><?php echo e(__('Holder Name')); ?></th>
                     <th><?php echo e(__('Datetime')); ?></th>
                 </tr>
             </thead>
@@ -77,6 +85,11 @@
                                 <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold"><?php echo e(__('Unknown')); ?></span>
                             <?php endif; ?>
                         </td>
+                        <td><?php echo e($withdrawal->users->bank ?? ''); ?></td>
+                        <td><?php echo e($withdrawal->users->branch ?? ''); ?></td>
+                        <td><?php echo e($withdrawal->users->ifsc ?? ''); ?></td>
+                        <td><?php echo e($withdrawal->users->account_num ?? ''); ?></td>
+                        <td><?php echo e($withdrawal->users->holder_name ?? ''); ?></td>
                         <td><?php echo e($withdrawal->datetime); ?></td>
                     </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

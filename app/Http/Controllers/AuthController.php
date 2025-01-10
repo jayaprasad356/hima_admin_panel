@@ -1837,6 +1837,13 @@ public function individual_update_connected_call(Request $request)
         ], 200);
     }
 
+    if (!empty($call->ended_time)) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'Call has already been updated.'
+        ], 200);
+    }
+
     $user = users::find($user_id);
 
     // Convert the times to Carbon instances with today's date

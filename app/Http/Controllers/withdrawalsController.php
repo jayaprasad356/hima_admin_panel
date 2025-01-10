@@ -10,25 +10,30 @@ class WithdrawalsController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the status filter from the query string, default to 1 (Pending)
-        $status = $request->get('status', 0);
-
-        $withdrawals = Withdrawals::with('users') // Assuming a relation with Users model
-        ->when($status, function ($query, $status) {
-            return $query->where('status', $status);
-        })
-        ->when($request->get('search'), function ($query, $search) {
-            $query->where('transaction_id', 'like', '%' . $search . '%')
-                  ->orWhereHas('user', function ($query) use ($search) {
-                      $query->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('mobile', 'like', '%' . $search . '%');
-                  });
-        })
-        ->get();
+        // Get the filters from the query string
+        $status = $request->get('status', 0); // Default to Pending
+        $transferType = $request->get('transfer_type'); // No default
     
-    return view('withdrawals.index', compact('withdrawals'));
+        $withdrawals = Withdrawals::with('users')
+            ->when($status !== null, function ($query) use ($status) {
+                return $query->where('status', $status);
+            })
+            ->when($transferType, function ($query) use ($transferType) {
+                return $query->where('type', $transferType); // Assuming 'type' is the column for transfer type
+            })
+            ->when($request->get('search'), function ($query, $search) {
+                $query->where('transaction_id', 'like', '%' . $search . '%')
+                      ->orWhereHas('users', function ($query) use ($search) {
+                          $query->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('mobile', 'like', '%' . $search . '%');
+                      });
+            })
+            ->get();
     
+        return view('withdrawals.index', compact('withdrawals'));
     }
+    
+    
     public function bulkUpdateStatus(Request $request)
     {
         // Validate the request to ensure withdrawal IDs are provided

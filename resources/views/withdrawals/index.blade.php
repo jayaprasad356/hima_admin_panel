@@ -17,16 +17,19 @@
                 <!-- Filter by Type Form -->
                 <form action="{{ route('withdrawals.index') }}" method="GET" class="mb-3">
                     <div class="row align-items-end">
+                        <!-- Existing Status Filter -->
                         <div class="col-md-3">
-                            <label for="type">{{ __('Filter by Type') }}</label>
-                           <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
-                        <option value="0" {{ request()->get('status') == '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                        <option value="1" {{ request()->get('status') == '1' ? 'selected' : '' }}>{{ __('Paid') }}</option>
-                        <option value="2" {{ request()->get('status') == '2' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
-                    </select>
+                            <label for="status">{{ __('Filter by Status') }}</label>
+                            <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
+                                <option value="0" {{ request()->get('status', 0) == '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                <option value="1" {{ request()->get('status') == '1' ? 'selected' : '' }}>{{ __('Paid') }}</option>
+                                <option value="2" {{ request()->get('status') == '2' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
+                            </select>
                         </div>
+
                     </div>
                 </form>
+
                 <form action="{{ route('withdrawals.bulkUpdateStatus') }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -50,6 +53,11 @@
                     <th>{{ __('Amount') }}</th>
                     <th>{{ __('Type') }}</th>
                     <th>{{ __('Status') }}</th>
+                    <th>{{ __('Bank') }}</th>
+                    <th>{{ __('Branch') }}</th>
+                    <th>{{ __('Ifsc Code') }}</th>
+                    <th>{{ __('Account Number') }}</th>
+                    <th>{{ __('Holder Name') }}</th>
                     <th>{{ __('Datetime') }}</th>
                 </tr>
             </thead>
@@ -75,6 +83,11 @@
                                 <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold">{{ __('Unknown') }}</span>
                             @endif
                         </td>
+                        <td>{{ $withdrawal->users->bank ?? '' }}</td>
+                        <td>{{ $withdrawal->users->branch ?? '' }}</td>
+                        <td>{{ $withdrawal->users->ifsc ?? '' }}</td>
+                        <td>{{ $withdrawal->users->account_num ?? '' }}</td>
+                        <td>{{ $withdrawal->users->holder_name ?? '' }}</td>
                         <td>{{ $withdrawal->datetime }}</td>
                     </tr>
                 @endforeach
