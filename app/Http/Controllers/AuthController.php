@@ -377,8 +377,6 @@ class AuthController extends Controller
         $imageUrl = ($avatar && $avatar->image) ? asset('storage/app/public/' . $avatar->image) : '';
         $voicePath = $user && $user->voice ? asset('storage/app/public/voices/' . $user->voice) : '';
 
-        $upi = Upis::where('user_id', $user->id)->first();
-        $upi_id = $upi ? $upi->upi_id : '';
 
         return response()->json([
             'success' => true,
@@ -406,7 +404,7 @@ class AuthController extends Controller
                 'branch' => $user->branch ?? '',
                 'ifsc' => $user->ifsc ?? '',
                 'holder_name' => $user->holder_name ?? '',
-                'upi_id' => $upi_id,
+                'upi_id' => $user->upi_id ?? '',
                 'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
                 'updated_at' => Carbon::parse($user->updated_at)->format('Y-m-d H:i:s'),
                 'created_at' => Carbon::parse($user->created_at)->format('Y-m-d H:i:s'),
@@ -2397,9 +2395,6 @@ public function update_bank(Request $request)
     $user->datetime = now();
     $user->save();
 
-    $upi = upis::where('user_id', $user_id)->first(); 
-    $upi_id = $upi ? $upi->upi_id : "";
-
     $avatar = Avatars::find($user->avatar_id);
     $gender = $avatar ? $avatar->gender : '';
 
@@ -2432,7 +2427,7 @@ public function update_bank(Request $request)
             'branch' => $user->branch,
             'ifsc' => $user->ifsc,
             'holder_name' => $user->holder_name,
-            'upi_id' => $upi_id,
+            'upi_id' => $user->upi_id ?? '',
             'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::parse($user->updated_at)->format('Y-m-d H:i:s'),
             'created_at' => Carbon::parse($user->created_at)->format('Y-m-d H:i:s'),
@@ -2474,12 +2469,8 @@ public function update_upi(Request $request)
         ], 200);
     }
 
-    // Update or create UPI record
-    $upi = upis::updateOrCreate(
-        ['user_id' => $user_id],
-        ['upi_id' => $upi_id]
-    );
-
+    // Update UPI ID in users table
+    $user->upi_id = $upi_id;
     $user->datetime = now();
     $user->save();
 
@@ -2510,12 +2501,12 @@ public function update_upi(Request $request)
             'coins' => (int) $user->coins ?? '',
             'audio_status' => (int) $user->audio_status ?? '',
             'video_status' => (int) $user->video_status ?? '',
-            'bank' => $user->bank,
-            'account_num' => $user->account_num,
-            'branch' => $user->branch,
-            'ifsc' => $user->ifsc,
-            'holder_name' => $user->holder_name,
-            'upi_id' => $upi->upi_id,
+            'bank' => $user->bank ?? '',
+            'account_num' => $user->account_num ?? '',
+            'branch' => $user->branch ?? '',
+            'ifsc' => $user->ifsc ?? '',
+            'holder_name' => $user->holder_name ?? '',
+            'upi_id' => $user->upi_id,
             'datetime' => Carbon::parse($user->datetime)->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::parse($user->updated_at)->format('Y-m-d H:i:s'),
             'created_at' => Carbon::parse($user->created_at)->format('Y-m-d H:i:s'),
@@ -2615,9 +2606,7 @@ public function withdrawals(Request $request)
 
     // Handle UPI transfer
     if ($type === 'upi_transfer') {
-        $upi = upis::where('user_id', $user_id)->first();
-
-        if (!$upi || empty($upi->upi_id)) {
+        if (empty($user->upi_id)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please update your UPI ID before making a withdrawal.',

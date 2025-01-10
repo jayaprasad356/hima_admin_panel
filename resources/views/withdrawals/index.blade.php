@@ -58,6 +58,7 @@
                     <th>{{ __('Ifsc Code') }}</th>
                     <th>{{ __('Account Number') }}</th>
                     <th>{{ __('Holder Name') }}</th>
+                    <th>{{ __('Upi ID') }}</th>
                     <th>{{ __('Datetime') }}</th>
                 </tr>
             </thead>
@@ -88,6 +89,7 @@
                         <td>{{ $withdrawal->users->ifsc ?? '' }}</td>
                         <td>{{ $withdrawal->users->account_num ?? '' }}</td>
                         <td>{{ $withdrawal->users->holder_name ?? '' }}</td>
+                        <td>{{ $withdrawal->users->upi_id ?? '' }}</td>
                         <td>{{ $withdrawal->datetime }}</td>
                     </tr>
                 @endforeach

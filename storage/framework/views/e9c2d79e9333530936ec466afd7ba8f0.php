@@ -60,6 +60,7 @@
                     <th><?php echo e(__('Ifsc Code')); ?></th>
                     <th><?php echo e(__('Account Number')); ?></th>
                     <th><?php echo e(__('Holder Name')); ?></th>
+                    <th><?php echo e(__('Upi ID')); ?></th>
                     <th><?php echo e(__('Datetime')); ?></th>
                 </tr>
             </thead>
@@ -90,6 +91,7 @@
                         <td><?php echo e($withdrawal->users->ifsc ?? ''); ?></td>
                         <td><?php echo e($withdrawal->users->account_num ?? ''); ?></td>
                         <td><?php echo e($withdrawal->users->holder_name ?? ''); ?></td>
+                        <td><?php echo e($withdrawal->users->upi_id ?? ''); ?></td>
                         <td><?php echo e($withdrawal->datetime); ?></td>
                     </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
