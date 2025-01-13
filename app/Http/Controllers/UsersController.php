@@ -20,11 +20,12 @@ class UsersController extends Controller
                 $query->where('name', 'like', '%' . $search . '%')
                       ->orWhere('mobile', 'like', '%' . $search . '%')
                       ->orWhere('language', 'like', '%' . $search . '%');
-            })->get();
+            })
+            ->orderBy('datetime', 'desc') // Order by latest data
+            ->get();
     
         return view('users.index', compact('users'));
     }
-    
     // Show the form to edit an existing user
     public function edit($id)
     {

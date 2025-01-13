@@ -15,7 +15,9 @@ class CoinsController extends Controller
         // Search speech texts by text content or language
         $coins = Coins::when($search, function ($query, $search) {
             $query->where('price', 'like', '%' . $search . '%');
-        })->get();
+        })
+        ->orderBy('created_at', 'desc') // Order by latest data
+        ->get();
 
         return view('coins.index', compact('coins'));
     }

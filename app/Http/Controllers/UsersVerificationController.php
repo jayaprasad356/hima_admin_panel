@@ -21,9 +21,9 @@ class UsersVerificationController extends Controller
                 $query->where('name', 'like', '%' . $search . '%')
                       ->orWhere('mobile', 'like', '%' . $search . '%')
                       ->orWhere('language', 'like', '%' . $search . '%');
-            })
-            ->get();
-    
+                    })
+                    ->orderBy('datetime', 'desc') // Order by latest data
+                    ->get();
         return view('users-verification.index', compact('users'));
     }
 

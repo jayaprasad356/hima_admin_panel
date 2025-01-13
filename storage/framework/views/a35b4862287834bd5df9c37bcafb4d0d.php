@@ -67,7 +67,7 @@
                                             <td><?php echo e($user->mobile); ?></td>
                                             <td>
                                                 <?php if($user->voice && $user->voice): ?>
-                                                    <a href="<?php echo e(asset('storage/app/public/voice/' . $user->voice)); ?>" target="_blank">Play Voice</a>
+                                                    <a href="<?php echo e(asset('storage/app/public/voices/' . $user->voice)); ?>" target="_blank">Play Voice</a>
                                                 <?php else: ?>
                                                     <?php echo e(__('No Voice File')); ?>
 

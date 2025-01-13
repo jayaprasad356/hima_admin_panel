@@ -11,7 +11,9 @@ class RatingsController extends Controller
     {
         // Fetch ratings and apply the filter
         $ratings = Ratings::with(['users', 'callusers']) // Load both user and call_user relationships
-            ->get();
+
+    ->orderBy('created_at', 'desc') // Order by latest data
+    ->get();
     
         return view('ratings.index', compact('ratings'));
     }

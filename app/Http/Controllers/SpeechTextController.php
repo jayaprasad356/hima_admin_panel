@@ -16,7 +16,9 @@ class SpeechTextController extends Controller
         $speechTexts = SpeechText::when($search, function ($query, $search) {
             $query->where('text', 'like', '%' . $search . '%')
                   ->orWhere('language', 'like', '%' . $search . '%');
-        })->get();
+        })
+        ->orderBy('created_at', 'desc') // Order by latest data
+        ->get();
 
         return view('speech_texts.index', compact('speechTexts'));
     }

@@ -17,6 +17,7 @@ class TransactionsController extends Controller
             ->when($request->input('type'), function ($query, $type) {
                 $query->where('type', $type); // Apply the type filter
             })
+            ->orderBy('datetime', 'desc') // Order by latest data
             ->get();
     
         return view('transactions.index', compact('transactions', 'types'));

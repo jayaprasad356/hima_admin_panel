@@ -15,6 +15,7 @@ class UserCallsController extends Controller
             ->when($type, function ($query, $type) {
                 return $query->where('type', $type); // Filter by type if provided
             })
+            ->orderBy('datetime', 'desc') // Order by latest data
             ->get();
 
         return view('usercalls.index', compact('usercalls'));

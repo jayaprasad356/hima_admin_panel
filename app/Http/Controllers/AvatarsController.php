@@ -17,10 +17,11 @@ class AvatarsController extends Controller
         if ($search) {
             $avatars = Avatars::where('gender', 'like', '%' . $search . '%')
                              ->orWhere('image', 'like', '%' . $search . '%')
+                             ->orderBy('created_at', 'desc') // Order by latest created
                              ->get();
         } else {
-            // Otherwise, fetch all avatars
-            $avatars = Avatars::all();
+            // Otherwise, fetch all avatars and order by latest created
+            $avatars = Avatars::orderBy('created_at', 'desc')->get();
         }
 
         return view('avatars.index', compact('avatars'));

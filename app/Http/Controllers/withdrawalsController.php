@@ -27,8 +27,9 @@ class WithdrawalsController extends Controller
                           $query->where('name', 'like', '%' . $search . '%')
                                 ->orWhere('mobile', 'like', '%' . $search . '%');
                       });
-            })
-            ->get();
+                    })
+                    ->orderBy('datetime', 'desc') // Order by latest data
+                    ->get();
     
         return view('withdrawals.index', compact('withdrawals'));
     }
