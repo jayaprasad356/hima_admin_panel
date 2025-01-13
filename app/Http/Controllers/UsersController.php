@@ -55,6 +55,7 @@ class UsersController extends Controller
         $user->voice = $request->voice; 
         $user->audio_status = $request->audio_status;
         $user->video_status = $request->video_status; 
+        $user->balance = $request->balance; 
         $user->datetime = now();
         $user->save();
 

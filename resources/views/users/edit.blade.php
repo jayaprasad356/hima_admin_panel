@@ -130,6 +130,12 @@
                             {{ Form::number('age', null, ['class' => 'form-control', 'required']) }}
                         </div>
 
+
+                        <div class="form-group col-md-6">
+                            {{ Form::label('balance', __('Balance'), ['class' => 'form-label']) }}
+                            {{ Form::number('balance', null, ['class' => 'form-control', 'required']) }}
+                        </div>
+
                         <!-- Audio Status Toggle Switch -->
                         <div class="form-group col-md-6">
                             {{ Form::label('audio_status', __('Audio Status'), ['class' => 'form-label']) }}

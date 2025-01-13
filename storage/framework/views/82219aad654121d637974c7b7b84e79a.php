@@ -142,6 +142,14 @@
 
                         </div>
 
+
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('balance', __('Balance'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::number('balance', null, ['class' => 'form-control', 'required'])); ?>
+
+                        </div>
+
                         <!-- Audio Status Toggle Switch -->
                         <div class="form-group col-md-6">
                             <?php echo e(Form::label('audio_status', __('Audio Status'), ['class' => 'form-label'])); ?>

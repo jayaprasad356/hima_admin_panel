@@ -31,12 +31,12 @@
                             <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
                         </div>
 
-                        <!-- Export Withdrawals Button (Aligned to the Right) -->
                         <div class="col-md-3 offset-md-3 d-flex justify-content-end">
-                            <a href="{{ route('withdrawals.export') }}" class="btn btn-primary">
+                            <a href="{{ route('withdrawals.export', ['status' => request()->get('status', 0), 'filter_date' => request()->get('filter_date')]) }}" class="btn btn-primary">
                                 {{ __('Export Withdrawals') }}
                             </a>
                         </div>
+
                     </div>
                 </form>
 

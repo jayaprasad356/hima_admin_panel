@@ -57,8 +57,12 @@ class WithdrawalsController extends Controller
         return redirect()->route('withdrawals.index')->with('success', __('Selected withdrawals have been marked as Paid.'));
     }
     public function export(Request $request)
-    {
-        return Excel::download(new WithdrawalsExport($request->all()), 'withdrawals.xlsx');
-    }
+{
+    // Get the status from the request if provided
+    $filters = $request->only('status', 'filter_date');
+
+    return Excel::download(new WithdrawalsExport($filters), 'withdrawals.xlsx');
+}
+
   
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Exports;
 
 use App\Models\Withdrawals;
@@ -17,47 +16,42 @@ class WithdrawalsExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        // Start with a query on Withdrawals
         $query = Withdrawals::query()
             ->select(
                 'withdrawals.id',
                 'users.name as user_name',
                 'users.mobile as user_mobile',
                 'withdrawals.amount',
-                'withdrawals.status', // Include status field
+                'withdrawals.status',
                 'withdrawals.datetime',
                 'users.bank as bank_name',
                 'users.branch as branch_name',
                 'users.account_num as account_number',
                 'users.holder_name as account_holder_name',
                 'users.ifsc as ifsc_code',
-                'users.upi_id as upi_id' // Add UPI ID if needed
+                'users.upi_id as upi_id'
             )
             ->join('users', 'withdrawals.user_id', '=', 'users.id');
-        
-        // If there are filters, apply them to the query
+    
+        // Apply filters if they exist
         if (isset($this->filters['status'])) {
             $query->where('withdrawals.status', $this->filters['status']);
         }
-
+    
         if (isset($this->filters['filter_date'])) {
             $query->whereDate('withdrawals.datetime', $this->filters['filter_date']);
         }
-
-        // Get the withdrawals data with related user and bank details
+    
         $withdrawalsData = $query->get();
-
-        // Map through the data to format the status and return the formatted data
+    
         return $withdrawalsData->map(function ($withdrawal) {
-            // Map numeric status to descriptive text
             $statusDescription = match($withdrawal->status) {
                 0 => 'Pending',
                 1 => 'Paid',
                 2 => 'Cancelled',
-                default => 'Unknown', // Fallback for any unexpected status
+                default => 'Unknown',
             };
-
-            // Return the formatted data
+    
             return [
                 $withdrawal->id,
                 $withdrawal->user_name,
