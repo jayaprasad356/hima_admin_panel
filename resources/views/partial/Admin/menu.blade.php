@@ -97,7 +97,10 @@
                     </span>
                     <span class="dash-mtext">{{ __('Withdrawals') }}</span>
                 </a>
-
+                </li>
+                  <li class="dash-item">
+                    <a href="{{ route('notifications.index') }}" class="dash-link"><span class="dash-micon"><i
+                                class="ti ti-user"></i></span><span class="dash-mtext">{{ __('Notifications') }}</span></a>
                 </li>
             <!--dashboard-->
 

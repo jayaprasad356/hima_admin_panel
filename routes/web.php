@@ -5,6 +5,7 @@ use App\Models\Employee;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\WithdrawalsController;
 use App\Http\Controllers\RatingsController;
@@ -299,12 +300,19 @@ Route::group(['middleware' => ['verified']], function () {
     Route::patch('/withdrawals/bulk-update-status', [WithdrawalsController::class, 'bulkUpdateStatus'])->name('withdrawals.bulkUpdateStatus');
     Route::get('withdrawals/export', [WithdrawalsController::class, 'export'])->name('withdrawals.export');
     Route::resource('coins', CoinsController::class);
+    Route::resource('notifications', NotificationsController::class);
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
    Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
 
     // Route to handle the "Add Coins" form submission
     Route::post('users/{id}/add-coins', [UsersController::class, 'addCoins'])->name('users.addCoins');  
 
+    Route::get('/search-users', [NotificationsController::class, 'searchUsers'])->name('search.users');
+    Route::get('/users/{id}', function ($id) {
+        $user = \App\Models\Users::findOrFail($id);
+        return response()->json($user);
+    });
+    
     Route::get('profile', [UserController::class, 'profile'])->name('profile')->middleware(
         [
             'auth',

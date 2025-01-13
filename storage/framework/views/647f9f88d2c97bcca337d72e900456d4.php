@@ -97,7 +97,10 @@
                     </span>
                     <span class="dash-mtext"><?php echo e(__('Withdrawals')); ?></span>
                 </a>
-
+                </li>
+                  <li class="dash-item">
+                    <a href="<?php echo e(route('notifications.index')); ?>" class="dash-link"><span class="dash-micon"><i
+                                class="ti ti-user"></i></span><span class="dash-mtext"><?php echo e(__('Notifications')); ?></span></a>
                 </li>
             <!--dashboard-->
 
