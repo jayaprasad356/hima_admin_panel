@@ -15,20 +15,37 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
-                <!-- Filter by Type Form -->
-                <form action="<?php echo e(route('usercalls.index')); ?>" method="GET" class="mb-3">
-                    <div class="row align-items-end">
-                        <!-- Existing Status Filter -->
-                        <div class="col-md-3">
-                    <label for="type"><?php echo e(__('Filter by Type')); ?></label>
-                    <select name="type" id="type" class="form-control status-filter" onchange="this.form.submit()">
-                        <option value=""><?php echo e(__('All')); ?></option>
-                        <option value="audio" <?php echo e(request()->get('type') == 'audio' ? 'selected' : ''); ?>><?php echo e(__('Audio')); ?></option>
-                        <option value="video" <?php echo e(request()->get('type') == 'video' ? 'selected' : ''); ?>><?php echo e(__('Video')); ?></option>
-                    </select>
-                     </div>
-                </form>
+                <!-- Filter by Type and Buttons in the same row -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!-- Filter by Type Form -->
+                    <form action="<?php echo e(route('usercalls.index')); ?>" method="GET" class="d-flex align-items-center">
+                        <label for="type" class="me-5"><?php echo e(__('Filter by Type')); ?></label>
+                        <select name="type" id="type" class="form-control status-filter me-2" onchange="this.form.submit()">
+                            <option value=""><?php echo e(__('All')); ?></option>
+                            <option value="audio" <?php echo e(request()->get('type') == 'audio' ? 'selected' : ''); ?>><?php echo e(__('Audio')); ?></option>
+                            <option value="video" <?php echo e(request()->get('type') == 'video' ? 'selected' : ''); ?>><?php echo e(__('Video')); ?></option>
+                        </select>
+                    </form>
+
+                    <!-- Buttons aligned to the right -->
+                    <div>
+                        <!-- Reset Audio Call Form -->
+                        <form action="<?php echo e(route('usercalls.updateuser')); ?>" method="POST" style="display: inline;">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="audio_status" value="0">
+                            <button type="submit" class="btn btn-warning me-2"><?php echo e(__('Reset Audio Call')); ?></button>
+                        </form>
+
+                        <!-- Reset Video Call Form -->
+                        <form action="<?php echo e(route('usercalls.updateuser')); ?>" method="POST" style="display: inline;">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="video_status" value="0">
+                            <button type="submit" class="btn btn-danger"><?php echo e(__('Reset Video Call')); ?></button>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Table -->
                 <div class="table-responsive">
                     <table class="table" id="pc-dt-simple">
                         <thead>
