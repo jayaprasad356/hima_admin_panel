@@ -42,7 +42,7 @@ class CoinsController extends Controller
         // Create the speech text record
         Coins::create($validated);
 
-        return redirect()->route('speech_texts.index')->with('success', 'Coins successfully created.');
+        return redirect()->route('coins.index')->with('success', 'Coins successfully created.');
     }
 
     // Show the form to edit an existing speech text
@@ -64,22 +64,15 @@ class CoinsController extends Controller
             'coins' => 'required|string|max:255',
             'save' => 'required|string|max:255',
             'popular' => 'required|string|max:255',
+            'best_offer' => 'required|string|max:255',
         ]);
 
         // Update speech text details
         $coins->update($validated);
 
-        return redirect()->route('speech_texts.index')->with('success', 'Coins successfully updated.');
+        return redirect()->route('coins.index')->with('success', 'Coins successfully updated.');
     }
 
-    // Delete a speech text
-    public function destroy($id)
-    {
-        $speechText = Coins::findOrFail($id);
-        $speechText->delete();
-
-        return redirect()->route('speech_texts.index')->with('success', 'Speech text successfully deleted.');
-    }
     public function updateStatus(Request $request)
 {
     // Validate that at least one coin is selected
@@ -103,4 +96,11 @@ class CoinsController extends Controller
     return redirect()->route('coins.index')->with('success', 'Coins updated successfully.');
 }
 
+public function destroy($id)
+{
+    $coins = Coins::findOrFail($id);
+    $coins->delete();
+
+    return redirect()->route('coins.index')->with('success', 'Speech text successfully deleted.');
+}
 }

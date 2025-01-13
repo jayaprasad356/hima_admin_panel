@@ -291,14 +291,14 @@ Route::group(['middleware' => ['verified']], function () {
     Route::post('/users-verification/update-status', [UsersVerificationController::class, 'updateStatus'])->name('users-verification.updateStatus');
     Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
     Route::post('/coins/update-status', [CoinsController::class, 'updateStatus'])->name('coins.updateStatus');
-    Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
+    // Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
     Route::get('/withdrawals', [WithdrawalsController::class, 'index'])->name('withdrawals.index');
     Route::get('/ratings', [RatingsController::class, 'index'])->name('ratings.index');
     Route::get('/usercalls', [UserCallsController::class, 'index'])->name('usercalls.index');
     Route::patch('/withdrawals/bulk-update-status', [WithdrawalsController::class, 'bulkUpdateStatus'])->name('withdrawals.bulkUpdateStatus');
     Route::get('withdrawals/export', [WithdrawalsController::class, 'export'])->name('withdrawals.export');
-
+    Route::resource('coins', CoinsController::class);
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
    Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
 
