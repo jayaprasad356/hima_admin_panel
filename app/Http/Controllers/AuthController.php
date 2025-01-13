@@ -1378,13 +1378,12 @@ public function call_female_user(Request $request)
     if ($call_type == 'audio') {
         // For audio calls: 10 coins = 1 minute
         $minutes = floor($coins / 10);
-        $seconds = ($coins % 10) * 6; // Convert remaining coins to seconds
     } elseif ($call_type == 'video') {
         // For video calls: 60 coins = 1 minute
         $minutes = floor($coins / 60);
-        $seconds = ($coins % 60) * 1; // Convert remaining coins to seconds
     }
     
+    $seconds = 0;
     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
     
 
@@ -1495,9 +1494,15 @@ public function random_user(Request $request)
     $balance_time = '';
     $coins = $user->coins;
 
-    // Calculate balance time in minutes and seconds
-    $minutes = floor($coins / 10); // For every 10 coins, 1 minute
-    $seconds = 0; // Assume no partial seconds for simplicity
+    if ($call_type == 'audio') {
+        // For audio calls: 10 coins = 1 minute
+        $minutes = floor($coins / 10);
+    } elseif ($call_type == 'video') {
+        // For video calls: 60 coins = 1 minute
+        $minutes = floor($coins / 60);
+    }
+    
+    $seconds = 0;
     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
 
       // Filter female users with status = 1 based on call_type and exclude users from not_repeat_call_users
