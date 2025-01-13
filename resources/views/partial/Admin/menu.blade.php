@@ -40,10 +40,10 @@
                     <a href="{{ route('users.index') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-users"></i></span><span class="dash-mtext">{{ __('users') }}</span></a>
                 </li>
-            <li class="dash-item">
+            <!-- <li class="dash-item">
                     <a href="{{ route('avatar.index') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-user"></i></span><span class="dash-mtext">{{ __('Avatar') }}</span></a>
-                </li>
+                </li> -->
                 <li class="dash-item">
                     <a href="{{ route('speech_texts.index') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-file"></i></span><span class="dash-mtext">{{ __('Speech Texts') }}</span></a>
