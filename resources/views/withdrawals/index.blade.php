@@ -26,7 +26,17 @@
                                 <option value="2" {{ request()->get('status') == '2' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
                             </select>
                         </div>
+                        <div class="col-md-3">
+                            <label for="filter_date">{{ __('Filter by Date') }}</label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
+                        </div>
 
+                        <!-- Export Withdrawals Button (Aligned to the Right) -->
+                        <div class="col-md-3 offset-md-3 d-flex justify-content-end">
+                            <a href="{{ route('withdrawals.export') }}" class="btn btn-primary">
+                                {{ __('Export Withdrawals') }}
+                            </a>
+                        </div>
                     </div>
                 </form>
 

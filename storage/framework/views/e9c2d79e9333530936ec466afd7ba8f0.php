@@ -27,7 +27,18 @@
                                 <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Cancelled')); ?></option>
                             </select>
                         </div>
+                        <div class="col-md-3">
+                            <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
+                        </div>
 
+                        <!-- Export Withdrawals Button (Aligned to the Right) -->
+                        <div class="col-md-3 offset-md-3 d-flex justify-content-end">
+                            <a href="<?php echo e(route('withdrawals.export')); ?>" class="btn btn-primary">
+                                <?php echo e(__('Export Withdrawals')); ?>
+
+                            </a>
+                        </div>
                     </div>
                 </form>
 

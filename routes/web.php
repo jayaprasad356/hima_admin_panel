@@ -297,6 +297,7 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('/ratings', [RatingsController::class, 'index'])->name('ratings.index');
     Route::get('/usercalls', [UserCallsController::class, 'index'])->name('usercalls.index');
     Route::patch('/withdrawals/bulk-update-status', [WithdrawalsController::class, 'bulkUpdateStatus'])->name('withdrawals.bulkUpdateStatus');
+    Route::get('withdrawals/export', [WithdrawalsController::class, 'export'])->name('withdrawals.export');
 
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
    Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');

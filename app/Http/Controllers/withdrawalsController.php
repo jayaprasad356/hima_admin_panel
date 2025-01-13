@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Users;
 use App\Models\Withdrawals;
 use Illuminate\Http\Request;
+use App\Exports\WithdrawalsExport; 
+use Maatwebsite\Excel\Facades\Excel;
 
 class WithdrawalsController extends Controller
 {
@@ -13,7 +15,9 @@ class WithdrawalsController extends Controller
         // Get the filters from the query string
         $status = $request->get('status', 0); // Default to Pending
         $transferType = $request->get('transfer_type'); // No default
-    
+        $filterDate = $request->get('filter_date');
+
+        // Query to fetch withdrawals based on the filters
         $withdrawals = Withdrawals::with('users')
             ->when($status !== null, function ($query) use ($status) {
                 return $query->where('status', $status);
@@ -21,19 +25,22 @@ class WithdrawalsController extends Controller
             ->when($transferType, function ($query) use ($transferType) {
                 return $query->where('type', $transferType); // Assuming 'type' is the column for transfer type
             })
+            ->when($filterDate, function ($query) use ($filterDate) {
+                return $query->whereDate('datetime', $filterDate); // Filter withdrawals by selected date
+            })
             ->when($request->get('search'), function ($query, $search) {
                 $query->where('transaction_id', 'like', '%' . $search . '%')
                       ->orWhereHas('users', function ($query) use ($search) {
                           $query->where('name', 'like', '%' . $search . '%')
                                 ->orWhere('mobile', 'like', '%' . $search . '%');
                       });
-                    })
-                    ->orderBy('datetime', 'desc') // Order by latest data
-                    ->get();
-    
+            })
+            ->orderBy('datetime', 'desc') // Order by latest data
+            ->get();
+
+        // Return the view with the filtered withdrawals
         return view('withdrawals.index', compact('withdrawals'));
     }
-    
     
     public function bulkUpdateStatus(Request $request)
     {
@@ -49,6 +56,9 @@ class WithdrawalsController extends Controller
         // Redirect back with a success message
         return redirect()->route('withdrawals.index')->with('success', __('Selected withdrawals have been marked as Paid.'));
     }
-    
+    public function export(Request $request)
+    {
+        return Excel::download(new WithdrawalsExport($request->all()), 'withdrawals.xlsx');
+    }
   
 }
