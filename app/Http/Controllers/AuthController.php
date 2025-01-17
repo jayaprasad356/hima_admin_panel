@@ -2821,55 +2821,29 @@ public function add_coins(Request $request)
 }
 public function cron_jobs(Request $request)
 {
-    // Get the current time in 24-hour format
-    $currentDateTime = Carbon::now();
+    $oneHourAgo = Carbon::now()->subHour();
 
-    // Fetch users whose datetime is more than 1 hour ago
-    $usersToDelete = DB::table('not_repeat_call_users')
-        ->where('datetime', '<', $currentDateTime->subHour())
-        ->get();
-
-    // Delete those users
-    DB::table('not_repeat_call_users')
-        ->whereIn('id', $usersToDelete->pluck('id'))
+    // Delete users whose datetime is older than 1 hour
+    $deletedUsersCount = DB::table('not_repeat_call_users')
+        ->where('datetime', '<', $oneHourAgo)
         ->delete();
 
-    // Fetch users to check if audio_status or video_status should be updated
-    $usersToUpdate = DB::table('users')->get();
+    // Update audio_status for users whose last_audio_time_updated is older than 1 hour
+    DB::table('users')
+        ->whereNotNull('last_audio_time_updated')
+        ->where('last_audio_time_updated', '<', $oneHourAgo)
+        ->update(['audio_status' => 0]);
 
-    $currentDateTime = Carbon::now('UTC');  // Adjust timezone as needed
-
-    foreach ($usersToUpdate as $user) {
-        // Check if last_audio_time_updated exists and calculate the difference in hours
-        // if ($user->last_audio_time_updated) {
-        //     $lastAudioTime = Carbon::parse($user->last_audio_time_updated, 'UTC'); // Use the same timezone
-        //     $AudioTimeDiffInHours = $lastAudioTime->diffInHours($currentDateTime);
-    
-        //     // If the difference is greater than 1 hour, update the video_status
-        //     if ($AudioTimeDiffInHours > 1) {
-        //         DB::table('users')
-        //             ->where('id', $user->id)
-        //             ->update(['audio_status' => 0]);
-        //     }
-        // }
-
-        // if ($user->last_video_time_updated) {
-        //     $lastVideoTime = Carbon::parse($user->last_video_time_updated, 'UTC'); // Use the same timezone
-        //     $videoTimeDiffInHours = $lastVideoTime->diffInHours($currentDateTime);
-    
-        //     // If the difference is greater than 1 hour, update the video_status
-        //     if ($videoTimeDiffInHours > 1) {
-        //         DB::table('users')
-        //             ->where('id', $user->id)
-        //             ->update(['video_status' => 0]);
-        //     }
-        // }
-    }
+    // Update video_status for users whose last_video_time_updated is older than 1 hour
+    DB::table('users')
+        ->whereNotNull('last_video_time_updated')
+        ->where('last_video_time_updated', '<', $oneHourAgo)
+        ->update(['video_status' => 0]);
 
     return response()->json([
         'success' => true,
         'message' => 'Data Deleted and status Updated successfully.',
-        'deleted_users_count' => $usersToDelete->count(),
+        'deleted_users_count' => $deletedUsersCount,
     ], 200);
 }
 }
