@@ -1692,29 +1692,37 @@ public function update_connected_call(Request $request)
     }
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
-    // Calculate duration in minutes (ensure at least 1 minute)
-    $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
+   // Calculate the duration in seconds
+$durationSeconds = $endTime->diffInSeconds($startTime);
 
-    
-    if ($callType == 'audio') {
-        $coinsPerMinute = 10;
-        $incomePerMinute = 2;
-    } elseif ($callType == 'video') {
-        $coinsPerMinute = 60;
-        $incomePerMinute = 10;
-    }
+// Ignore the first 10 seconds before counting minutes
+$effectiveDurationSeconds = max($durationSeconds - 10, 0);
 
-    $coins_spend = $durationMinutes * $coinsPerMinute;
-    $income = $durationMinutes * $incomePerMinute;
+// Ensure at least 1 minute is counted (ceil rounds up)
+$durationMinutes = max(ceil($effectiveDurationSeconds / 60), 1);
 
-      // Only deduct coins if the duration is 10 seconds or more
-      if ($durationSeconds >= 10) {
-        $user->coins -= $coins_spend; // Deduct coins only if duration >= 10 seconds
-        $user->save();
-    } else {
-        $coins_spend = 0; // No coins deducted if duration is less than 10 seconds
-        $income = 0; // No coins deducted if duration is less than 10 seconds
-    }
+// Determine coin deduction rates
+if ($callType == 'audio') {
+    $coinsPerMinute = 10; // Per minute deduction
+    $incomePerMinute = 2; // Income per minute
+} elseif ($callType == 'video') {
+    $coinsPerMinute = 60;
+    $incomePerMinute = 10;
+}
+
+// Calculate total coins spent and earned
+$coins_spend = $durationMinutes * $coinsPerMinute;
+$income = $durationMinutes * $incomePerMinute;
+
+// Deduct coins only if duration is 10 seconds or more
+if ($durationSeconds >= 10) {
+    $user->coins -= $coins_spend;
+    $user->save();
+} else {
+    $coins_spend = 0;
+    $income = 0;
+}
+
 
     // Update the balance of the call_user_id user
     $callUser = Users::find($call->call_user_id);
@@ -1873,28 +1881,37 @@ public function individual_update_connected_call(Request $request)
 
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
-    // Calculate duration in minutes (ensure at least 1 minute)
-    $durationMinutes = max($endTime->diffInMinutes($startTime), 1);
+   // Calculate the duration in seconds
+$durationSeconds = $endTime->diffInSeconds($startTime);
 
-    if ($callType == 'audio') {
-        $coinsPerMinute = 10;
-        $incomePerMinute = 2;
-    } elseif ($callType == 'video') {
-        $coinsPerMinute = 60;
-        $incomePerMinute = 10;
-    }
+// Ignore the first 10 seconds before counting minutes
+$effectiveDurationSeconds = max($durationSeconds - 10, 0);
 
-    $coins_spend = $durationMinutes * $coinsPerMinute;
-    $income = $durationMinutes * $incomePerMinute;
+// Ensure at least 1 minute is counted (ceil rounds up)
+$durationMinutes = max(ceil($effectiveDurationSeconds / 60), 1);
 
-    // Only deduct coins if the duration is 10 seconds or more
-    if ($durationSeconds >= 10) {
-        $user->coins -= $coins_spend; // Deduct coins only if duration >= 10 seconds
-        $user->save();
-    } else {
-        $coins_spend = 0; // No coins deducted if duration is less than 10 seconds
-        $income = 0; // No coins deducted if duration is less than 10 seconds
-    }
+// Determine coin deduction rates
+if ($callType == 'audio') {
+    $coinsPerMinute = 10; // Per minute deduction
+    $incomePerMinute = 2; // Income per minute
+} elseif ($callType == 'video') {
+    $coinsPerMinute = 60;
+    $incomePerMinute = 10;
+}
+
+// Calculate total coins spent and earned
+$coins_spend = $durationMinutes * $coinsPerMinute;
+$income = $durationMinutes * $incomePerMinute;
+
+// Deduct coins only if duration is 10 seconds or more
+if ($durationSeconds >= 10) {
+    $user->coins -= $coins_spend;
+    $user->save();
+} else {
+    $coins_spend = 0;
+    $income = 0;
+}
+
 
    
     // Update the balance of the call_user_id user
@@ -2824,29 +2841,29 @@ public function cron_jobs(Request $request)
 
     foreach ($usersToUpdate as $user) {
         // Check if last_audio_time_updated exists and calculate the difference in hours
-        if ($user->last_audio_time_updated) {
-            $lastAudioTime = Carbon::parse($user->last_audio_time_updated, 'UTC'); // Use the same timezone
-            $AudioTimeDiffInHours = $lastAudioTime->diffInHours($currentDateTime);
+        // if ($user->last_audio_time_updated) {
+        //     $lastAudioTime = Carbon::parse($user->last_audio_time_updated, 'UTC'); // Use the same timezone
+        //     $AudioTimeDiffInHours = $lastAudioTime->diffInHours($currentDateTime);
     
-            // If the difference is greater than 1 hour, update the video_status
-            if ($AudioTimeDiffInHours > 1) {
-                DB::table('users')
-                    ->where('id', $user->id)
-                    ->update(['audio_status' => 0]);
-            }
-        }
+        //     // If the difference is greater than 1 hour, update the video_status
+        //     if ($AudioTimeDiffInHours > 1) {
+        //         DB::table('users')
+        //             ->where('id', $user->id)
+        //             ->update(['audio_status' => 0]);
+        //     }
+        // }
 
-        if ($user->last_video_time_updated) {
-            $lastVideoTime = Carbon::parse($user->last_video_time_updated, 'UTC'); // Use the same timezone
-            $videoTimeDiffInHours = $lastVideoTime->diffInHours($currentDateTime);
+        // if ($user->last_video_time_updated) {
+        //     $lastVideoTime = Carbon::parse($user->last_video_time_updated, 'UTC'); // Use the same timezone
+        //     $videoTimeDiffInHours = $lastVideoTime->diffInHours($currentDateTime);
     
-            // If the difference is greater than 1 hour, update the video_status
-            if ($videoTimeDiffInHours > 1) {
-                DB::table('users')
-                    ->where('id', $user->id)
-                    ->update(['video_status' => 0]);
-            }
-        }
+        //     // If the difference is greater than 1 hour, update the video_status
+        //     if ($videoTimeDiffInHours > 1) {
+        //         DB::table('users')
+        //             ->where('id', $user->id)
+        //             ->update(['video_status' => 0]);
+        //     }
+        // }
     }
 
     return response()->json([
