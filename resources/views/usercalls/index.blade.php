@@ -55,6 +55,7 @@
                                 <th>{{ __('Type') }}</th>
                                 <th>{{ __('Started Time') }}</th>
                                 <th>{{ __('Ended Time') }}</th>
+                                <th>{{ __('Call Duration') }}</th>
                                 <th>{{ __('Coins Spend') }}</th>
                                 <th>{{ __('Income') }}</th>
                                 <th>{{ __('Datetime') }}</th>
@@ -69,6 +70,7 @@
                                     <td>{{ ucfirst($usercall->type) }}</td>
                                     <td>{{ $usercall->started_time }}</td>
                                     <td>{{ $usercall->ended_time }}</td>
+                                    <td>{{ $usercall->duration }}</td>
                                     <td>{{ $usercall->coins_spend }}</td>
                                     <td>{{ $usercall->income }}</td>
                                     <td>{{ $usercall->datetime }}</td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\UserCalls;
 use App\Models\Users;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class UserCallsController extends Controller
 {
@@ -12,13 +13,31 @@ class UserCallsController extends Controller
         // Fetch user calls with optional type filter
         $type = $request->get('type'); // Get type from request
         
-        $usercalls = UserCalls::with(['user', 'callusers']) // Load user and call_user relationships
+        // Get the user calls with the relationships
+        $usercalls = UserCalls::with(['user', 'callusers'])
             ->when($type, function ($query, $type) {
                 return $query->where('type', $type); // Filter by type if provided
             })
             ->orderBy('datetime', 'desc') // Order by latest data
             ->get();
 
+        // Calculate the duration for each user call
+        foreach ($usercalls as $usercall) {
+            if ($usercall->started_time && $usercall->ended_time) {
+                // Parse the times using Carbon
+                $started = Carbon::parse($usercall->started_time);
+                $ended = Carbon::parse($usercall->ended_time);
+                
+                // Calculate the duration difference
+                $duration = $started->diff($ended); // Get the difference as a Carbon interval
+                // Format the duration as H:i:s
+                $usercall->duration = $duration->format('%H:%I:%S');
+            } else {
+                $usercall->duration = ''; // Handle cases where times are missing
+            }
+        }
+
+        // Pass the usercalls to the view
         return view('usercalls.index', compact('usercalls'));
     }
 
