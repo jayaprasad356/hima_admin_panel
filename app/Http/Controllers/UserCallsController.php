@@ -35,11 +35,37 @@ class UserCallsController extends Controller
             } else {
                 $usercall->duration = ''; // Handle cases where times are missing
             }
-        }
+        
+         // Calculate total coins before and after spending
+         $user = $usercall->user; // Get the user who made the call
+         if ($user) {
+             $usercall->coins_before_spending = $user->coins; // Before spending coins
 
-        // Pass the usercalls to the view
-        return view('usercalls.index', compact('usercalls'));
-    }
+             // Calculate the coins to be deducted based on call duration
+             $callType = $usercall->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
+             $durationMinutes = $usercall->duration ? ceil($started->diffInSeconds($ended) / 60) : 0;
+
+             // Calculate the coin deduction rate based on the call type
+             if ($callType == 'audio') {
+                 $coinsPerMinute = 10; // Per minute deduction for audio calls
+             } elseif ($callType == 'video') {
+                 $coinsPerMinute = 60; // Per minute deduction for video calls
+             } else {
+                 $coinsPerMinute = 0; // No deduction for other types
+             }
+
+             // Calculate the total coins spent
+             $coinsSpent = $durationMinutes * $coinsPerMinute;
+             $usercall->coins_spent = $coinsSpent;
+
+             // After spending coins
+             $usercall->coins_after_spending = $user->coins - $coinsSpent; // Updated coins balance
+         }
+     }
+
+     // Pass the usercalls to the view
+     return view('usercalls.index', compact('usercalls'));
+ }
 
     public function updateuser(Request $request)
     {

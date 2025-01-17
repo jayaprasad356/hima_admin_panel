@@ -57,6 +57,8 @@
                                 <th><?php echo e(__('Started Time')); ?></th>
                                 <th><?php echo e(__('Ended Time')); ?></th>
                                 <th><?php echo e(__('Call Duration')); ?></th>
+                                <th><?php echo e(__('Coins Before Spending')); ?></th>
+                                <th><?php echo e(__('Coins After Spending')); ?></th> 
                                 <th><?php echo e(__('Coins Spend')); ?></th>
                                 <th><?php echo e(__('Income')); ?></th>
                                 <th><?php echo e(__('Datetime')); ?></th>
@@ -72,6 +74,8 @@
                                     <td><?php echo e($usercall->started_time); ?></td>
                                     <td><?php echo e($usercall->ended_time); ?></td>
                                     <td><?php echo e($usercall->duration); ?></td>
+                                    <td><?php echo e($usercall->coins_before_spending); ?></td>
+                                    <td><?php echo e($usercall->coins_after_spending); ?></td>
                                     <td><?php echo e($usercall->coins_spend); ?></td>
                                     <td><?php echo e($usercall->income); ?></td>
                                     <td><?php echo e($usercall->datetime); ?></td>
