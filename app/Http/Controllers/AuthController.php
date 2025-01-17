@@ -1521,7 +1521,7 @@ public function random_user(Request $request)
     } else { // 'audio'
         $query->where('audio_status', 1);
     }
-
+        
     // Fetch random user
     $randomFemaleuser = $query->inRandomOrder()->first();
 
