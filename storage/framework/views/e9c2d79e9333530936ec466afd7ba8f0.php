@@ -43,15 +43,24 @@
                 </form>
 
                 <form action="<?php echo e(route('withdrawals.bulkUpdateStatus')); ?>" method="POST">
-                    <?php echo csrf_field(); ?>
-                    <?php echo method_field('PATCH'); ?>
+    <?php echo csrf_field(); ?>
+    <?php echo method_field('PATCH'); ?>
 
-                    <div class="mb-3 d-flex align-items-center">
-        <button type="submit" class="btn btn-success ml-3" onclick="return confirm('<?php echo e(__('Are you sure you want to mark selected as Paid?')); ?>')">
+    <div class="mb-3 d-flex align-items-center">
+        <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
+            onclick="return confirm('<?php echo e(__('Are you sure you want to mark selected as Paid?')); ?>')">
             <?php echo e(__('Paid')); ?>
 
         </button>
+
+        <button type="submit" name="status" value="2" class="btn btn-danger ml-2" 
+            onclick="return confirm('<?php echo e(__('Are you sure you want to cancel selected withdrawals?')); ?>')">
+            <?php echo e(__('Cancel')); ?>
+
+        </button>
     </div>
+
+
 
 
                 <div class="card-body table-border-style">

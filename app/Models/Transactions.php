@@ -14,6 +14,7 @@ class Transactions extends Model
         'type',
         'coins',
         'datetime',
+        'amount',
         'payment_type',
     ];
 
