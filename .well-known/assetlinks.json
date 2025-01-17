@@ -29,6 +29,17 @@
           ["A9:EA:EB:51:24:0D:9B:D0:16:17:7F:B7:88:78:28:A9:E9:94:50:33:D6:7E:9E:E9:44:EE:86:18:50:37:9A:A4"]
       }
     }
+  ],
+  [
+    {
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.gmwapp.hima",
+        "sha256_cert_fingerprints":
+          ["9A:3E:5C:C0:45:4B:52:6B:61:EA:02:A8:F0:39:27:8B:33:E6:56:15:8E:93:94:7C:B7:F1:4E:30:99:6E:0E:19"]
+      }
+    }
   ]
   
 ]
