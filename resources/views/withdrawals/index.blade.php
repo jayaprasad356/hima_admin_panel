@@ -41,14 +41,22 @@
                 </form>
 
                 <form action="{{ route('withdrawals.bulkUpdateStatus') }}" method="POST">
-                    @csrf
-                    @method('PATCH')
+    @csrf
+    @method('PATCH')
 
-                    <div class="mb-3 d-flex align-items-center">
-        <button type="submit" class="btn btn-success ml-3" onclick="return confirm('{{ __('Are you sure you want to mark selected as Paid?') }}')">
+    <div class="mb-3 d-flex align-items-center">
+        <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
+            onclick="return confirm('{{ __('Are you sure you want to mark selected as Paid?') }}')">
             {{ __('Paid') }}
         </button>
+
+        <button type="submit" name="status" value="2" class="btn btn-danger ml-2" 
+            onclick="return confirm('{{ __('Are you sure you want to cancel selected withdrawals?') }}')">
+            {{ __('Cancel') }}
+        </button>
     </div>
+
+
 
 
                 <div class="card-body table-border-style">
