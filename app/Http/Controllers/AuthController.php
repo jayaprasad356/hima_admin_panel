@@ -1696,7 +1696,7 @@ public function update_connected_call(Request $request)
 $durationSeconds = $endTime->diffInSeconds($startTime);
 
 // Ignore the first 10 seconds before counting minutes
-$effectiveDurationSeconds = max($durationSeconds - 10, 0);
+$effectiveDurationSeconds = max($durationSeconds - 9, 0);
 
 // Ensure at least 1 minute is counted (ceil rounds up)
 $durationMinutes = max(ceil($effectiveDurationSeconds / 60), 1);
