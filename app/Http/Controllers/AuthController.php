@@ -1507,14 +1507,8 @@ public function random_user(Request $request)
     $seconds = 0;
     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
 
-      // Filter female users with status = 1 based on call_type and exclude users from not_repeat_call_users
-      $query = users::where('gender', 'female')
-      ->where('id', '!=', $user_id)
-      ->whereNotIn('id', function ($subquery) use ($user_id) {
-          $subquery->select('call_user_id')
-                   ->from('not_repeat_call_users')
-                   ->where('user_id', $user_id);
-      });
+    $query = users::where('gender', 'female')
+        ->where('id', '!=', $user_id);
 
     if ($call_type == 'video') {
         $query->where('video_status', 1);
@@ -1679,17 +1673,17 @@ public function update_connected_call(Request $request)
     $durationSeconds = $endTime->diffInSeconds($startTime);
 
 
-    // Handle calls with less than 10 seconds duration
-    if ($durationSeconds < 10) {
-        DB::table('not_repeat_call_users')->insert([
-            'user_id' => $user_id,
-            'call_user_id' => $call->call_user_id,
-            'reason' => 'Duration less than 10 seconds',
-            'datetime' => Carbon::now(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-    }
+    // // Handle calls with less than 10 seconds duration
+    // if ($durationSeconds < 10) {
+    //     DB::table('not_repeat_call_users')->insert([
+    //         'user_id' => $user_id,
+    //         'call_user_id' => $call->call_user_id,
+    //         'reason' => 'Duration less than 10 seconds',
+    //         'datetime' => Carbon::now(),
+    //         'created_at' => Carbon::now(),
+    //         'updated_at' => Carbon::now(),
+    //     ]);
+    // }
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
    // Calculate the duration in seconds
@@ -1867,17 +1861,17 @@ public function individual_update_connected_call(Request $request)
     // Calculate the duration in seconds
     $durationSeconds = $endTime->diffInSeconds($startTime);
 
-    // Handle calls with less than 10 seconds duration
-    if ($durationSeconds < 10) {
-        DB::table('not_repeat_call_users')->insert([
-            'user_id' => $user_id,
-            'call_user_id' => $call->call_user_id,
-            'reason' => 'Duration less than 10 seconds',
-            'datetime' => Carbon::now(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-    }
+    // // Handle calls with less than 10 seconds duration
+    // if ($durationSeconds < 10) {
+    //     DB::table('not_repeat_call_users')->insert([
+    //         'user_id' => $user_id,
+    //         'call_user_id' => $call->call_user_id,
+    //         'reason' => 'Duration less than 10 seconds',
+    //         'datetime' => Carbon::now(),
+    //         'created_at' => Carbon::now(),
+    //         'updated_at' => Carbon::now(),
+    //     ]);
+    // }
 
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
@@ -2819,31 +2813,31 @@ public function add_coins(Request $request)
         ],
     ], 200);
 }
-public function cron_jobs(Request $request)
-{
-    $oneHourAgo = Carbon::now()->subHour();
+// public function cron_jobs(Request $request)
+// {
+//     $oneHourAgo = Carbon::now()->subHour();
 
-    // Delete users whose datetime is older than 1 hour
-    $deletedUsersCount = DB::table('not_repeat_call_users')
-        ->where('datetime', '<', $oneHourAgo)
-        ->delete();
+//     // Delete users whose datetime is older than 1 hour
+//     $deletedUsersCount = DB::table('not_repeat_call_users')
+//         ->where('datetime', '<', $oneHourAgo)
+//         ->delete();
 
-    // Update audio_status for users whose last_audio_time_updated is older than 1 hour
-    DB::table('users')
-        ->whereNotNull('last_audio_time_updated')
-        ->where('last_audio_time_updated', '<', $oneHourAgo)
-        ->update(['audio_status' => 0]);
+//     // Update audio_status for users whose last_audio_time_updated is older than 1 hour
+//     DB::table('users')
+//         ->whereNotNull('last_audio_time_updated')
+//         ->where('last_audio_time_updated', '<', $oneHourAgo)
+//         ->update(['audio_status' => 0]);
 
-    // Update video_status for users whose last_video_time_updated is older than 1 hour
-    DB::table('users')
-        ->whereNotNull('last_video_time_updated')
-        ->where('last_video_time_updated', '<', $oneHourAgo)
-        ->update(['video_status' => 0]);
+//     // Update video_status for users whose last_video_time_updated is older than 1 hour
+//     DB::table('users')
+//         ->whereNotNull('last_video_time_updated')
+//         ->where('last_video_time_updated', '<', $oneHourAgo)
+//         ->update(['video_status' => 0]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Data Deleted and status Updated successfully.',
-        'deleted_users_count' => $deletedUsersCount,
-    ], 200);
-}
+//     return response()->json([
+//         'success' => true,
+//         'message' => 'Data Deleted and status Updated successfully.',
+//         'deleted_users_count' => $deletedUsersCount,
+//     ], 200);
+// }
 }
