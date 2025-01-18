@@ -53,38 +53,23 @@ class WithdrawalsExport implements FromCollection, WithHeadings
             };
     
             return [
-                $withdrawal->id,
-                $withdrawal->user_name,
-                $withdrawal->user_mobile,
-                $withdrawal->amount,
-                $statusDescription,
-                $withdrawal->datetime,
-                $withdrawal->bank_name,
-                $withdrawal->branch_name,
-                $withdrawal->account_number,
-                $withdrawal->account_holder_name,
-                $withdrawal->ifsc_code,
-                $withdrawal->upi_id,
+                'Beneficiary Name' => $withdrawal->user_name, // Unique user name again
+                'Beneficiary Account number' => $withdrawal->account_num,
+                'IFSC code' => $withdrawal->ifsc_code,
+                'Amount' => $withdrawal->amount,
+                'Description / Purpose' => 'salary', // Unique user name
             ];
         });
     }
 
-    // Define the headings for the Excel export
     public function headings(): array
     {
         return [
-            'ID',
-            'User Name',
-            'User Mobile',
-            'Amount',
-            'Status',
-            'Datetime',
-            'Bank Name',
-            'Branch Name',
-            'Account Number',
-            'Account Holder Name',
-            'IFSC Code',
-            'UPI ID',
+            'Beneficiary Name (Mandatory)',
+            'Beneficiary Account number (Mandatory)',
+            'IFSC code (Mandatory)',
+            'Amount (Mandatory)', // Column for descriptive status
+            'Description / Purpose (Optional)',
         ];
     }
 }
