@@ -1684,20 +1684,8 @@ public function update_connected_call(Request $request)
     //         'updated_at' => Carbon::now(),
     //     ]);
     // }
-    $call_type = $call->type; // Ensure call type is correctly retrieved
-    $required_coins = ($call_type == 'video') ? 60 : 10;
-    
-    if ($user->coins < $required_coins) {
-        return response()->json([
-            'success' => false,
-            'message' => "Insufficient coins for {$call_type} call. Minimum {$required_coins} coins required.",
-        ], 200); // Use 403 Forbidden instead of 200
-    }
-    
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
-  
-    
    // Calculate the duration in seconds
 $durationSeconds = $endTime->diffInSeconds($startTime);
 
@@ -1885,16 +1873,6 @@ public function individual_update_connected_call(Request $request)
     //     ]);
     // }
 
-    $call_type = $call->type; // Ensure call type is correctly retrieved
-    $required_coins = ($call_type == 'video') ? 60 : 10;
-    
-    if ($user->coins < $required_coins) {
-        return response()->json([
-            'success' => false,
-            'message' => "Insufficient coins for {$call_type} call. Minimum {$required_coins} coins required.",
-        ], 200); // Use 403 Forbidden instead of 200
-    }
-    
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
    // Calculate the duration in seconds

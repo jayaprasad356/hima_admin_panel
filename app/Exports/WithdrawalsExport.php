@@ -54,7 +54,7 @@ class WithdrawalsExport implements FromCollection, WithHeadings
     
             return [
                 'Beneficiary Name' => $withdrawal->user_name, // Unique user name again
-                'Beneficiary Account number' => $withdrawal->account_num,
+                'Beneficiary Account number' => $withdrawal->account_number,
                 'IFSC code' => $withdrawal->ifsc_code,
                 'Amount' => $withdrawal->amount,
                 'Description / Purpose' => 'salary', // Unique user name
