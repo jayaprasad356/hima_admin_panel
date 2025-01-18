@@ -2,23 +2,15 @@
 <div class="modal-body">
     <div class="row">
         <!-- User Select Dropdown -->
-        <div class="form-group col-md-12">
-            {{ Form::label('user_id', __('Select User'), ['class' => 'form-label']) }}
-            <select id="user_id" name="user_id" class="form-control select2" required>
-                <option value="">{{ __('Select User') }}</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}" {{ $notification->user_id == $user->id ? 'selected' : '' }}>
-                        {{ $user->name }} ({{ $user->mobile }})
-                    </option>
-                @endforeach
-            </select>
-        </div>
+      
 
-        <!-- User Details -->
-        <div id="user-details" class="mt-3" style="display: none;">
-            <p><strong>{{ __('Name:') }}</strong> <span id="user-name"></span></p>
-            <p><strong>{{ __('Email:') }}</strong> <span id="user-email"></span></p>
-            <p><strong>{{ __('Mobile:') }}</strong> <span id="user-mobile"></span></p>
+        <!-- Gender Select Dropdown -->
+        <div class="form-group col-md-12">
+            {{ Form::label('gender', __('Gender'), ['class' => 'form-label']) }}
+            <select id="gender" name="gender" class="form-control" required>
+                <option value="male" {{ $notification->gender == 'male' ? 'selected' : '' }}>{{ __('Male') }}</option>
+                <option value="female" {{ $notification->gender == 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
+            </select>
         </div>
 
         <!-- Title Input -->

@@ -30,7 +30,7 @@
                                 <tr>
                                     <th>{{ __('Actions') }}</th>
                                     <th>{{ __('ID') }}</th>
-                                    <th>{{ __('User Name') }}</th>
+                                    <th>{{ __('Gender') }}</th>
                                     <th>{{ __('Title') }}</th>
                                     <th>{{ __('Description') }}</th>
                                     <th>{{ __('Datetime') }}</th>
@@ -60,7 +60,7 @@
                                             </span>
                                         </td>
                                         <td>{{ $notification->id }}</td>
-                                        <td>{{ ucfirst($notification->users->name ?? '') }}</td>
+                                        <td>{{ $notification->gender }}</td>
                                         <td>{{ $notification->title }}</td>
                                         <td>{{ $notification->description}}</td>
                                         <td>{{ $notification->datetime }}</td>

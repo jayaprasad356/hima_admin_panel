@@ -21,24 +21,15 @@
                 <form action="{{ route('notifications.store') }}" method="POST">
                     @csrf
 
-                     <!-- User Dropdown -->
-                     <div class="form-group">
-                        <label for="user_id">{{ __('Select User') }}</label>
-                        <select id="user_id" name="user_id" class="form-control select2" required>
-                            <option value="">{{ __('Select User') }}</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->mobile }})</option>
-                            @endforeach
+                    <!-- Gender Selection -->
+                    <div class="form-group">
+                        <label for="gender">{{ __('Select Gender') }}</label>
+                        <select id="gender" name="gender" class="form-control" required>
+                            <option value="">{{ __('Select Gender') }}</option>
+                            <option value="male">{{ __('Male') }}</option>
+                            <option value="female">{{ __('Female') }}</option>
                         </select>
                     </div>
-
-                <!-- User Details -->
-                <div id="user-details" class="mt-3" style="display: none;">
-                    <p><strong>{{ __('Name:') }}</strong> <span id="user-name"></span></p>
-                    <p><strong>{{ __('Email:') }}</strong> <span id="user-email"></span></p>
-                    <p><strong>{{ __('Mobile:') }}</strong> <span id="user-mobile"></span></p>
-                </div>
-
 
                     <div class="form-group">
                         <label for="title">{{ __('Title') }}</label>
@@ -51,9 +42,6 @@
                         <textarea name="description" class="form-control" rows="3" required>{{ old('description') }}</textarea>
                     </div>
 
-
-                  
-
                     <!-- Save Button -->
                     <div class="form-group mt-4 text-center">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
@@ -65,62 +53,3 @@
     </div>
 </div>
 @endsection
-
-<script>
-    document.getElementById('user_id').addEventListener('change', function () {
-    const userId = this.value;
-
-    if (userId) {
-        fetch(`/users/${userId}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('user-details').style.display = 'block';
-                document.getElementById('user-name').textContent = data.name;
-                document.getElementById('user-email').textContent = data.email;
-                document.getElementById('user-mobile').textContent = data.mobile;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('user-details').style.display = 'none';
-            });
-    } else {
-        document.getElementById('user-details').style.display = 'none';
-    }
-});
-
-</script>
-<script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            placeholder: "{{ __('Select User') }}",
-            allowClear: true
-        });
-    });
-</script>
-<script>
-    $('#user_id').select2({
-        placeholder: "{{ __('Select User') }}",
-        allowClear: true,
-        ajax: {
-            url: "{{ route('search.users') }}",
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term // search term
-                };
-            },
-            processResults: function (data) {
-                return {
-                    results: $.map(data, function (item) {
-                        return {
-                            id: item.id,
-                            text: item.name + ' (' + item.mobile + ')'
-                        };
-                    })
-                };
-            },
-            cache: true
-        }
-    });
-</script>

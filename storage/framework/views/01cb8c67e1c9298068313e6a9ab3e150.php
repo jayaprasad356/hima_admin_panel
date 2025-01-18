@@ -32,7 +32,7 @@
                                 <tr>
                                     <th><?php echo e(__('Actions')); ?></th>
                                     <th><?php echo e(__('ID')); ?></th>
-                                    <th><?php echo e(__('User Name')); ?></th>
+                                    <th><?php echo e(__('Gender')); ?></th>
                                     <th><?php echo e(__('Title')); ?></th>
                                     <th><?php echo e(__('Description')); ?></th>
                                     <th><?php echo e(__('Datetime')); ?></th>
@@ -64,7 +64,7 @@
                                             </span>
                                         </td>
                                         <td><?php echo e($notification->id); ?></td>
-                                        <td><?php echo e(ucfirst($notification->users->name ?? '')); ?></td>
+                                        <td><?php echo e($notification->gender); ?></td>
                                         <td><?php echo e($notification->title); ?></td>
                                         <td><?php echo e($notification->description); ?></td>
                                         <td><?php echo e($notification->datetime); ?></td>

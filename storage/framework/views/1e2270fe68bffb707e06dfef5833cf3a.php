@@ -3,24 +3,16 @@
 <div class="modal-body">
     <div class="row">
         <!-- User Select Dropdown -->
+      
+
+        <!-- Gender Select Dropdown -->
         <div class="form-group col-md-12">
-            <?php echo e(Form::label('user_id', __('Select User'), ['class' => 'form-label'])); ?>
+            <?php echo e(Form::label('gender', __('Gender'), ['class' => 'form-label'])); ?>
 
-            <select id="user_id" name="user_id" class="form-control select2" required>
-                <option value=""><?php echo e(__('Select User')); ?></option>
-                <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <option value="<?php echo e($user->id); ?>" <?php echo e($notification->user_id == $user->id ? 'selected' : ''); ?>>
-                        <?php echo e($user->name); ?> (<?php echo e($user->mobile); ?>)
-                    </option>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <select id="gender" name="gender" class="form-control" required>
+                <option value="male" <?php echo e($notification->gender == 'male' ? 'selected' : ''); ?>><?php echo e(__('Male')); ?></option>
+                <option value="female" <?php echo e($notification->gender == 'female' ? 'selected' : ''); ?>><?php echo e(__('Female')); ?></option>
             </select>
-        </div>
-
-        <!-- User Details -->
-        <div id="user-details" class="mt-3" style="display: none;">
-            <p><strong><?php echo e(__('Name:')); ?></strong> <span id="user-name"></span></p>
-            <p><strong><?php echo e(__('Email:')); ?></strong> <span id="user-email"></span></p>
-            <p><strong><?php echo e(__('Mobile:')); ?></strong> <span id="user-mobile"></span></p>
         </div>
 
         <!-- Title Input -->

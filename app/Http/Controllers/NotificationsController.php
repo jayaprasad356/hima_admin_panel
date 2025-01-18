@@ -37,7 +37,7 @@ class NotificationsController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:5000',
             'description' => 'required|string|max:5000',
-            'user_id' => 'required|integer|exists:users,id',
+            'gender' => 'required|string|max:5000',
         ]);
     
         // Create the notification record
@@ -63,7 +63,7 @@ class NotificationsController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:5000',
             'description' => 'required|string|max:5000',
-            'user_id' => 'required|integer|exists:users,id',
+            'gender' => 'required|string|max:5000',
         ]);
     
         // Update notification details
