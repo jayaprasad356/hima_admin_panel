@@ -15,7 +15,12 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header">
-                <h5><?php echo e(__('user List')); ?></h5>
+            <form action="<?php echo e(route('users.index')); ?>" method="GET" class="mb-3">
+        <div class="col-md-3">
+                            <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
+                        </div>
+        </form>
             </div>
             <div class="card-body table-border-style">
                 <div class="table-responsive">
@@ -32,6 +37,7 @@
                                 <th><?php echo e(__('Total Coins')); ?></th>
                                 <th><?php echo e(__('Language')); ?></th>
                                 <th><?php echo e(__('Balance')); ?></th>
+                                <th><?php echo e(__('DateTime')); ?></th>
                                 <th><?php echo e(__('Status')); ?></th>
                                 <th><?php echo e(__('Audio Status')); ?></th>
                                 <th><?php echo e(__('Video Status')); ?></th>
@@ -69,6 +75,7 @@
                                     <td><?php echo e($user->total_coins); ?></td>
                                     <td><?php echo e(ucfirst($user->language)); ?></td>
                                     <td><?php echo e($user->balance); ?></td>
+                                    <td><?php echo e($user->datetime); ?></td>
                                     <td>
                                         <!-- Display Status with values 1, 2, and 3 -->
                                         <?php if($user->status == 1): ?>

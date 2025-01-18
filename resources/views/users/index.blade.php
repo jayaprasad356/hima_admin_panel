@@ -14,7 +14,12 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header">
-                <h5>{{ __('user List') }}</h5>
+            <form action="{{ route('users.index') }}" method="GET" class="mb-3">
+        <div class="col-md-3">
+                            <label for="filter_date">{{ __('Filter by Date') }}</label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
+                        </div>
+        </form>
             </div>
             <div class="card-body table-border-style">
                 <div class="table-responsive">
@@ -31,6 +36,7 @@
                                 <th>{{ __('Total Coins') }}</th>
                                 <th>{{ __('Language') }}</th>
                                 <th>{{ __('Balance') }}</th>
+                                <th>{{ __('DateTime') }}</th>
                                 <th>{{ __('Status') }}</th>
                                 <th>{{ __('Audio Status') }}</th>
                                 <th>{{ __('Video Status') }}</th>
@@ -68,6 +74,7 @@
                                     <td>{{ $user->total_coins }}</td>
                                     <td>{{ ucfirst($user->language) }}</td>
                                     <td>{{ $user->balance }}</td>
+                                    <td>{{ $user->datetime }}</td>
                                     <td>
                                         <!-- Display Status with values 1, 2, and 3 -->
                                         @if($user->status == 1)

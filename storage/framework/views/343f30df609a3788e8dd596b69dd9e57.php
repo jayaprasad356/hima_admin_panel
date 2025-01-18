@@ -53,6 +53,7 @@
                                 <th><?php echo e(__('ID')); ?></th>
                                 <th><?php echo e(__('User Name')); ?></th>
                                 <th><?php echo e(__('Call User Name')); ?></th>
+                                <th><?php echo e(__('Duration')); ?></th>
                                 <th><?php echo e(__('Type')); ?></th>
                                 <th><?php echo e(__('Started Time')); ?></th>
                                 <th><?php echo e(__('Ended Time')); ?></th>
@@ -69,6 +70,7 @@
                                     <td><?php echo e($usercall->id); ?></td>
                                     <td><?php echo e(ucfirst($usercall->user->name ?? '')); ?></td>
                                     <td><?php echo e(ucfirst($usercall->callusers->name ?? '')); ?></td>
+                                    <td><?php echo e($usercall->calculated_minutes); ?> Min</td>
                                     <td><?php echo e(ucfirst($usercall->type)); ?></td>
                                     <td><?php echo e($usercall->started_time); ?></td>
                                     <td><?php echo e($usercall->ended_time); ?></td>

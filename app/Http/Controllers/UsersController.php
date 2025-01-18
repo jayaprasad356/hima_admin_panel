@@ -13,19 +13,25 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $filterDate = $request->get('filter_date');
     
-        // Search users by name, mobile, or language and eager load the avatar relationship
         $users = Users::with('avatar')
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                      ->orWhere('mobile', 'like', '%' . $search . '%')
-                      ->orWhere('language', 'like', '%' . $search . '%');
+            ->when($filterDate, function ($query) use ($filterDate) {
+                return $query->whereDate('datetime', $filterDate); // Make sure column name matches
             })
-            ->orderBy('datetime', 'desc') // Order by latest data
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search . '%')
+                          ->orWhere('mobile', 'like', '%' . $search . '%')
+                          ->orWhere('language', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('datetime', 'desc') // Use `created_at` instead of `datetime` if applicable
             ->get();
     
         return view('users.index', compact('users'));
     }
+    
     // Show the form to edit an existing user
     public function edit($id)
     {
