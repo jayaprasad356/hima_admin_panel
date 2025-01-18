@@ -56,8 +56,7 @@
                                 <th>{{ __('Started Time') }}</th>
                                 <th>{{ __('Ended Time') }}</th>
                                 <th>{{ __('Call Duration') }}</th>
-                                <th>{{ __('Coins Before Spending') }}</th>
-                                <th>{{ __('Coins After Spending') }}</th> 
+                                <th>{{ __('User Coins') }}</th>
                                 <th>{{ __('Coins Spend') }}</th>
                                 <th>{{ __('Income') }}</th>
                                 <th>{{ __('Datetime') }}</th>
@@ -73,8 +72,7 @@
                                     <td>{{ $usercall->started_time }}</td>
                                     <td>{{ $usercall->ended_time }}</td>
                                     <td>{{ $usercall->duration }}</td>
-                                    <td>{{ $usercall->coins_before_spending }}</td>
-                                    <td>{{ $usercall->coins_after_spending }}</td>
+                                    <td>{{ $usercall->coins }}</td>
                                     <td>{{ $usercall->coins_spend }}</td>
                                     <td>{{ $usercall->income }}</td>
                                     <td>{{ $usercall->datetime }}</td>
