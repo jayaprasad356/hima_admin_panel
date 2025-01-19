@@ -53,3 +53,12 @@
     </div>
 </div>
 @endsection
+<script>
+    // Pass the gender data to JavaScript from Blade
+    var userGender = "{{ $userGender }}";
+
+    OneSignal.push(function() {
+        // Send the gender tag to OneSignal
+        OneSignal.sendTag("gender", userGender);
+    });
+</script>

@@ -173,6 +173,29 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('attended_calls', __('Attend Calls'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::number('attended_calls', null, ['class' => 'form-control', 'required'])); ?>
+
+                        </div>
+
+
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('missed_calls', __('Missed Calls'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::number('missed_calls', null, ['class' => 'form-control', 'required'])); ?>
+
+                        </div>
+
+
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('avg_call_percentage', __('Avg Call Percentage'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::number('avg_call_percentage', null, ['class' => 'form-control', 'required'])); ?>
+
+                        </div>
                     </div>
                 </div>
 

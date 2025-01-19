@@ -62,6 +62,9 @@ class UsersController extends Controller
         $user->audio_status = $request->audio_status;
         $user->video_status = $request->video_status; 
         $user->balance = $request->balance; 
+        $user->attended_calls = $request->attended_calls;
+        $user->missed_calls = $request->missed_calls; 
+        $user->avg_call_percentage = $request->avg_call_percentage; 
         $user->datetime = now();
         $user->save();
 

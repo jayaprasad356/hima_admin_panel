@@ -40,6 +40,9 @@
                                 <th>{{ __('Status') }}</th>
                                 <th>{{ __('Audio Status') }}</th>
                                 <th>{{ __('Video Status') }}</th>
+                                <th>{{ __('Attended Calls') }}</th>
+                                <th>{{ __('Missed Calls') }}</th>
+                                <th>{{ __('Avg Call Percentage') }}</th>
                                 <th>{{ __('Avatar') }}</th>
                             </tr>
                         </thead>
@@ -103,7 +106,9 @@
                                             <i class="fa fa-video-slash text-danger"></i> <span class="font-weight-bold">{{ __('Disabled') }}</span>
                                         @endif
                                     </td>
-
+                                    <td>{{ $user->attended_calls }}</td>
+                                    <td>{{ $user->missed_calls }}</td>
+                                    <td>{{ $user->avg_call_percentage }}</td>
                                     <!-- Avatar Image -->
                                     <td>
                                         @if($user->avatar && $user->avatar->image)

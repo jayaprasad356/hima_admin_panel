@@ -41,6 +41,9 @@
                                 <th><?php echo e(__('Status')); ?></th>
                                 <th><?php echo e(__('Audio Status')); ?></th>
                                 <th><?php echo e(__('Video Status')); ?></th>
+                                <th><?php echo e(__('Attended Calls')); ?></th>
+                                <th><?php echo e(__('Missed Calls')); ?></th>
+                                <th><?php echo e(__('Avg Call Percentage')); ?></th>
                                 <th><?php echo e(__('Avatar')); ?></th>
                             </tr>
                         </thead>
@@ -104,7 +107,9 @@
                                             <i class="fa fa-video-slash text-danger"></i> <span class="font-weight-bold"><?php echo e(__('Disabled')); ?></span>
                                         <?php endif; ?>
                                     </td>
-
+                                    <td><?php echo e($user->attended_calls); ?></td>
+                                    <td><?php echo e($user->missed_calls); ?></td>
+                                    <td><?php echo e($user->avg_call_percentage); ?></td>
                                     <!-- Avatar Image -->
                                     <td>
                                         <?php if($user->avatar && $user->avatar->image): ?>

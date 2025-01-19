@@ -12,6 +12,7 @@ class NotificationsController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $userGender = auth()->user()->gender;  // Assuming user is logged in
         $notifications = Notifications::when($search, function ($query, $search) {
             $query->where('title', 'like', '%' . $search . '%')
                   ->orWhere('description', 'like', '%' . $search . '%');
@@ -19,7 +20,7 @@ class NotificationsController extends Controller
     
         $users = Users::all();
     
-        return view('notifications.index', compact('notifications', 'users'));
+        return view('notifications.index', compact('notifications', 'users','userGender'));
     }
     
     
