@@ -106,6 +106,31 @@ class UsersController extends Controller
 
         return redirect()->route('users.index')->with('success', 'Coins Added Successfully.');
     }
+     // Handle Add Coins form submission
+     public function addBalance(Request $request, $id)
+     {
+         // Validate the input
+         $request->validate([
+             'balance' => 'required|numeric|min:1',
+         ]);
+ 
+         $user = Users::findOrFail($id); // Retrieve the user by ID
+ 
+         // Update the user's coins
+         $user->balance += $request->input('balance');
+         $user->save();
+ 
+         // Create a new transaction record
+         Transactions::create([
+             'user_id' => $user->id,
+             'type' => 'admin_bonus',
+             'amount' => $request->input('balance'),
+             'payment_type' => 'Credit',
+             'datetime' => now(),
+         ]);
+ 
+         return redirect()->route('users.index')->with('success', 'Balance Added Successfully.');
+     }
     public function updateStatus(Request $request)
 {
     // Validate the input data

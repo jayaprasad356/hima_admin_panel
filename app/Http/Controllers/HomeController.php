@@ -45,13 +45,13 @@ class HomeController extends Controller
         $avatar_count = Avatars::count();
         $users_count = Users::count();
         $today = date('Y-m-d');
-        $male_users_count = Users::where('gender', 'male')->whereDate('datetime', $today)->count();
-        $female_users_count = Users::where('gender', 'female')->whereDate('datetime', $today)->count();
+        $male_users_count = Users::where('gender', 'male')->whereDate('created_at', $today)->count();
+        $female_users_count = Users::where('gender', 'female')->whereDate('created_at', $today)->count();
         $active_audio_users_count = Users::where('audio_status', 1)->count();
         $active_video_users_count = Users::where('video_status', 1)->count();
         $today_recharge_count = Transactions::where('type', 'add_coins')->whereDate('datetime', $today)->sum('amount');
         $pending_withdrawals = Withdrawals::where('status', 0)->sum('amount');
-        $today_registration_count = Users::whereDate('datetime', $today)->count();
+        $today_registration_count = Users::whereDate('created_at', $today)->count();
              
                 return view('dashboard.dashboard', compact('avatar_count','users_count','male_users_count','female_users_count','active_audio_users_count','active_video_users_count','today_recharge_count','pending_withdrawals','today_registration_count'));
             }

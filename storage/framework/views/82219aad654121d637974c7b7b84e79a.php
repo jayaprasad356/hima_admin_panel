@@ -82,6 +82,7 @@
             <div class="card-header">
                 <!-- Open Modal for Add Coins -->
                 <a href="#" data-bs-toggle="modal" data-bs-target="#addCoinsModal" class="btn btn-success ms-auto"><?php echo e(__('Add Coins')); ?></a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#addBalanceModal" class="btn btn-success ms-auto"><?php echo e(__('Add Balance')); ?></a>
             </div>
 
             <div class="card-body">
@@ -151,30 +152,30 @@
                         </div>
 
                      <!-- Audio Status Toggle Switch -->
-<div class="form-group col-md-6">
-    <?php echo e(Form::label('audio_status', __('Audio Status'), ['class' => 'form-label'])); ?>
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('audio_status', __('Audio Status'), ['class' => 'form-label'])); ?>
 
-    <div class="switch-container">
-        <div class="switch">
-            <input type="hidden" name="audio_status" value="0">
-            <input type="checkbox" id="audio_status" name="audio_status" value="1" <?php echo e($user->audio_status == 1 ? 'checked' : ''); ?>>
-            <label for="audio_status"></label>
-        </div>
-    </div>
-</div>
+                            <div class="switch-container">
+                                <div class="switch">
+                                    <input type="hidden" name="audio_status" value="0">
+                                    <input type="checkbox" id="audio_status" name="audio_status" value="1" <?php echo e($user->audio_status == 1 ? 'checked' : ''); ?>>
+                                    <label for="audio_status"></label>
+                                </div>
+                            </div>
+                        </div>
 
-<!-- Video Status Toggle Switch -->
-<div class="form-group col-md-6">
-    <?php echo e(Form::label('video_status', __('Video Status'), ['class' => 'form-label'])); ?>
+                        <!-- Video Status Toggle Switch -->
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('video_status', __('Video Status'), ['class' => 'form-label'])); ?>
 
-    <div class="switch-container">
-        <div class="switch">
-            <input type="hidden" name="video_status" value="0">
-            <input type="checkbox" id="video_status" name="video_status" value="1" <?php echo e($user->video_status == 1 ? 'checked' : ''); ?>>
-            <label for="video_status"></label>
-        </div>
-    </div>
-</div>
+                            <div class="switch-container">
+                                <div class="switch">
+                                    <input type="hidden" name="video_status" value="0">
+                                    <input type="checkbox" id="video_status" name="video_status" value="1" <?php echo e($user->video_status == 1 ? 'checked' : ''); ?>>
+                                    <label for="video_status"></label>
+                                </div>
+                            </div>
+                        </div>
 
 
                         <div class="form-group col-md-6">
@@ -232,6 +233,29 @@
 
                     <div class="form-group mt-3">
                         <button type="submit" class="btn btn-primary"><?php echo e(__('Add Coins')); ?></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addBalanceModal" tabindex="-1" aria-labelledby="addBalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBalanceModalLabel"><?php echo e(__('Add Balance to user')); ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="<?php echo e(route('users.addBalance', $user->id)); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
+                    <div class="form-group">
+                        <label for="coins"><?php echo e(__('Balance to Add')); ?></label>
+                        <input type="number" id="balance" name="balance" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary"><?php echo e(__('Add Balance')); ?></button>
                     </div>
                 </form>
             </div>

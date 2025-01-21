@@ -303,11 +303,12 @@ Route::group(['middleware' => ['verified']], function () {
     Route::resource('coins', CoinsController::class);
     Route::resource('notifications', NotificationsController::class);
    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
+   Route::get('users/{id}/add-balance', [UsersController::class, 'showAddBalanceForm'])->name('users.addBalanceForm');
    Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
 
     // Route to handle the "Add Coins" form submission
     Route::post('users/{id}/add-coins', [UsersController::class, 'addCoins'])->name('users.addCoins');  
-
+    Route::post('users/{id}/add-balance', [UsersController::class, 'addBalance'])->name('users.addBalance');
     Route::get('/search-users', [NotificationsController::class, 'searchUsers'])->name('search.users');
     Route::get('/users/{id}', function ($id) {
         $user = \App\Models\Users::findOrFail($id);

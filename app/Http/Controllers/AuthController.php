@@ -30,7 +30,7 @@ use Kreait\Firebase\ServiceAccount;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates']]);
     }
  
     public function register(Request $request)
@@ -1686,12 +1686,17 @@ public function update_connected_call(Request $request)
     $startTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $started_time");
     $endTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $ended_time");
 
+    // Handle cases where the end time is past midnight
+    if ($endTime->lessThan($startTime)) {
+        $endTime->addDay();
+    }
+
     // Calculate the duration in seconds
     $durationSeconds = $endTime->diffInSeconds($startTime);
 
     $callType = $call->type; // Assuming 'type' field in 'UserCalls' table is either 'audio' or 'video'
 
-    $durationSeconds = $endTime->diffInSeconds($startTime);    // Ignore the first 10 seconds before counting minutes
+    // Ignore the first 10 seconds before counting minutes
     $effectiveDurationSeconds = max($durationSeconds - 9, 0);
 
     // Ensure at least 1 minute is counted (ceil rounds up)
@@ -1868,6 +1873,11 @@ public function individual_update_connected_call(Request $request)
     $currentDate = Carbon::now()->format('Y-m-d'); // Current date
     $startTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $started_time"); // Add the date
     $endTime = Carbon::createFromFormat('Y-m-d H:i:s', "$currentDate $ended_time"); // Add the date
+
+        // Handle cases where the end time is past midnight
+        if ($endTime->lessThan($startTime)) {
+            $endTime->addDay();
+        }
 
     // Calculate the duration in seconds
     $durationSeconds = $endTime->diffInSeconds($startTime);
@@ -2612,6 +2622,21 @@ public function withdrawals(Request $request)
             'message' => 'Invalid transfer type. Use either "bank_transfer" or "upi_transfer".',
         ], 200);
     }
+    // Check if UPI or bank transfer is enabled in appsettings
+        $appSettings = Appsettings::first();
+        if ($type === 'upi_transfer' && $appSettings->upi == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'UPI transfer is disabled.',
+            ], 200);
+        }
+
+        if ($type === 'bank_transfer' && $appSettings->bank == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bank transfer is disabled.',
+            ], 200);
+        }
 
     // Check user's balance
     if ($user->balance < $amount) {
@@ -2674,6 +2699,7 @@ public function withdrawals(Request $request)
         'balance' => $user->balance,
     ], 200);
 }
+
 
 
 public function ratings(Request $request)
@@ -2853,4 +2879,15 @@ public function cron_jobs(Request $request)
           $user->save();
       }
 }
+
+public function cron_updates(Request $request)
+{
+    // Reset missed_calls, attended_calls, and avg_call_percentage for all users
+    Users::query()->update([
+        'missed_calls' => 0,
+        'attended_calls' => 0,
+        'avg_call_percentage' => 100,
+    ]);
+}
+
 }

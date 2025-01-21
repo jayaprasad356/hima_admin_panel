@@ -81,6 +81,7 @@
             <div class="card-header">
                 <!-- Open Modal for Add Coins -->
                 <a href="#" data-bs-toggle="modal" data-bs-target="#addCoinsModal" class="btn btn-success ms-auto">{{ __('Add Coins') }}</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#addBalanceModal" class="btn btn-success ms-auto">{{ __('Add Balance') }}</a>
             </div>
 
             <div class="card-body">
@@ -209,6 +210,29 @@
 
                     <div class="form-group mt-3">
                         <button type="submit" class="btn btn-primary">{{ __('Add Coins') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addBalanceModal" tabindex="-1" aria-labelledby="addBalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBalanceModalLabel">{{ __('Add Balance to user') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('users.addBalance', $user->id) }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="coins">{{ __('Balance to Add') }}</label>
+                        <input type="number" id="balance" name="balance" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary">{{ __('Add Balance') }}</button>
                     </div>
                 </form>
             </div>
