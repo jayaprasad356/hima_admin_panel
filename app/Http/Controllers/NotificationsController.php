@@ -37,7 +37,6 @@ class NotificationsController extends Controller
         return view('notifications.create');
     }
 
-    // Store the notification and send push notification to all users
     public function store(Request $request)
     {
         // Validate input
@@ -76,14 +75,11 @@ class NotificationsController extends Controller
             $users = $usersQuery->get(); // Get filtered users
     
             if ($users->count() > 0) {
-                // Send push notification to the filtered users
-                $response = $this->oneSignalClient->sendNotificationToAll(
-                    $validated['description'], // Message content
-                    null, // URL (optional)
-                    ["title" => $validated['title']], // Additional data
-                    null, // Buttons (optional)
-                    null  // Schedule (optional)
-                );
+                // Proper OneSignal notification payload
+                $response = $this->oneSignalClient->sendNotificationCustom([
+                    'contents' => ['en' => $validated['description']], // Description first
+                    'headings' => ['en' => $validated['title']], // Title second
+                ]);
     
                 // Log OneSignal response
                 Log::info('OneSignal response: ', ['response' => $response]);
@@ -99,6 +95,7 @@ class NotificationsController extends Controller
     
         return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
     }
+    
     
     
     // Edit notification

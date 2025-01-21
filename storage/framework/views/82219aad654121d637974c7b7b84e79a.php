@@ -143,7 +143,6 @@
 
                         </div>
 
-
                         <div class="form-group col-md-6">
                             <?php echo e(Form::label('balance', __('Balance'), ['class' => 'form-label'])); ?>
 
@@ -198,6 +197,13 @@
                             <?php echo e(Form::label('avg_call_percentage', __('Avg Call Percentage'), ['class' => 'form-label'])); ?>
 
                             <?php echo e(Form::number('avg_call_percentage', null, ['class' => 'form-control', 'required'])); ?>
+
+                        </div>
+
+                        <div class="form-group col-md-12">
+                            <?php echo e(Form::label('describe_yourself', __('Describe Yourself'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::textarea('describe_yourself', null, ['class' => 'form-control', 'rows' => 4])); ?>
 
                         </div>
                     </div>

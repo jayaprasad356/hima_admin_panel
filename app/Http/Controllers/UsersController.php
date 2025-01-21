@@ -63,6 +63,7 @@ class UsersController extends Controller
         $user->video_status = $request->video_status; 
         $user->balance = $request->balance; 
         $user->attended_calls = $request->attended_calls;
+        $user->describe_yourself = $request->describe_yourself;
         $user->missed_calls = $request->missed_calls; 
         $user->avg_call_percentage = $request->avg_call_percentage; 
         $user->datetime = now();

@@ -131,7 +131,6 @@
                             {{ Form::number('age', null, ['class' => 'form-control', 'required']) }}
                         </div>
 
-
                         <div class="form-group col-md-6">
                             {{ Form::label('balance', __('Balance'), ['class' => 'form-label']) }}
                             {{ Form::number('balance', null, ['class' => 'form-control', 'required']) }}
@@ -177,6 +176,11 @@
                         <div class="form-group col-md-6">
                             {{ Form::label('avg_call_percentage', __('Avg Call Percentage'), ['class' => 'form-label']) }}
                             {{ Form::number('avg_call_percentage', null, ['class' => 'form-control', 'required']) }}
+                        </div>
+
+                        <div class="form-group col-md-12">
+                            {{ Form::label('describe_yourself', __('Describe Yourself'), ['class' => 'form-label']) }}
+                            {{ Form::textarea('describe_yourself', null, ['class' => 'form-control', 'rows' => 4]) }}
                         </div>
                     </div>
                 </div>
