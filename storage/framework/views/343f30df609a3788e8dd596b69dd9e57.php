@@ -19,12 +19,19 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <!-- Filter by Type Form -->
                     <form action="<?php echo e(route('usercalls.index')); ?>" method="GET" class="d-flex align-items-center">
-                        <label for="type" class="me-5"><?php echo e(__('Filter by Type')); ?></label>
-                        <select name="type" id="type" class="form-control status-filter me-2" onchange="this.form.submit()">
-                            <option value=""><?php echo e(__('All')); ?></option>
-                            <option value="audio" <?php echo e(request()->get('type') == 'audio' ? 'selected' : ''); ?>><?php echo e(__('Audio')); ?></option>
-                            <option value="video" <?php echo e(request()->get('type') == 'video' ? 'selected' : ''); ?>><?php echo e(__('Video')); ?></option>
-                        </select>
+                        <div class="me-5">
+                            <label for="type"><?php echo e(__('Filter by Type')); ?></label>
+                            <select name="type" id="type" class="form-control status-filter" onchange="this.form.submit()">
+                                <option value=""><?php echo e(__('All')); ?></option>
+                                <option value="audio" <?php echo e(request()->get('type') == 'audio' ? 'selected' : ''); ?>><?php echo e(__('Audio')); ?></option>
+                                <option value="video" <?php echo e(request()->get('type') == 'video' ? 'selected' : ''); ?>><?php echo e(__('Video')); ?></option>
+                            </select>
+                        </div>
+
+                        <div class="me-2">
+                            <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
+                        </div>
                     </form>
 
                     <!-- Buttons aligned to the right -->
@@ -53,7 +60,6 @@
                                 <th><?php echo e(__('ID')); ?></th>
                                 <th><?php echo e(__('User Name')); ?></th>
                                 <th><?php echo e(__('Call User Name')); ?></th>
-                                <th><?php echo e(__('Duration')); ?></th>
                                 <th><?php echo e(__('Type')); ?></th>
                                 <th><?php echo e(__('Started Time')); ?></th>
                                 <th><?php echo e(__('Ended Time')); ?></th>
@@ -70,7 +76,6 @@
                                     <td><?php echo e($usercall->id); ?></td>
                                     <td><?php echo e(ucfirst($usercall->user->name ?? '')); ?></td>
                                     <td><?php echo e(ucfirst($usercall->callusers->name ?? '')); ?></td>
-                                    <td><?php echo e($usercall->calculated_minutes); ?> Min</td>
                                     <td><?php echo e(ucfirst($usercall->type)); ?></td>
                                     <td><?php echo e($usercall->started_time); ?></td>
                                     <td><?php echo e($usercall->ended_time); ?></td>

@@ -16,11 +16,11 @@
         <div class="card">
             <div class="card-body">
                 <!-- Filter by Type Form -->
-                <form action="<?php echo e(route('transactions.index')); ?>" method="GET" class="mb-3">
+                <form action="<?php echo e(route('transactions.index')); ?>" method="GET" class="mb-3" id="filterForm">
                     <div class="row align-items-end">
                         <div class="col-md-3">
                             <label for="type"><?php echo e(__('Filter by Type')); ?></label>
-                            <select name="type" id="type" class="form-control">
+                            <select name="type" id="type" class="form-control" onchange="document.getElementById('filterForm').submit();">
                                 <option value=""><?php echo e(__('All')); ?></option>
                                 <?php $__currentLoopData = $types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($type); ?>" <?php echo e(request('type') == $type ? 'selected' : ''); ?>>
@@ -30,8 +30,9 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary mt-3 w-100"><?php echo e(__('Filter')); ?></button>
+                        <div class="col-md-3">
+                            <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
                         </div>
                     </div>
                 </form>

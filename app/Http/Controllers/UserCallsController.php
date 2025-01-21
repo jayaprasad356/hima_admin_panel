@@ -12,9 +12,13 @@ class UserCallsController extends Controller
     {
         // Fetch user calls with optional type filter
         $type = $request->get('type'); // Get type from request
+        $filterDate = $request->get('filter_date');
         
         // Get the user calls with the relationships
         $usercalls = UserCalls::with(['user', 'callusers'])
+        ->when($filterDate, function ($query) use ($filterDate) {
+            return $query->whereDate('datetime', $filterDate); // Make sure column name matches
+        })
             ->when($type, function ($query, $type) {
                 return $query->where('type', $type); // Filter by type if provided
             })

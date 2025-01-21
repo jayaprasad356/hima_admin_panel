@@ -26,7 +26,7 @@ class UsersController extends Controller
                           ->orWhere('language', 'like', '%' . $search . '%');
                 });
             })
-            ->orderBy('datetime', 'desc') // Use `created_at` instead of `datetime` if applicable
+            ->orderBy('created_at', 'desc') // Use `created_at` instead of `datetime` if applicable
             ->get();
     
         return view('users.index', compact('users'));

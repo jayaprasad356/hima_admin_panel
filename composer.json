@@ -12,6 +12,7 @@
         "anandsiddharth/laravel-paytm-wallet": "^2.0",
         "anhskohbo/no-captcha": "^3.5",
         "arkitecht/laravel-twilio": "^1.6",
+        "berkayk/onesignal-laravel": "^2.3",
         "coingate/coingate-php": "^4.1",
         "doctrine/dbal": "^3.7",
         "fedapay/fedapay-php": "^0.4.2",

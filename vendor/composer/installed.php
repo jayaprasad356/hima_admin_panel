@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e0056dd717c664a5b8585207990aa50359869099',
+        'reference' => '608e0658c6e339d54f3f2f5cfa371ac807fb2b28',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -63,6 +63,15 @@
             'install_path' => __DIR__ . '/../barryvdh/laravel-debugbar',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'berkayk/onesignal-laravel' => array(
+            'pretty_version' => 'v2.3',
+            'version' => '2.3.0.0',
+            'reference' => 'ce1c399beeefbd11be01a3e6a57f3b138ae06b04',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../berkayk/onesignal-laravel',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'brick/math' => array(
             'pretty_version' => '0.12.1',
@@ -643,7 +652,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e0056dd717c664a5b8585207990aa50359869099',
+            'reference' => '608e0658c6e339d54f3f2f5cfa371ac807fb2b28',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

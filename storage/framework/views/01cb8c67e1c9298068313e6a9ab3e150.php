@@ -32,9 +32,10 @@
                                 <tr>
                                     <th><?php echo e(__('Actions')); ?></th>
                                     <th><?php echo e(__('ID')); ?></th>
-                                    <th><?php echo e(__('Gender')); ?></th>
                                     <th><?php echo e(__('Title')); ?></th>
                                     <th><?php echo e(__('Description')); ?></th>
+                                    <th><?php echo e(__('Gender')); ?></th>
+                                    <th><?php echo e(__('Language')); ?></th>
                                     <th><?php echo e(__('Datetime')); ?></th>
                                 </tr>
                             </thead>
@@ -64,9 +65,10 @@
                                             </span>
                                         </td>
                                         <td><?php echo e($notification->id); ?></td>
-                                        <td><?php echo e($notification->gender); ?></td>
                                         <td><?php echo e($notification->title); ?></td>
                                         <td><?php echo e($notification->description); ?></td>
+                                        <td><?php echo e($notification->gender); ?></td>
+                                        <td><?php echo e($notification->language); ?></td>
                                         <td><?php echo e($notification->datetime); ?></td>
                                     </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

@@ -18,47 +18,50 @@
                 <h5>{{ __('Add New Notifications') }}</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('notifications.store') }}" method="POST">
-                    @csrf
+            <form action="{{ route('notifications.store') }}" method="POST">
+                @csrf
 
-                    <!-- Gender Selection -->
-                    <div class="form-group">
-                        <label for="gender">{{ __('Select Gender') }}</label>
-                        <select id="gender" name="gender" class="form-control" required>
-                            <option value="">{{ __('Select Gender') }}</option>
-                            <option value="male">{{ __('Male') }}</option>
-                            <option value="female">{{ __('Female') }}</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="gender">{{ __('Gender') }}</label>
+                    <select name="gender" id="gender" class="form-control">
+                        <option value="all">{{ __('All') }}</option>
+                        <option value="male">{{ __('Male') }}</option>
+                        <option value="female">{{ __('Female') }}</option>
+                    </select>
+                </div>
 
-                    <div class="form-group">
-                        <label for="title">{{ __('Title') }}</label>
-                        <input type="text" id="title" name="title" class="form-control" required>
-                    </div>
-                    
-                    <!-- Text Input -->
-                    <div class="form-group">
-                        <label for="description" class="form-label">{{ __('Description') }}</label>
-                        <textarea name="description" class="form-control" rows="3" required>{{ old('description') }}</textarea>
-                    </div>
+                <div class="form-group">
+                    <label for="language">{{ __('Language') }}</label>
+                    <select name="language" id="language" class="form-control">
+                        <option value="all">{{ __('All') }}</option>
+                        <option value="Hindi">{{ __('Hindi') }}</option>
+                        <option value="Telugu">{{ __('Telugu') }}</option>
+                        <option value="Malayalam">{{ __('Malayalam') }}</option>
+                        <option value="Kannada">{{ __('Kannada') }}</option>
+                        <option value="Punjabi">{{ __('Punjabi') }}</option>
+                        <option value="Tamil">{{ __('Tamil') }}</option>
+                    </select>
+                </div>
 
-                    <!-- Save Button -->
-                    <div class="form-group mt-4 text-center">
-                        <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
-                        <a href="{{ route('speech_texts.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
-                    </div>
-                </form>
+                <div class="form-group">
+                    <label for="title">{{ __('Title') }}</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">{{ __('Description') }}</label>
+                    <textarea name="description" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group mt-4 text-center">
+                    <button type="submit" class="btn btn-primary">{{ __('Send Notification') }}</button>
+                    <a href="{{ route('notifications.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                </div>
+            </form>
+
             </div>
         </div>
     </div>
 </div>
 @endsection
-<script>
-    // Pass the gender data to JavaScript from Blade
-    var userGender = "{{ $userGender }}";
 
-    OneSignal.push(function() {
-        // Send the gender tag to OneSignal
-        OneSignal.sendTag("gender", userGender);
-    });
-</script>

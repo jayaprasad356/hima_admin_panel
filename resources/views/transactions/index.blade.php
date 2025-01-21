@@ -15,11 +15,11 @@
         <div class="card">
             <div class="card-body">
                 <!-- Filter by Type Form -->
-                <form action="{{ route('transactions.index') }}" method="GET" class="mb-3">
+                <form action="{{ route('transactions.index') }}" method="GET" class="mb-3" id="filterForm">
                     <div class="row align-items-end">
                         <div class="col-md-3">
                             <label for="type">{{ __('Filter by Type') }}</label>
-                            <select name="type" id="type" class="form-control">
+                            <select name="type" id="type" class="form-control" onchange="document.getElementById('filterForm').submit();">
                                 <option value="">{{ __('All') }}</option>
                                 @foreach ($types as $type)
                                     <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>
@@ -28,8 +28,9 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary mt-3 w-100">{{ __('Filter') }}</button>
+                        <div class="col-md-3">
+                            <label for="filter_date">{{ __('Filter by Date') }}</label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
                         </div>
                     </div>
                 </form>

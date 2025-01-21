@@ -107,6 +107,8 @@ class AuthController extends Controller
         $users->interests = $interests;
         $users->describe_yourself = $describe_yourself;
         $users->datetime = Carbon::now();
+        $users->coins = 50; // Add default coins
+        $users->total_coins = 50; // Add default total coins
     
         $users->save();
     
@@ -134,11 +136,13 @@ class AuthController extends Controller
             'image' => $imageUrl ?? '',
             'gender' => $gender,
             'age' => (int) $users->age ?? '',
-            'interests' => $users->interests,
+            'interests' => $users->interests ?? '',
             'describe_yourself' =>  $users->describe_yourself ?? '',
             'voice' =>  $voicePath ?? '',
             'status' => 0,
             'balance' => (int) $users->balance ?? '',
+            'coins' => (int) $users->coins ?? '',
+            'total_coins' => (int) $users->total_coins ?? '',
             'datetime' => Carbon::parse($users->datetime)->format('Y-m-d H:i:s'),
             'created_at' => Carbon::parse($users->created_at)->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::parse($users->updated_at)->format('Y-m-d H:i:s'),
@@ -151,7 +155,6 @@ class AuthController extends Controller
             'data' => $userDetails,
         ], 200);
     }
-    
     private function generateRandomFemaleName(){
         // Fetch a random name from female_users table
         $randomFemaleName = DB::table('female_users')->inRandomOrder()->value('name');
@@ -328,7 +331,7 @@ class AuthController extends Controller
             'image' => $imageUrl ?? '',
             'gender' => $gender,
              'age' => (int) $user-> age ?? '',
-            'interests' => $user->interests,
+            'interests' => $user->interests ?? '',
             'describe_yourself' => $user-> describe_yourself ?? '',
              'voice' => $voicePath ?? '',
              'status' => $user->status ?? '',
@@ -1056,9 +1059,6 @@ public function female_users_list(Request $request)
         ], 401);
     }
 
-    $offset = $request->input('offset', 0);
-    $limit = $request->input('limit', 10);
-
     // Retrieve total count of female users with status = 1 and active in audio or video
     $totalCount = Users::where('gender', 'female')
         ->where('status', 2)
@@ -1068,7 +1068,7 @@ public function female_users_list(Request $request)
         })
         ->count();
 
-    // Retrieve paginated female users with status = 1 and active in audio or video, ordered by avg_call_percentage
+    // Retrieve all female users with status = 1 and active in audio or video, ordered by avg_call_percentage
     $Users = Users::where('gender', 'female')
         ->where('status', 2)
         ->where(function($query) {
@@ -1076,8 +1076,6 @@ public function female_users_list(Request $request)
                   ->orWhere('video_status', 1);
         })
         ->orderBy('avg_call_percentage', 'desc')
-        ->skip($offset)
-        ->take($limit)
         ->with('avatar') // Only eager load the avatar relationship if necessary
         ->get();
 
@@ -1105,7 +1103,7 @@ public function female_users_list(Request $request)
             'language' => $user->language,
             'age' => (int) $user->age ?? '',
             'mobile' => $user->mobile ?? '',
-            'interests' => $user->interests,
+            'interests' => $user->interests  ?? '',
             'describe_yourself' => $user->describe_yourself ?? '',
             'voice' => $voicePath ?? '',
             'status' => $user->status ?? '',
@@ -1242,7 +1240,7 @@ public function calls_status_update(Request $request)
             'success' => false,
             'message' => 'Invalid status. It must be either 0 or 1.',
         ], 200);
-    }
+    }   
 
     // Update status and relevant timestamp
     $currentTime = now();
@@ -1753,16 +1751,7 @@ public function update_connected_call(Request $request)
         }
         $callUser->save();
     
-        // Calculate and update avg_call_percentage for the recipient
-        if ($callUser->missed_calls > 0) {
-            $callUser->avg_call_percentage = ($callUser->attended_calls / $callUser->missed_calls) * 100;
-        } else {
-            $callUser->avg_call_percentage = ($callUser->attended_calls > 0) ? 100 : 0;
-        }
-        $callUser->save();
     }
-
-    
 
     $receiver = Users::find($call->call_user_id);
 
@@ -1962,13 +1951,6 @@ if ($durationSeconds >= 10) {
         }
         $callUser->save();
     
-        // Calculate and update avg_call_percentage for the recipient
-        if ($callUser->missed_calls > 0) {
-            $callUser->avg_call_percentage = ($callUser->attended_calls / $callUser->missed_calls) * 100;
-        } else {
-            $callUser->avg_call_percentage = ($callUser->attended_calls > 0) ? 100 : 0;
-        }
-        $callUser->save();
     }
 
     $receiver = Users::find($call->call_user_id);
@@ -2471,7 +2453,7 @@ public function update_bank(Request $request)
             'image' => $imageUrl ?? '',
             'gender' => $gender,
             'age' => (int) $user->age ?? '',
-            'interests' => $user->interests,
+            'interests' => $user->interests ?? '',
             'describe_yourself' => $user->describe_yourself ?? '',
             'voice' => $voicePath ?? '',
             'status' => $user->status ?? '',
@@ -2550,7 +2532,7 @@ public function update_upi(Request $request)
             'image' => $imageUrl ?? '',
             'gender' => $gender,
             'age' => (int) $user->age ?? '',
-            'interests' => $user->interests,
+            'interests' => $user->interests ?? '',
             'describe_yourself' => $user->describe_yourself ?? '',
             'voice' => $voicePath ?? '',
             'status' => $user->status ?? '',
@@ -2852,31 +2834,23 @@ public function add_coins(Request $request)
         ],
     ], 200);
 }
-// public function cron_jobs(Request $request)
-// {
-//     $oneHourAgo = Carbon::now()->subHour();
+public function cron_jobs(Request $request)
+{
+      $users = Users::all();
 
-//     // Delete users whose datetime is older than 1 hour
-//     $deletedUsersCount = DB::table('not_repeat_call_users')
-//         ->where('datetime', '<', $oneHourAgo)
-//         ->delete();
-
-//     // Update audio_status for users whose last_audio_time_updated is older than 1 hour
-//     DB::table('users')
-//         ->whereNotNull('last_audio_time_updated')
-//         ->where('last_audio_time_updated', '<', $oneHourAgo)
-//         ->update(['audio_status' => 0]);
-
-//     // Update video_status for users whose last_video_time_updated is older than 1 hour
-//     DB::table('users')
-//         ->whereNotNull('last_video_time_updated')
-//         ->where('last_video_time_updated', '<', $oneHourAgo)
-//         ->update(['video_status' => 0]);
-
-//     return response()->json([
-//         'success' => true,
-//         'message' => 'Data Deleted and status Updated successfully.',
-//         'deleted_users_count' => $deletedUsersCount,
-//     ], 200);
-// }
+      foreach ($users as $user) {
+          // Calculate total calls
+          $totalCalls = $user->attended_calls + $user->missed_calls;
+  
+          // Calculate avg_call_percentage
+          if ($totalCalls > 0) {
+              $user->avg_call_percentage = ($user->attended_calls / $totalCalls) * 100;
+          } else {
+              $user->avg_call_percentage = 0;
+          }
+  
+          // Save the updated user
+          $user->save();
+      }
+}
 }

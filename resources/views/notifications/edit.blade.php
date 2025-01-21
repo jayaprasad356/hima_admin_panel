@@ -4,15 +4,7 @@
         <!-- User Select Dropdown -->
       
 
-        <!-- Gender Select Dropdown -->
-        <div class="form-group col-md-12">
-            {{ Form::label('gender', __('Gender'), ['class' => 'form-label']) }}
-            <select id="gender" name="gender" class="form-control" required>
-                <option value="male" {{ $notification->gender == 'male' ? 'selected' : '' }}>{{ __('Male') }}</option>
-                <option value="female" {{ $notification->gender == 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
-            </select>
-        </div>
-
+       
         <!-- Title Input -->
         <div class="form-group col-md-12">
             {{ Form::label('title', __('Title'), ['class' => 'form-label']) }}

@@ -30,9 +30,10 @@
                                 <tr>
                                     <th>{{ __('Actions') }}</th>
                                     <th>{{ __('ID') }}</th>
-                                    <th>{{ __('Gender') }}</th>
                                     <th>{{ __('Title') }}</th>
                                     <th>{{ __('Description') }}</th>
+                                    <th>{{ __('Gender') }}</th>
+                                    <th>{{ __('Language') }}</th>
                                     <th>{{ __('Datetime') }}</th>
                                 </tr>
                             </thead>
@@ -60,9 +61,10 @@
                                             </span>
                                         </td>
                                         <td>{{ $notification->id }}</td>
-                                        <td>{{ $notification->gender }}</td>
                                         <td>{{ $notification->title }}</td>
                                         <td>{{ $notification->description}}</td>
+                                        <td>{{ $notification->gender }}</td>
+                                        <td>{{ $notification->language}}</td>
                                         <td>{{ $notification->datetime }}</td>
                                     </tr>
                                 @endforeach

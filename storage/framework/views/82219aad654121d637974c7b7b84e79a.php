@@ -150,29 +150,32 @@
 
                         </div>
 
-                        <!-- Audio Status Toggle Switch -->
-                        <div class="form-group col-md-6">
-                            <?php echo e(Form::label('audio_status', __('Audio Status'), ['class' => 'form-label'])); ?>
+                     <!-- Audio Status Toggle Switch -->
+<div class="form-group col-md-6">
+    <?php echo e(Form::label('audio_status', __('Audio Status'), ['class' => 'form-label'])); ?>
 
-                            <div class="switch-container">
-                                <div class="switch">
-                                    <input type="checkbox" id="audio_status" name="audio_status" value="1" <?php echo e($user->audio_status == 1 ? 'checked' : ''); ?>>
-                                    <label for="audio_status"></label>
-                                </div>
-                            </div>
-                        </div>
+    <div class="switch-container">
+        <div class="switch">
+            <input type="hidden" name="audio_status" value="0">
+            <input type="checkbox" id="audio_status" name="audio_status" value="1" <?php echo e($user->audio_status == 1 ? 'checked' : ''); ?>>
+            <label for="audio_status"></label>
+        </div>
+    </div>
+</div>
 
-                        <!-- Video Status Toggle Switch -->
-                        <div class="form-group col-md-6">
-                            <?php echo e(Form::label('video_status', __('Video Status'), ['class' => 'form-label'])); ?>
+<!-- Video Status Toggle Switch -->
+<div class="form-group col-md-6">
+    <?php echo e(Form::label('video_status', __('Video Status'), ['class' => 'form-label'])); ?>
 
-                            <div class="switch-container">
-                                <div class="switch">
-                                    <input type="checkbox" id="video_status" name="video_status" value="1" <?php echo e($user->video_status == 1 ? 'checked' : ''); ?>>
-                                    <label for="video_status"></label>
-                                </div>
-                            </div>
-                        </div>
+    <div class="switch-container">
+        <div class="switch">
+            <input type="hidden" name="video_status" value="0">
+            <input type="checkbox" id="video_status" name="video_status" value="1" <?php echo e($user->video_status == 1 ? 'checked' : ''); ?>>
+            <label for="video_status"></label>
+        </div>
+    </div>
+</div>
+
 
                         <div class="form-group col-md-6">
                             <?php echo e(Form::label('attended_calls', __('Attend Calls'), ['class' => 'form-label'])); ?>

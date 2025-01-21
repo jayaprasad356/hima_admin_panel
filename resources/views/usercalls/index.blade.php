@@ -18,12 +18,19 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <!-- Filter by Type Form -->
                     <form action="{{ route('usercalls.index') }}" method="GET" class="d-flex align-items-center">
-                        <label for="type" class="me-5">{{ __('Filter by Type') }}</label>
-                        <select name="type" id="type" class="form-control status-filter me-2" onchange="this.form.submit()">
-                            <option value="">{{ __('All') }}</option>
-                            <option value="audio" {{ request()->get('type') == 'audio' ? 'selected' : '' }}>{{ __('Audio') }}</option>
-                            <option value="video" {{ request()->get('type') == 'video' ? 'selected' : '' }}>{{ __('Video') }}</option>
-                        </select>
+                        <div class="me-5">
+                            <label for="type">{{ __('Filter by Type') }}</label>
+                            <select name="type" id="type" class="form-control status-filter" onchange="this.form.submit()">
+                                <option value="">{{ __('All') }}</option>
+                                <option value="audio" {{ request()->get('type') == 'audio' ? 'selected' : '' }}>{{ __('Audio') }}</option>
+                                <option value="video" {{ request()->get('type') == 'video' ? 'selected' : '' }}>{{ __('Video') }}</option>
+                            </select>
+                        </div>
+
+                        <div class="me-2">
+                            <label for="filter_date">{{ __('Filter by Date') }}</label>
+                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
+                        </div>
                     </form>
 
                     <!-- Buttons aligned to the right -->

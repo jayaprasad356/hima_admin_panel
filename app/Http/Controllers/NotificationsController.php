@@ -5,14 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Users;
 use App\Models\Notifications;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Berkayk\OneSignal\OneSignalClient;
 
 class NotificationsController extends Controller
 {
-    // List all speech texts with optional search functionality
+    protected $oneSignalClient;
+
+    public function __construct(OneSignalClient $oneSignalClient)
+    {
+        $this->oneSignalClient = $oneSignalClient;
+    }
+
+    // List all notifications with optional search functionality
     public function index(Request $request)
     {
         $search = $request->get('search');
-        $userGender = auth()->user()->gender;  // Assuming user is logged in
         $notifications = Notifications::when($search, function ($query, $search) {
             $query->where('title', 'like', '%' . $search . '%')
                   ->orWhere('description', 'like', '%' . $search . '%');
@@ -20,78 +28,121 @@ class NotificationsController extends Controller
     
         $users = Users::all();
     
-        return view('notifications.index', compact('notifications', 'users','userGender'));
+        return view('notifications.index', compact('notifications', 'users'));
     }
-    
-    
 
-    // Show the form to create a new speech text
+    // Show the form to create a new notification
     public function create()
     {
-        $users = \App\Models\Users::all(); // Fetch all users
-        return view('notifications.create', compact('users'));
+        return view('notifications.create');
     }
 
+    // Store the notification and send push notification to all users
     public function store(Request $request)
     {
-        // Validate the input data
+        // Validate input
         $validated = $request->validate([
             'title' => 'required|string|max:5000',
             'description' => 'required|string|max:5000',
-            'gender' => 'required|string|max:5000',
+            'gender' => 'required|string|in:all,male,female',
+            'language' => 'required|string|in:all,Hindi,Telugu,Malayalam,Kannada,Punjabi,Tamil',
         ]);
     
-        // Create the notification record
-        Notifications::create($validated);
+        // Create notification record
+        $notification = Notifications::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'gender' => $validated['gender'],
+            'language' => $validated['language'],
+            'datetime' => now(),
+        ]);
     
-        return redirect()->route('notifications.index')->with('success', 'Notifications successfully created.');
+        if (!$notification) {
+            return redirect()->back()->with('error', 'Something went wrong while creating the notification.');
+        }
+    
+        try {
+            // Query users based on gender and language selection
+            $usersQuery = Users::query();
+    
+            if ($validated['gender'] !== 'all') {
+                $usersQuery->where('gender', $validated['gender']);
+            }
+    
+            if ($validated['language'] !== 'all') {
+                $usersQuery->where('language', $validated['language']);
+            }
+    
+            $users = $usersQuery->get(); // Get filtered users
+    
+            if ($users->count() > 0) {
+                // Send push notification to the filtered users
+                $response = $this->oneSignalClient->sendNotificationToAll(
+                    $validated['description'], // Message content
+                    null, // URL (optional)
+                    ["title" => $validated['title']], // Additional data
+                    null, // Buttons (optional)
+                    null  // Schedule (optional)
+                );
+    
+                // Log OneSignal response
+                Log::info('OneSignal response: ', ['response' => $response]);
+    
+                Log::info("Notification sent successfully to selected users.");
+            } else {
+                Log::warning("No users found for the selected criteria (Gender: {$validated['gender']}, Language: {$validated['language']}).");
+            }
+        } catch (\Exception $e) {
+            Log::error('Error sending notification: ', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());
+        }
+    
+        return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
     }
     
-
+    
+    // Edit notification
     public function edit($id)
     {
         $notification = Notifications::findOrFail($id);
-        $users = Users::all(); // Fetch all users
-        return view('notifications.edit', compact('notification', 'users'));
+        return view('notifications.edit', compact('notification'));
     }
-    
-    
+
+    // Update notification
     public function update(Request $request, $id)
     {
         $notification = Notifications::findOrFail($id);
-    
-        // Validate the input data
+
+        // Validate input data
         $validated = $request->validate([
             'title' => 'required|string|max:5000',
             'description' => 'required|string|max:5000',
-            'gender' => 'required|string|max:5000',
         ]);
-    
+
         // Update notification details
         $notification->update($validated);
-    
+
         return redirect()->route('notifications.index')->with('success', 'Notification successfully updated.');
     }
-    
 
-    // Delete a speech text
+    // Delete notification
     public function destroy($id)
     {
         $notification = Notifications::findOrFail($id);
         $notification->delete();
 
-        return redirect()->route('notifications.index')->with('success', 'Notifications successfully deleted.');
+        return redirect()->route('notifications.index')->with('success', 'Notification successfully deleted.');
     }
+
+    // Search users via AJAX
     public function searchUsers(Request $request)
-{
-    $search = $request->get('q'); // Get the query parameter
+    {
+        $search = $request->get('q');
 
-    $users = \App\Models\Users::where('name', 'like', '%' . $search . '%')
-                             ->orWhere('mobile', 'like', '%' . $search . '%')
-                             ->get(['id', 'name', 'mobile']); // Select only necessary fields
+        $users = Users::where('name', 'like', '%' . $search . '%')
+                      ->orWhere('mobile', 'like', '%' . $search . '%')
+                      ->get(['id', 'name', 'mobile']);
 
-    return response()->json($users);
-}
-
-
+        return response()->json($users);
+    }
 }
