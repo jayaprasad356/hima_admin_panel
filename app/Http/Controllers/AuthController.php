@@ -107,8 +107,8 @@ class AuthController extends Controller
         $users->interests = $interests;
         $users->describe_yourself = $describe_yourself;
         $users->datetime = Carbon::now();
-        $users->coins = 50; // Add default coins
-        $users->total_coins = 50; // Add default total coins
+        // $users->coins = 50; // Add default coins
+        // $users->total_coins = 50; // Add default total coins
     
         $users->save();
     
@@ -2887,6 +2887,11 @@ public function cron_updates(Request $request)
         'missed_calls' => 0,
         'attended_calls' => 0,
         'avg_call_percentage' => 100,
+    ]);
+
+    // Insert datetime into cron_jobs_update table
+    DB::table('cron_jobs_update')->insert([
+        'datetime' => Carbon::now(),
     ]);
 }
 
