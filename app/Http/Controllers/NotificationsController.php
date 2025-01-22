@@ -63,31 +63,40 @@ class NotificationsController extends Controller
         try {
             // Query users based on gender and language selection
             $usersQuery = Users::query();
-    
+
             if ($validated['gender'] !== 'all') {
-                $usersQuery->where('gender', $validated['gender']);
+                $usersQuery->where('gender', $validated['gender']); // Filter by gender
             }
-    
+
             if ($validated['language'] !== 'all') {
-                $usersQuery->where('language', $validated['language']);
+                $usersQuery->where('language', $validated['language']); // Filter by language
             }
-    
+
             $users = $usersQuery->get(); // Get filtered users
-    
+
             if ($users->count() > 0) {
-                // Proper OneSignal notification payload
-                $response = $this->oneSignalClient->sendNotificationCustom([
-                    'contents' => ['en' => $validated['description']], // Description first
-                    'headings' => ['en' => $validated['title']], // Title second
-                ]);
-    
-                // Log OneSignal response
-                Log::info('OneSignal response: ', ['response' => $response]);
-    
-                Log::info("Notification sent successfully to selected users.");
+                // Extract user IDs or push notification tokens for OneSignal
+                $userIds = $users->pluck('onesignal_player_id')->filter()->toArray(); // Ensure IDs are valid
+                
+                if (!empty($userIds)) {
+                    // Proper OneSignal notification payload with targeting
+                    $response = $this->oneSignalClient->sendNotificationCustom([
+                        'contents' => ['en' => $validated['description']], // Description first
+                        'headings' => ['en' => $validated['title']], // Title second
+                        'include_player_ids' => $userIds, // Target specific users
+                    ]);
+
+                    // Log OneSignal response
+                    Log::info('OneSignal response: ', ['response' => $response]);
+
+                    Log::info("Notification sent successfully to selected users.");
+                } else {
+                    Log::warning("No valid OneSignal player IDs found for the selected criteria.");
+                }
             } else {
                 Log::warning("No users found for the selected criteria (Gender: {$validated['gender']}, Language: {$validated['language']}).");
             }
+
         } catch (\Exception $e) {
             Log::error('Error sending notification: ', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());

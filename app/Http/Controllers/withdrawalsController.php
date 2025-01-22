@@ -15,7 +15,7 @@ class WithdrawalsController extends Controller
     public function index(Request $request)
     {
         // Get the filters from the query string
-        $status = $request->get('status', 0); // Default to Pending
+        $status = $request->get('status'); // Default to Pending
         $transferType = $request->get('transfer_type'); // No default
         $filterDate = $request->get('filter_date');
 

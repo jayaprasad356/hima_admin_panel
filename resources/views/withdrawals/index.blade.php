@@ -21,7 +21,8 @@
                         <div class="col-md-3">
                             <label for="status">{{ __('Filter by Status') }}</label>
                             <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
-                                <option value="0" {{ request()->get('status', 0) == '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                <option value="">{{ __('All') }}</option>
+                                <option value="0" {{ request()->get('status') == '0' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                 <option value="1" {{ request()->get('status') == '1' ? 'selected' : '' }}>{{ __('Paid') }}</option>
                                 <option value="2" {{ request()->get('status') == '2' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
                             </select>

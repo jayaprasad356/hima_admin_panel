@@ -74,8 +74,8 @@
                                                 <i class="ti ti-users"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <small class="text-muted"><?php echo e(__('Today')); ?></small>
-                                                <h6 class="m-0"><?php echo e(__('Registration Count')); ?></h6>
+                                                <small class="text-muted"><?php echo e(__('Today Registration')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Count')); ?></h6>
                                             </div>
                                         </div>
                                     </div>

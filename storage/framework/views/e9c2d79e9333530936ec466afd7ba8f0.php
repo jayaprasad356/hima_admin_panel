@@ -22,7 +22,8 @@
                         <div class="col-md-3">
                             <label for="status"><?php echo e(__('Filter by Status')); ?></label>
                             <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
-                                <option value="0" <?php echo e(request()->get('status', 0) == '0' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
+                                <option value=""><?php echo e(__('All')); ?></option>
+                                <option value="0" <?php echo e(request()->get('status') == '0' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
                                 <option value="1" <?php echo e(request()->get('status') == '1' ? 'selected' : ''); ?>><?php echo e(__('Paid')); ?></option>
                                 <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Cancelled')); ?></option>
                             </select>
