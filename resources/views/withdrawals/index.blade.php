@@ -42,100 +42,129 @@
                 </form>
 
                 <form action="{{ route('withdrawals.bulkUpdateStatus') }}" method="POST">
-    @csrf
-    @method('PATCH')
+                    @csrf
+                    @method('PATCH')
 
-    <div class="mb-3 d-flex align-items-center">
-        <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
-            onclick="return confirm('{{ __('Are you sure you want to mark selected as Paid?') }}')">
-            {{ __('Paid') }}
-        </button>
+                    <div class="mb-3 d-flex align-items-center">
+                        <!-- Select All Checkbox -->
+                        <div class="mr-3">
+                            <input type="checkbox" name="select_all" id="select-all">
+                            <label for="select-all">{{ __('Select All') }}</label>
+                        </div>
 
-        <button type="submit" name="status" value="2" class="btn btn-danger ml-2" 
-            onclick="return confirm('{{ __('Are you sure you want to cancel selected withdrawals?') }}')">
-            {{ __('Cancel') }}
-        </button>
-    </div>
+                        <!-- Paid Button -->
+                        <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
+                            onclick="return confirm('{{ __('Are you sure you want to mark selected as Paid?') }}')">
+                            {{ __('Paid') }}
+                        </button>
 
-
-
+                        <!-- Cancel Button -->
+                        <button type="submit" name="status" value="2" class="btn btn-danger ml-2" 
+                            onclick="return confirm('{{ __('Are you sure you want to cancel selected withdrawals?') }}')">
+                            {{ __('Cancel') }}
+                        </button>
+                    </div>
 
                 <div class="card-body table-border-style">
-                <div class="table-responsive">
-        <table class="table" id="pc-dt-simple">
-            <thead>
-                <tr>
-                    <th>{{ __('Select') }}</th>
-                    <th>{{ __('ID') }}</th>
-                    <th>{{ __('Name') }}</th>
-                    <th>{{ __('Mobile') }}</th>
-                    <th>{{ __('Amount') }}</th>
-                    <th>{{ __('Type') }}</th>
-                    <th>{{ __('Status') }}</th>
-                    <th>{{ __('Bank') }}</th>
-                    <th>{{ __('Branch') }}</th>
-                    <th>{{ __('Ifsc Code') }}</th>
-                    <th>{{ __('Account Number') }}</th>
-                    <th>{{ __('Holder Name') }}</th>
-                    <th>{{ __('Upi ID') }}</th>
-                    <th>{{ __('Datetime') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($withdrawals as $withdrawal)
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="withdrawal_ids[]" value="{{ $withdrawal->id }}">
-                        </td>
-                        <td>{{ $withdrawal->id }}</td>
-                        <td>{{ ucfirst($withdrawal->users->name ?? '') }}</td>
-                        <td>{{ $withdrawal->users->mobile ?? '' }}</td>
-                        <td>{{ $withdrawal->amount }}</td>
-                        <td>{{ $withdrawal->type }}</td>
-                        <td>
-                            @if($withdrawal->status == 0)
-                                <i class="fa fa-clock text-warning"></i> <span class="font-weight-bold">{{ __('Pending') }}</span>
-                            @elseif($withdrawal->status == 1)
-                                <i class="fa fa-check-circle text-success"></i> <span class="font-weight-bold">{{ __('Paid') }}</span>
-                            @elseif($withdrawal->status == 2)
-                                <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold">{{ __('Cancelled') }}</span>
-                            @else
-                                <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold">{{ __('Unknown') }}</span>
-                            @endif
-                        </td>
-                        <td>{{ $withdrawal->users->bank ?? '' }}</td>
-                        <td>{{ $withdrawal->users->branch ?? '' }}</td>
-                        <td>{{ $withdrawal->users->ifsc ?? '' }}</td>
-                        <td>{{ $withdrawal->users->account_num ?? '' }}</td>
-                        <td>{{ $withdrawal->users->holder_name ?? '' }}</td>
-                        <td>{{ $withdrawal->users->upi_id ?? '' }}</td>
-                        <td>{{ $withdrawal->datetime }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</form>
+                    <div class="table-responsive">
+                        <table class="table" id="pc-dt-simple">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('Select') }}</th>
+                                    <th>{{ __('Actions') }}</th> 
+                                    <th>{{ __('ID') }}</th>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Mobile') }}</th>
+                                    <th>{{ __('Amount') }}</th>
+                                    <th>{{ __('Type') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Bank') }}</th>
+                                    <th>{{ __('Branch') }}</th>
+                                    <th>{{ __('Ifsc Code') }}</th>
+                                    <th>{{ __('Account Number') }}</th>
+                                    <th>{{ __('Holder Name') }}</th>
+                                    <th>{{ __('Upi ID') }}</th>
+                                    <th>{{ __('Datetime') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($withdrawals as $withdrawal)
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="withdrawal_ids[]" value="{{ $withdrawal->id }}">
+                                        </td>
+                                        <td>
+                                            <a href="#" data-url="{{ route('withdrawals.edit', $withdrawal->id) }}" data-ajax-popup="true" data-title="{{ __('Edit Bank Details') }}"
+                                               class="btn btn-sm align-items-center" data-bs-toggle="tooltip" title="{{ __('Edit') }}">
+                                                <i class="ti ti-pencil text-black"></i>
+                                            </a>
+                                        </td>
+                                        <td>{{ $withdrawal->id }}</td>
+                                        <td>{{ ucfirst($withdrawal->users->name ?? '') }}</td>
+                                        <td>{{ $withdrawal->users->mobile ?? '' }}</td>
+                                        <td>{{ $withdrawal->amount }}</td>
+                                        <td>{{ $withdrawal->type }}</td>
+                                        <td>
+                                            @if($withdrawal->status == 0)
+                                                <i class="fa fa-clock text-warning"></i> <span class="font-weight-bold">{{ __('Pending') }}</span>
+                                            @elseif($withdrawal->status == 1)
+                                                <i class="fa fa-check-circle text-success"></i> <span class="font-weight-bold">{{ __('Paid') }}</span>
+                                            @elseif($withdrawal->status == 2)
+                                                <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold">{{ __('Cancelled') }}</span>
+                                            @else
+                                                <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold">{{ __('Unknown') }}</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $withdrawal->users->bank ?? '' }}</td>
+                                        <td>{{ $withdrawal->users->branch ?? '' }}</td>
+                                        <td>{{ $withdrawal->users->ifsc ?? '' }}</td>
+                                        <td>{{ $withdrawal->users->account_num ?? '' }}</td>
+                                        <td>{{ $withdrawal->users->holder_name ?? '' }}</td>
+                                        <td>{{ $withdrawal->users->upi_id ?? '' }}</td>
+                                        <td>{{ $withdrawal->datetime }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
-
 @section('scripts')
 <script>
-    document.getElementById('select-all').addEventListener('click', function() {
-        const checkboxes = document.querySelectorAll('input[name="withdrawal_ids[]"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
+$(document).ready(function () {
+    let table = $('#pc-dt-simple').DataTable({
+        'paging': true,
+        'info': true,
+        'ordering': true,
+        'searching': true
+    });
+
+    let allSelected = false;
+
+    // "Select All" checkbox functionality
+    $('#select-all').on('click', function () {
+        allSelected = $(this).prop('checked');
+
+        // Select/deselect all checkboxes on **all** pages
+        $('input[name="withdrawal_ids[]"]').prop('checked', allSelected);
+    });
+
+    // Individual row checkbox functionality
+    $('#pc-dt-simple tbody').on('change', 'input[name="withdrawal_ids[]"]', function () {
+        let selected = $('input[name="withdrawal_ids[]"]:checked').length;
+        let total = $('input[name="withdrawal_ids[]"]').length;
+
+        // Update "Select All" checkbox state based on individual selections
+        $('#select-all').prop('checked', selected === total);
+    });
+
+    // Ensure checkboxes stay selected when paginating
+    table.on('draw', function () {
+        $('input[name="withdrawal_ids[]"]').each(function () {
+            $(this).prop('checked', allSelected);
         });
     });
+});
 
-    $(document).ready(function() {
-        // Initialize DataTable
-        $('#pc-dt-simple').DataTable();
-    });
 </script>
 @endsection
-

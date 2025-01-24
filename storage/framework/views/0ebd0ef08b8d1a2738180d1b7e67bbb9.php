@@ -75,6 +75,8 @@
     <link rel="stylesheet" href="<?php echo e(asset('assets/fonts/fontawesome.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('assets/fonts/material.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/custom.css')); ?>">
+    <script src="<?php echo e(asset('plugins/sweetalert2/sweetalert2.min.js')); ?>"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet">
 <!-- Select2 JS -->

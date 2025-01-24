@@ -301,10 +301,14 @@ Route::group(['middleware' => ['verified']], function () {
     Route::patch('/withdrawals/bulk-cancel', [WithdrawalsController::class, 'bulkCancelStatus'])->name('withdrawals.bulkCancelStatus');
     Route::get('withdrawals/export', [WithdrawalsController::class, 'export'])->name('withdrawals.export');
     Route::resource('coins', CoinsController::class);
+    Route::resource('withdrawals', WithdrawalsController::class);
+    // In routes/web.php
+Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('withdrawals.update');
     Route::resource('notifications', NotificationsController::class);
-   Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
-   Route::get('users/{id}/add-balance', [UsersController::class, 'showAddBalanceForm'])->name('users.addBalanceForm');
-   Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
+    Route::resource('withdrawals', WithdrawalsController::class);
+    Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
+    Route::get('users/{id}/add-balance', [UsersController::class, 'showAddBalanceForm'])->name('users.addBalanceForm');
+    Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
 
     // Route to handle the "Add Coins" form submission
     Route::post('users/{id}/add-coins', [UsersController::class, 'addCoins'])->name('users.addCoins');  

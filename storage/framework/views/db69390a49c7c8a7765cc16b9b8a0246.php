@@ -16,10 +16,20 @@
         <div class="card">
             <div class="card-header">
             <form action="<?php echo e(route('users.index')); ?>" method="GET" class="mb-3">
-        <div class="col-md-3">
+            <div class="row align-items-end">
+            <div class="col-md-3">
+                            <label for="gender"><?php echo e(__('Filter by Gender')); ?></label>
+                            <select name="gender" id="gender" class="form-control gender-filter" onchange="this.form.submit()">
+                                <option value=""><?php echo e(__('All')); ?></option>
+                                <option value="male" <?php echo e(request()->get('gender') == 'male' ? 'selected' : ''); ?>><?php echo e(__('Male')); ?></option>
+                                <option value="female" <?php echo e(request()->get('gender') == 'female' ? 'selected' : ''); ?>><?php echo e(__('Female')); ?></option>
+                            </select>
+                        </div>
+                <div class="col-md-3">
                             <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
                             <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
-                        </div>
+                 </div>
+                 </div>
         </form>
             </div>
             <div class="card-body table-border-style">
@@ -44,6 +54,7 @@
                                 <th><?php echo e(__('Attended Calls')); ?></th>
                                 <th><?php echo e(__('Missed Calls')); ?></th>
                                 <th><?php echo e(__('Avg Call Percentage')); ?></th>
+                                <th><?php echo e(__('Blocked')); ?></th>
                                 <th><?php echo e(__('Avatar')); ?></th>
                             </tr>
                         </thead>
@@ -86,7 +97,7 @@
                                         <?php elseif($user->status == 2): ?>
                                             <i class="fa fa-check-circle text-success"></i> <span class="font-weight-bold"><?php echo e(__('Verified')); ?></span>
                                         <?php elseif($user->status == 3): ?>
-                                            <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold"><?php echo e(__('Rejected')); ?></span>
+                                            <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold"><?php echo e(__('Blocked')); ?></span>
                                         <?php else: ?>
                                             <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold"><?php echo e(__('Unknown')); ?></span>
                                         <?php endif; ?>
@@ -110,6 +121,14 @@
                                     <td><?php echo e($user->attended_calls); ?></td>
                                     <td><?php echo e($user->missed_calls); ?></td>
                                     <td><?php echo e($user->avg_call_percentage); ?></td>
+                                    <td>
+                                        <!-- Display Blocked Status -->
+                                        <?php if($user->blocked == 1): ?>
+                                            <i class="fa fa-ban text-danger"></i> <span class="font-weight-bold"><?php echo e(__('Blocked')); ?></span>
+                                        <?php else: ?>
+                                            <i class="fa fa-check text-success"></i> <span class="font-weight-bold"><?php echo e(__('Not Blocked')); ?></span>
+                                        <?php endif; ?>
+                                    </td>
                                     <!-- Avatar Image -->
                                     <td>
                                         <?php if($user->avatar && $user->avatar->image): ?>

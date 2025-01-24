@@ -87,6 +87,8 @@
     <link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('assets/css/stylesheet.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <!-- vendor css -->
 
     <style>

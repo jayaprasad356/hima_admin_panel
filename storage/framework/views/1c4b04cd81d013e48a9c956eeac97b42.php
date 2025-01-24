@@ -88,6 +88,8 @@
     <link rel="stylesheet" href="<?php echo e(asset('assets/fonts/material.css')); ?>">
     
     <link rel="stylesheet" href="<?php echo e(asset('css/custom.css')); ?>">
+    <script src="<?php echo e(asset('plugins/sweetalert2/sweetalert2.min.js')); ?>"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <!-- vendor css -->
 
     <style>

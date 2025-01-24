@@ -178,6 +178,33 @@
                             {{ Form::number('avg_call_percentage', null, ['class' => 'form-control', 'required']) }}
                         </div>
 
+                        <div class="form-group col-md-6">
+                            <br>
+                            {{ Form::label('status', __('Status'), ['class' => 'form-label']) }}
+                            <div class="btn-group" role="group" aria-label="Status">
+                                <input type="radio" class="btn-check" name="status" id="status_pending" value="1" {{ $user->status == 1 ? 'checked' : '' }}>
+                                <label class="btn btn-outline-warning" for="status_pending">{{ __('Pending') }}</label>
+
+                                <input type="radio" class="btn-check" name="status" id="status_verified" value="2" {{ $user->status == 2 ? 'checked' : '' }}>
+                                <label class="btn btn-outline-success" for="status_verified">{{ __('Verified') }}</label>
+
+                                <input type="radio" class="btn-check" name="status" id="status_blocked" value="3" {{ $user->status == 3 ? 'checked' : '' }}>
+                                <label class="btn btn-outline-danger" for="status_blocked">{{ __('Cancelled') }}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            {{ Form::label('blocked', __('Blocked'), ['class' => 'form-label']) }}
+                            <div class="switch-container">
+                                <div class="switch">
+                                    <input type="hidden" name="blocked" value="0">
+                                    <input type="checkbox" id="blocked" name="blocked" value="1" {{ $user->blocked == 1 ? 'checked' : '' }}>
+                                    <label for="blocked"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                     
                         <div class="form-group col-md-12">
                             {{ Form::label('describe_yourself', __('Describe Yourself'), ['class' => 'form-label']) }}
                             {{ Form::textarea('describe_yourself', null, ['class' => 'form-control', 'rows' => 4]) }}
@@ -247,6 +274,6 @@
 
 @section('scripts')
 <script>
-    // Optionally, you can add any additional JS functionality here if needed.
+    
 </script>
 @endsection

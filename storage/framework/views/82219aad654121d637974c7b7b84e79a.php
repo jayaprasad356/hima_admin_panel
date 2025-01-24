@@ -200,6 +200,35 @@
 
                         </div>
 
+                        <div class="form-group col-md-6">
+                            <br>
+                            <?php echo e(Form::label('status', __('Status'), ['class' => 'form-label'])); ?>
+
+                            <div class="btn-group" role="group" aria-label="Status">
+                                <input type="radio" class="btn-check" name="status" id="status_pending" value="1" <?php echo e($user->status == 1 ? 'checked' : ''); ?>>
+                                <label class="btn btn-outline-warning" for="status_pending"><?php echo e(__('Pending')); ?></label>
+
+                                <input type="radio" class="btn-check" name="status" id="status_verified" value="2" <?php echo e($user->status == 2 ? 'checked' : ''); ?>>
+                                <label class="btn btn-outline-success" for="status_verified"><?php echo e(__('Verified')); ?></label>
+
+                                <input type="radio" class="btn-check" name="status" id="status_blocked" value="3" <?php echo e($user->status == 3 ? 'checked' : ''); ?>>
+                                <label class="btn btn-outline-danger" for="status_blocked"><?php echo e(__('Cancelled')); ?></label>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('blocked', __('Blocked'), ['class' => 'form-label'])); ?>
+
+                            <div class="switch-container">
+                                <div class="switch">
+                                    <input type="hidden" name="blocked" value="0">
+                                    <input type="checkbox" id="blocked" name="blocked" value="1" <?php echo e($user->blocked == 1 ? 'checked' : ''); ?>>
+                                    <label for="blocked"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                     
                         <div class="form-group col-md-12">
                             <?php echo e(Form::label('describe_yourself', __('Describe Yourself'), ['class' => 'form-label'])); ?>
 
@@ -272,7 +301,7 @@
 
 <?php $__env->startSection('scripts'); ?>
 <script>
-    // Optionally, you can add any additional JS functionality here if needed.
+    
 </script>
 <?php $__env->stopSection(); ?>
 

@@ -15,10 +15,20 @@
         <div class="card">
             <div class="card-header">
             <form action="{{ route('users.index') }}" method="GET" class="mb-3">
-        <div class="col-md-3">
+            <div class="row align-items-end">
+            <div class="col-md-3">
+                            <label for="gender">{{ __('Filter by Gender') }}</label>
+                            <select name="gender" id="gender" class="form-control gender-filter" onchange="this.form.submit()">
+                                <option value="">{{ __('All') }}</option>
+                                <option value="male" {{ request()->get('gender') == 'male' ? 'selected' : '' }}>{{ __('Male') }}</option>
+                                <option value="female" {{ request()->get('gender') == 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
+                            </select>
+                        </div>
+                <div class="col-md-3">
                             <label for="filter_date">{{ __('Filter by Date') }}</label>
                             <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
-                        </div>
+                 </div>
+                 </div>
         </form>
             </div>
             <div class="card-body table-border-style">
@@ -43,6 +53,7 @@
                                 <th>{{ __('Attended Calls') }}</th>
                                 <th>{{ __('Missed Calls') }}</th>
                                 <th>{{ __('Avg Call Percentage') }}</th>
+                                <th>{{ __('Blocked') }}</th>
                                 <th>{{ __('Avatar') }}</th>
                             </tr>
                         </thead>
@@ -85,7 +96,7 @@
                                         @elseif($user->status == 2)
                                             <i class="fa fa-check-circle text-success"></i> <span class="font-weight-bold">{{ __('Verified') }}</span>
                                         @elseif($user->status == 3)
-                                            <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold">{{ __('Rejected') }}</span>
+                                            <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold">{{ __('Blocked') }}</span>
                                         @else
                                             <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold">{{ __('Unknown') }}</span>
                                         @endif
@@ -109,6 +120,14 @@
                                     <td>{{ $user->attended_calls }}</td>
                                     <td>{{ $user->missed_calls }}</td>
                                     <td>{{ $user->avg_call_percentage }}</td>
+                                    <td>
+                                        <!-- Display Blocked Status -->
+                                        @if($user->blocked == 1)
+                                            <i class="fa fa-ban text-danger"></i> <span class="font-weight-bold">{{ __('Blocked') }}</span>
+                                        @else
+                                            <i class="fa fa-check text-success"></i> <span class="font-weight-bold">{{ __('Not Blocked') }}</span>
+                                        @endif
+                                    </td>
                                     <!-- Avatar Image -->
                                     <td>
                                         @if($user->avatar && $user->avatar->image)

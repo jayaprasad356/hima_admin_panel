@@ -24,10 +24,7 @@
                         <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Verified')); ?></option>
                         <option value="3" <?php echo e(request()->get('status') == '3' ? 'selected' : ''); ?>><?php echo e(__('Rejected')); ?></option>
                     </select>
-                    <div class="col-md-3">
-                            <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
-                            <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
-                        </div>
+
                     <style>
                         .status-filter {
                             width: 200px; /* Default width */

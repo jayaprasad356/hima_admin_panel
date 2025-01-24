@@ -14,10 +14,14 @@ class UsersController extends Controller
     {
         $search = $request->get('search');
         $filterDate = $request->get('filter_date');
+        $gender = $request->get('gender'); // No default
     
         $users = Users::with('avatar')
             ->when($filterDate, function ($query) use ($filterDate) {
                 return $query->whereDate('datetime', $filterDate); // Make sure column name matches
+            })
+            ->when($gender, function ($query) use ($gender) {
+                return $query->where('gender', $gender); // Assuming 'type' is the column for transfer type
             })
             ->when($search, function ($query, $search) {
                 return $query->where(function ($query) use ($search) {
@@ -56,6 +60,7 @@ class UsersController extends Controller
         $user->mobile = $request->mobile;
         $user->language = $request->language; 
         $user->age = $request->age;
+        $user->status = $request->status;
         $user->interests = $request->interests;
         $user->describe_yourself = $request->describe_yourself;
         $user->voice = $request->voice; 
@@ -66,6 +71,7 @@ class UsersController extends Controller
         $user->describe_yourself = $request->describe_yourself;
         $user->missed_calls = $request->missed_calls; 
         $user->avg_call_percentage = $request->avg_call_percentage; 
+        $user->blocked = $request->blocked; 
         $user->datetime = now();
         $user->save();
 

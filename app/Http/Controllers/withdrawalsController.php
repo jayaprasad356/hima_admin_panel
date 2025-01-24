@@ -43,7 +43,46 @@ class WithdrawalsController extends Controller
         // Return the view with the filtered withdrawals
         return view('withdrawals.index', compact('withdrawals'));
     }
+
+    public function edit($id)
+    {
+        // Fetch withdrawal and associated user
+        $withdrawal = Withdrawals::with('users')->findOrFail($id);
+        $user = $withdrawal->users; // Get the associated user
     
+        // Pass both withdrawal and user to the view
+        return view('withdrawals.edit', compact('withdrawal', 'user'));
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'bank' => 'required|string|max:255',
+            'branch' => 'required|string|max:255',
+            'ifsc' => 'required|string|max:20',
+            'account_num' => 'required|string|max:30',
+            'holder_name' => 'required|string|max:255',
+        ]);
+    
+        $withdrawal = Withdrawals::findOrFail($id);
+        $user = Users::findOrFail($withdrawal->user_id);
+    
+        // Update user's bank details
+        $user->update([
+            'bank' => $request->bank,
+            'branch' => $request->branch,
+            'ifsc' => $request->ifsc,
+            'account_num' => $request->account_num,
+            'holder_name' => $request->holder_name,
+        ]);
+    
+        // Redirect with success message
+        return redirect()->route('withdrawals.index')->with('success', 'Bank details updated successfully.');
+    }
+    
+    
+    
+        
     public function bulkUpdateStatus(Request $request)
     {
         // Validate the request to ensure withdrawal IDs and status are provided

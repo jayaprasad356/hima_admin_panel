@@ -1326,6 +1326,14 @@ public function call_female_user(Request $request)
         ], 200);
     }
 
+    // Check if user is blocked
+    if ($user->blocked == 1) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Your account has been suspended for 48 hours due to a violation of our policy.',
+        ], 200);
+    }
+
     // Validate call_user_id
     if (empty($call_user_id)) {
         return response()->json([
@@ -2886,6 +2894,8 @@ public function cron_updates(Request $request)
     Users::query()->update([
         'missed_calls' => 0,
         'attended_calls' => 0,
+        'audio_status' => 0,
+        'video_status' => 0,
         'avg_call_percentage' => 100,
     ]);
 

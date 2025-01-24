@@ -44,104 +44,133 @@
                 </form>
 
                 <form action="<?php echo e(route('withdrawals.bulkUpdateStatus')); ?>" method="POST">
-    <?php echo csrf_field(); ?>
-    <?php echo method_field('PATCH'); ?>
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
 
-    <div class="mb-3 d-flex align-items-center">
-        <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
-            onclick="return confirm('<?php echo e(__('Are you sure you want to mark selected as Paid?')); ?>')">
-            <?php echo e(__('Paid')); ?>
+                    <div class="mb-3 d-flex align-items-center">
+                        <!-- Select All Checkbox -->
+                        <div class="mr-3">
+                            <input type="checkbox" name="select_all" id="select-all">
+                            <label for="select-all"><?php echo e(__('Select All')); ?></label>
+                        </div>
 
-        </button>
+                        <!-- Paid Button -->
+                        <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
+                            onclick="return confirm('<?php echo e(__('Are you sure you want to mark selected as Paid?')); ?>')">
+                            <?php echo e(__('Paid')); ?>
 
-        <button type="submit" name="status" value="2" class="btn btn-danger ml-2" 
-            onclick="return confirm('<?php echo e(__('Are you sure you want to cancel selected withdrawals?')); ?>')">
-            <?php echo e(__('Cancel')); ?>
+                        </button>
 
-        </button>
-    </div>
+                        <!-- Cancel Button -->
+                        <button type="submit" name="status" value="2" class="btn btn-danger ml-2" 
+                            onclick="return confirm('<?php echo e(__('Are you sure you want to cancel selected withdrawals?')); ?>')">
+                            <?php echo e(__('Cancel')); ?>
 
-
-
+                        </button>
+                    </div>
 
                 <div class="card-body table-border-style">
-                <div class="table-responsive">
-        <table class="table" id="pc-dt-simple">
-            <thead>
-                <tr>
-                    <th><?php echo e(__('Select')); ?></th>
-                    <th><?php echo e(__('ID')); ?></th>
-                    <th><?php echo e(__('Name')); ?></th>
-                    <th><?php echo e(__('Mobile')); ?></th>
-                    <th><?php echo e(__('Amount')); ?></th>
-                    <th><?php echo e(__('Type')); ?></th>
-                    <th><?php echo e(__('Status')); ?></th>
-                    <th><?php echo e(__('Bank')); ?></th>
-                    <th><?php echo e(__('Branch')); ?></th>
-                    <th><?php echo e(__('Ifsc Code')); ?></th>
-                    <th><?php echo e(__('Account Number')); ?></th>
-                    <th><?php echo e(__('Holder Name')); ?></th>
-                    <th><?php echo e(__('Upi ID')); ?></th>
-                    <th><?php echo e(__('Datetime')); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $__currentLoopData = $withdrawals; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $withdrawal): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="withdrawal_ids[]" value="<?php echo e($withdrawal->id); ?>">
-                        </td>
-                        <td><?php echo e($withdrawal->id); ?></td>
-                        <td><?php echo e(ucfirst($withdrawal->users->name ?? '')); ?></td>
-                        <td><?php echo e($withdrawal->users->mobile ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->amount); ?></td>
-                        <td><?php echo e($withdrawal->type); ?></td>
-                        <td>
-                            <?php if($withdrawal->status == 0): ?>
-                                <i class="fa fa-clock text-warning"></i> <span class="font-weight-bold"><?php echo e(__('Pending')); ?></span>
-                            <?php elseif($withdrawal->status == 1): ?>
-                                <i class="fa fa-check-circle text-success"></i> <span class="font-weight-bold"><?php echo e(__('Paid')); ?></span>
-                            <?php elseif($withdrawal->status == 2): ?>
-                                <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold"><?php echo e(__('Cancelled')); ?></span>
-                            <?php else: ?>
-                                <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold"><?php echo e(__('Unknown')); ?></span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo e($withdrawal->users->bank ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->users->branch ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->users->ifsc ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->users->account_num ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->users->holder_name ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->users->upi_id ?? ''); ?></td>
-                        <td><?php echo e($withdrawal->datetime); ?></td>
-                    </tr>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            </tbody>
-        </table>
-    </div>
-</form>
+                    <div class="table-responsive">
+                        <table class="table" id="pc-dt-simple">
+                            <thead>
+                                <tr>
+                                    <th><?php echo e(__('Select')); ?></th>
+                                    <th><?php echo e(__('Actions')); ?></th> 
+                                    <th><?php echo e(__('ID')); ?></th>
+                                    <th><?php echo e(__('Name')); ?></th>
+                                    <th><?php echo e(__('Mobile')); ?></th>
+                                    <th><?php echo e(__('Amount')); ?></th>
+                                    <th><?php echo e(__('Type')); ?></th>
+                                    <th><?php echo e(__('Status')); ?></th>
+                                    <th><?php echo e(__('Bank')); ?></th>
+                                    <th><?php echo e(__('Branch')); ?></th>
+                                    <th><?php echo e(__('Ifsc Code')); ?></th>
+                                    <th><?php echo e(__('Account Number')); ?></th>
+                                    <th><?php echo e(__('Holder Name')); ?></th>
+                                    <th><?php echo e(__('Upi ID')); ?></th>
+                                    <th><?php echo e(__('Datetime')); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $__currentLoopData = $withdrawals; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $withdrawal): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="withdrawal_ids[]" value="<?php echo e($withdrawal->id); ?>">
+                                        </td>
+                                        <td>
+                                            <a href="#" data-url="<?php echo e(route('withdrawals.edit', $withdrawal->id)); ?>" data-ajax-popup="true" data-title="<?php echo e(__('Edit Bank Details')); ?>"
+                                               class="btn btn-sm align-items-center" data-bs-toggle="tooltip" title="<?php echo e(__('Edit')); ?>">
+                                                <i class="ti ti-pencil text-black"></i>
+                                            </a>
+                                        </td>
+                                        <td><?php echo e($withdrawal->id); ?></td>
+                                        <td><?php echo e(ucfirst($withdrawal->users->name ?? '')); ?></td>
+                                        <td><?php echo e($withdrawal->users->mobile ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->amount); ?></td>
+                                        <td><?php echo e($withdrawal->type); ?></td>
+                                        <td>
+                                            <?php if($withdrawal->status == 0): ?>
+                                                <i class="fa fa-clock text-warning"></i> <span class="font-weight-bold"><?php echo e(__('Pending')); ?></span>
+                                            <?php elseif($withdrawal->status == 1): ?>
+                                                <i class="fa fa-check-circle text-success"></i> <span class="font-weight-bold"><?php echo e(__('Paid')); ?></span>
+                                            <?php elseif($withdrawal->status == 2): ?>
+                                                <i class="fa fa-times-circle text-danger"></i> <span class="font-weight-bold"><?php echo e(__('Cancelled')); ?></span>
+                                            <?php else: ?>
+                                                <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold"><?php echo e(__('Unknown')); ?></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo e($withdrawal->users->bank ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->users->branch ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->users->ifsc ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->users->account_num ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->users->holder_name ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->users->upi_id ?? ''); ?></td>
+                                        <td><?php echo e($withdrawal->datetime); ?></td>
+                                    </tr>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 <?php $__env->stopSection(); ?>
-
 <?php $__env->startSection('scripts'); ?>
 <script>
-    document.getElementById('select-all').addEventListener('click', function() {
-        const checkboxes = document.querySelectorAll('input[name="withdrawal_ids[]"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = this.checked;
+$(document).ready(function () {
+    let table = $('#pc-dt-simple').DataTable({
+        'paging': true,
+        'info': true,
+        'ordering': true,
+        'searching': true
+    });
+
+    let allSelected = false;
+
+    // "Select All" checkbox functionality
+    $('#select-all').on('click', function () {
+        allSelected = $(this).prop('checked');
+
+        // Select/deselect all checkboxes on **all** pages
+        $('input[name="withdrawal_ids[]"]').prop('checked', allSelected);
+    });
+
+    // Individual row checkbox functionality
+    $('#pc-dt-simple tbody').on('change', 'input[name="withdrawal_ids[]"]', function () {
+        let selected = $('input[name="withdrawal_ids[]"]:checked').length;
+        let total = $('input[name="withdrawal_ids[]"]').length;
+
+        // Update "Select All" checkbox state based on individual selections
+        $('#select-all').prop('checked', selected === total);
+    });
+
+    // Ensure checkboxes stay selected when paginating
+    table.on('draw', function () {
+        $('input[name="withdrawal_ids[]"]').each(function () {
+            $(this).prop('checked', allSelected);
         });
     });
+});
 
-    $(document).ready(function() {
-        // Initialize DataTable
-        $('#pc-dt-simple').DataTable();
-    });
 </script>
 <?php $__env->stopSection(); ?>
-
 
 <?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\hima_admin_panel\resources\views/withdrawals/index.blade.php ENDPATH**/ ?>
