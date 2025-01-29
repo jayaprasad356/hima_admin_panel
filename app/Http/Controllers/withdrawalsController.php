@@ -81,26 +81,24 @@ class WithdrawalsController extends Controller
     }
     
     
-    
-        
     public function bulkUpdateStatus(Request $request)
     {
         // Validate the request to ensure withdrawal IDs and status are provided
         $request->validate([
             'withdrawal_ids' => 'required|array',
             'withdrawal_ids.*' => 'exists:withdrawals,id',
-            'status' => 'required|integer|in:1,2', // Only allow 1 (Paid) or 2 (Cancelled)
+            'new_status' => 'required|integer|in:1,2', // Only allow 1 (Paid) or 2 (Cancelled)
         ]);
-        
-        $status = (int) $request->input('status');
+
+        $status = (int) $request->new_status;
         $successMessage = '';
         $errorMessage = '';
-    
+
         // Use a database transaction to ensure atomic updates
         DB::transaction(function () use ($request, $status, &$successMessage, &$errorMessage) {
             foreach ($request->withdrawal_ids as $withdrawalId) {
                 $withdrawal = Withdrawals::find($withdrawalId);
-    
+
                 if ($withdrawal) {
                     // Check if the withdrawal is already cancelled (status 2)
                     if ($withdrawal->status == 2) {
@@ -109,22 +107,22 @@ class WithdrawalsController extends Controller
                             $errorMessage = "The withdrawal with ID {$withdrawalId} is already cancelled. It cannot be cancelled again.";
                             continue; // Skip processing this withdrawal
                         }
-    
+
                         // If the withdrawal is already cancelled, and trying to mark as paid
                         if ($status === 1) {
                             $errorMessage = "The withdrawal with ID {$withdrawalId} is already cancelled. It cannot be paid again.";
                             continue; // Skip processing this withdrawal
                         }
                     }
-    
+
                     // Handle the case where the status is set to Cancelled (2)
                     if ($status === 2) {
                         $user = Users::find($withdrawal->user_id);
-    
+
                         if ($user) {
                             // Refund the amount to the user's balance only if it is not already canceled
                             $user->increment('balance', $withdrawal->amount);
-    
+
                             // Log the cancellation in the transactions table
                             Transactions::create([
                                 'user_id' => $user->id,
@@ -134,12 +132,12 @@ class WithdrawalsController extends Controller
                                 'datetime' => now(),
                             ]);
                         }
-    
+
                         // Update the withdrawal status to Cancelled
                         $withdrawal->update(['status' => 2]);
                         $successMessage = "The withdrawal with ID {$withdrawalId} has been successfully cancelled.";
                     }
-    
+
                     // Handle the case where the status is set to Paid (1)
                     if ($status === 1) {
                         // Update the withdrawal status to Paid
@@ -149,19 +147,18 @@ class WithdrawalsController extends Controller
                 }
             }
         });
-    
+
         // Return the response with the appropriate success or error message
         if ($errorMessage) {
             return redirect()->route('withdrawals.index')->with('error', $errorMessage);
         }
-    
+
         if ($successMessage) {
             return redirect()->route('withdrawals.index')->with('success', $successMessage);
         }
-    
+
         return redirect()->route('withdrawals.index')->with('info', 'No withdrawals were updated.');
     }
-    
 
   
     public function export(Request $request)

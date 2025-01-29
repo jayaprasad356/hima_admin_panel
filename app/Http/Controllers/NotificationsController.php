@@ -5,18 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Users;
 use App\Models\Notifications;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Berkayk\OneSignal\OneSignalClient;
+use Berkayk\OneSignal\OneSignalFacade as OneSignal;
 
 class NotificationsController extends Controller
 {
-    protected $oneSignalClient;
-
-    public function __construct(OneSignalClient $oneSignalClient)
-    {
-        $this->oneSignalClient = $oneSignalClient;
-    }
-
     // List all notifications with optional search functionality
     public function index(Request $request)
     {
@@ -39,72 +31,60 @@ class NotificationsController extends Controller
 
     public function store(Request $request)
     {
-        // Validate input
-        $validated = $request->validate([
-            'title' => 'required|string|max:5000',
-            'description' => 'required|string|max:5000',
-            'gender' => 'required|string|in:all,male,female',
-            'language' => 'required|string|in:all,Hindi,Telugu,Malayalam,Kannada,Punjabi,Tamil',
-        ]);
-    
-        // Create notification record
-        $notification = Notifications::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'gender' => $validated['gender'],
-            'language' => $validated['language'],
-            'datetime' => now(),
-        ]);
-    
-        if (!$notification) {
-            return redirect()->back()->with('error', 'Something went wrong while creating the notification.');
-        }
-    
         try {
-            // Query users based on gender and language selection
-            $usersQuery = Users::query();
-
-            if ($validated['gender'] !== 'all') {
-                $usersQuery->where('gender', $validated['gender']); // Filter by gender
+            // Validate input
+            $validated = $request->validate([
+                'title' => 'required|string|max:5000',
+                'description' => 'required|string|max:5000',
+                'gender' => 'required|string|in:all,male,female',
+                'language' => 'required|string|in:all,Hindi,Telugu,Malayalam,Kannada,Punjabi,Tamil,English',
+            ]);
+    
+            // Insert the notification into the database
+            $notification = Notifications::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'gender' => $validated['gender'],
+                'language' => $validated['language'],
+                'datetime' => now(),
+            ]);
+    
+            if (!$notification) {
+                return redirect()->back()->with('error', 'Failed to save notification.');
             }
-
-            if ($validated['language'] !== 'all') {
-                $usersQuery->where('language', $validated['language']); // Filter by language
+    
+            // Define tags based on gender
+            $tags = [];
+            if ($validated['gender'] === 'male') {
+                $tags[] = ['field' => 'tag', 'key' => 'gender', 'relation' => '=', 'value' => 'male'];
+            } elseif ($validated['gender'] === 'female') {
+                $tags[] = ['field' => 'tag', 'key' => 'gender', 'relation' => '=', 'value' => 'female'];
             }
+    
+             // Format the message with the title and description on separate lines
+            $message = $validated['title'] . "\n" . $validated['description'];
 
-            $users = $usersQuery->get(); // Get filtered users
-
-            if ($users->count() > 0) {
-                // Extract user IDs or push notification tokens for OneSignal
-                $userIds = $users->pluck('onesignal_player_id')->filter()->toArray(); // Ensure IDs are valid
-                
-                if (!empty($userIds)) {
-                    // Proper OneSignal notification payload with targeting
-                    $response = $this->oneSignalClient->sendNotificationCustom([
-                        'contents' => ['en' => $validated['description']], // Description first
-                        'headings' => ['en' => $validated['title']], // Title second
-                        'include_player_ids' => $userIds, // Target specific users
-                    ]);
-
-                    // Log OneSignal response
-                    Log::info('OneSignal response: ', ['response' => $response]);
-
-                    Log::info("Notification sent successfully to selected users.");
-                } else {
-                    Log::warning("No valid OneSignal player IDs found for the selected criteria.");
-                }
-            } else {
-                Log::warning("No users found for the selected criteria (Gender: {$validated['gender']}, Language: {$validated['language']}).");
+            // Send push notification using OneSignal with tags
+            try {
+                OneSignal::sendNotificationUsingTags(
+                    $message,  // Use the formatted message with title and description on separate lines
+                    $tags,  // Pass tags for gender
+                    $url = null, 
+                    $data = null, 
+                    $buttons = null, 
+                    $schedule = null
+                );
+    
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());
             }
-
+    
+            return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
+    
         } catch (\Exception $e) {
-            Log::error('Error sending notification: ', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
-    
-        return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
     }
-    
     
     
     // Edit notification

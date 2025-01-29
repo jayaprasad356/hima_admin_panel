@@ -669,7 +669,7 @@ public function send_otp(Request $request)
 
     // Define the API URL and parameters for OTP sending
     $apiUrl = 'https://api.authkey.io/request'; 
-    $authKey = '673e807e1f672335'; // Your authkey here
+    $authKey = 'dc0b07c812ca4934'; // Your authkey here
     $sid = '14324'; // SID, if applicable
 
     // Make the HTTP request to the OTP API
@@ -1059,18 +1059,42 @@ public function female_users_list(Request $request)
         ], 401);
     }
 
-    // Retrieve total count of female users with status = 1 and active in audio or video
+    $user_id = $request->input('user_id');
+
+    // Validate user_id
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+
+    // Find the user
+    $user = Users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found.',
+        ], 200);
+    }
+
+    // Get the caller's language
+    $callerLanguage = $user->language;
+
+    // Retrieve total count of female users with the same language
     $totalCount = Users::where('gender', 'female')
         ->where('status', 2)
+        ->where('language', $callerLanguage) // Match language
         ->where(function($query) {
             $query->where('audio_status', 1)
                   ->orWhere('video_status', 1);
         })
         ->count();
 
-    // Retrieve all female users with status = 1 and active in audio or video, ordered by avg_call_percentage
+    // Retrieve all female users matching language, ordered by avg_call_percentage
     $Users = Users::where('gender', 'female')
         ->where('status', 2)
+        ->where('language', $callerLanguage) // Match language
         ->where(function($query) {
             $query->where('audio_status', 1)
                   ->orWhere('video_status', 1);
@@ -1451,153 +1475,148 @@ public function call_female_user(Request $request)
 }
 public function random_user(Request $request)
 {
-
     $authenticatedUser = auth('api')->user();
-        if (!$authenticatedUser) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Please provide a valid token.',
-            ], 401);
-        }
+    if (!$authenticatedUser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. Please provide a valid token.',
+        ], 401);
+    }
+
+    $user_id = $request->input('user_id');
+    $call_type = $request->input('call_type'); // Should be 'audio' or 'video'
+
+    // Validate user_id
+    if (empty($user_id)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+    }
+
+    // Find the user
+    $user = Users::find($user_id);
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'user not found.',
+        ], 200);
+    }
+
+    if (empty($call_type)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'call_type is empty.',
+        ], 200);
+    }
+
+    // Validate call_type
+    if (!in_array($call_type, ['audio', 'video'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid call_type. It must be either "audio" or "video".',
+        ], 200);
+    }
+
+    // Check if the user has enough coins
+    if ($call_type == 'video' && $user->coins < 60) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Insufficient coins for video call. Minimum 60 coins required.',
+        ], 200);
+    } elseif ($call_type == 'audio' && $user->coins < 10) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Insufficient coins for audio call. Minimum 10 coins required.',
+        ], 200);
+    }
+
+    $balance_time = '';
+    $coins = $user->coins;
+
+    if ($call_type == 'audio') {
+        // For audio calls: 10 coins = 1 minute
+        $minutes = floor($coins / 10);
+    } elseif ($call_type == 'video') {
+        // For video calls: 60 coins = 1 minute
+        $minutes = floor($coins / 60);
+    }
+
+    $seconds = 0;
+    $balance_time = sprintf('%d:%02d', $minutes, $seconds);
+
+    // Get the caller's language
+    $callerLanguage = $user->language;
+
+    // Query random female users with the same language
+    $query = Users::where('gender', 'female')
+                  ->where('language', $callerLanguage) // Match language
+                  ->orderBy('avg_call_percentage', 'desc')
+                  ->limit(10);
+
+    if ($call_type == 'video') {
+        $query->where('video_status', 1);
+    } else { // 'audio'
+        $query->where('audio_status', 1);
+    }
+
+    // Fetch random female user with the same language
+    $randomFemaleuser = $query->inRandomOrder()->first();
+
+    // If no users are found, return a busy message
+    if (!$randomFemaleuser) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Users are busy right now.',
+        ], 200);
+    }
+
+    // Insert call data into users_call table
+    $usersCalls = UserCalls::create([
+        'user_id' => $user->id,
+        'call_user_id' => $randomFemaleuser->id,
+        'type' => $call_type,
+        'datetime' => now(),
+    ]);
+
+    // Fetch inserted call data
+    $insertedCallData = UserCalls::find($usersCalls->id);
+
+    // Fetch names and avatars of users
+    $caller = Users::find($insertedCallData->user_id);
+    $receiver = Users::find($insertedCallData->call_user_id);
+
+    // Fetch avatar image for receiver
+    $receiverAvatar = Avatars::find($receiver->avatar_id);
+    $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
+
+    // Fetch avatar image for caller
+    $callerAvatar = Avatars::find($caller->avatar_id);
+    $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
+
+    // Increment missed_calls for the call_user_id user
+    $receiver->missed_calls += 1;
+    $receiver->save();
+
+    // Return response with success and inserted call data
     return response()->json([
-        'success' => false,
-        'message' => 'Currently, random calling is disabled. Please try calling individual users.',
+        'success' => true,
+        'message' => 'Data created successfully.',
+        'data' => [
+            'call_id' => $insertedCallData->id,
+            'user_id' => $insertedCallData->user_id,
+            'user_name' => $caller ? $caller->name : '',
+            'user_avatar_image' => $callerImageUrl,
+            'call_user_id' => $insertedCallData->call_user_id,
+            'call_user_name' => $receiver ? $receiver->name : '',
+            'call_user_avatar_image' => $receiverImageUrl,
+            'type' => $insertedCallData->type,
+            'started_time' => $insertedCallData->started_time ?? '',
+            'balance_time' => $balance_time,
+            'date_time' => Carbon::parse($insertedCallData->date_time)->format('Y-m-d H:i:s'),
+        ],
     ], 200);
 }
-// {
-//     $authenticatedUser = auth('api')->user();
-//     if (!$authenticatedUser) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Unauthorized. Please provide a valid token.',
-//         ], 401);
-//     }
-//     $user_id = $request->input('user_id');
-//     $call_type = $request->input('call_type'); // Should be 'audio' or 'video'
-
-//     // Validate user_id
-//     if (empty($user_id)) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'user_id is empty.',
-//         ], 200);
-//     }
-
-//     // Find the user
-//     $user = users::find($user_id);
-//     if (!$user) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'user not found.',
-//         ], 200);
-//     }
-
-//     if (empty($call_type)) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'call_type is empty.',
-//         ], 200);
-//     }
-
-//     // Validate call_type
-//     if (!in_array($call_type, ['audio', 'video'])) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Invalid call_type. It must be either "audio" or "video".',
-//         ], 200);
-//     }
-
-//     if ($call_type == 'video' && $user->coins < 60) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Insufficient coins for video call. Minimum 60 coins required.',
-//         ], 200);
-//     } elseif ($call_type == 'audio' && $user->coins < 10) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Insufficient coins for audio call. Minimum 10 coins required.',
-//         ], 200);
-//     }
-
-//     $balance_time = '';
-//     $coins = $user->coins;
-
-//     if ($call_type == 'audio') {
-//         // For audio calls: 10 coins = 1 minute
-//         $minutes = floor($coins / 10);
-//     } elseif ($call_type == 'video') {
-//         // For video calls: 60 coins = 1 minute
-//         $minutes = floor($coins / 60);
-//     }
-    
-//     $seconds = 0;
-//     $balance_time = sprintf('%d:%02d', $minutes, $seconds);
-
-//     $query = users::where('gender', 'female')
-//         ->where('id', '!=', $user_id);
-
-//     if ($call_type == 'video') {
-//         $query->where('video_status', 1);
-//     } else { // 'audio'
-//         $query->where('audio_status', 1);
-//     }
-        
-//     // Fetch random user
-//     $randomFemaleuser = $query->inRandomOrder()->first();
-
-//     // If no users are found, return a busy message
-//     if (!$randomFemaleuser) {
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'users are busy right now.',
-//         ], 200);
-//     }
-
-//     // Insert call data into users_call table
-//     $usersCalls = UserCalls::create([
-//         'user_id' => $user->id,
-//         'call_user_id' => $randomFemaleuser->id,
-//         'type' => $call_type,
-//         'datetime' => now(),
-//     ]);
-
-//     // Fetch inserted call data
-//     $insertedCallData = UserCalls::find($usersCalls->id);
-
-//     // Fetch names of the users from the users table
-//     $caller = users::find($insertedCallData->user_id);
-//     $receiver = users::find($insertedCallData->call_user_id);
-
-//     // Fetch avatar image for receiver
-//     $receiverAvatar = Avatars::find($receiver->avatar_id);
-//     $receiverImageUrl = ($receiverAvatar && $receiverAvatar->image) ? asset('storage/app/public/' . $receiverAvatar->image) : '';
-
-//     // Fetch avatar image for caller if needed
-//     $callerAvatar = Avatars::find($caller->avatar_id);
-//     $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
-
-//     // Increment missed_calls for the call_user_id user
-//     $receiver->missed_calls += 1;
-//     $receiver->save();
-
-//     // Return response with success and inserted call data
-//     return response()->json([
-//         'success' => true,
-//         'message' => 'Data created successfully.',
-//         'data' => [
-//             'call_id' => $insertedCallData->id,
-//             'user_id' => $insertedCallData->user_id,
-//             'user_name' => $caller ? $caller->name : '',
-//             'user_avatar_image' => $callerImageUrl,
-//             'call_user_id' => $insertedCallData->call_user_id,
-//             'call_user_name' => $receiver ? $receiver->name : '',
-//             'call_user_avatar_image' => $receiverImageUrl,
-//             'type' => $insertedCallData->type,
-//             'started_time' => $insertedCallData->started_time ?? '',
-//             'date_time' => Carbon::parse($insertedCallData->date_time)->format('Y-m-d H:i:s'),
-//         ],
-//     ], 200);
-// }
 
 public function update_connected_call(Request $request)
 {
@@ -1756,6 +1775,14 @@ public function update_connected_call(Request $request)
     $call->income = $income;
     $call->save();
 
+    // Update audio_status or video_status based on call type
+    if ($callType == 'audio') {
+        $callUser->audio_status = 1;
+    } elseif ($callType == 'video') {
+        $callUser->video_status = 1;
+    }
+    $callUser->save();
+
     $callUser = Users::find($call->call_user_id);
     if ($callUser) {
         $callUser->attended_calls += 1;
@@ -1763,7 +1790,6 @@ public function update_connected_call(Request $request)
             $callUser->missed_calls -= 1;
         }
         $callUser->save();
-    
     }
 
     $receiver = Users::find($call->call_user_id);
@@ -2213,8 +2239,15 @@ public function female_call_attend(Request $request)
     $userCall->started_time = $started_time;
     $userCall->save();
 
+    // Update audio_status or video_status based on call type
+    if ($userCall->type === 'audio') {
+        $user->audio_status = 0;
+    } else {
+        $user->video_status = 0;
+    }
+    $user->save();
+
     // Find the user and fetch balance time
-    $user = Users::find($user_id);
     $coins = $user ? $user->coins : 0;
 
     // Calculate remaining time based on call type
@@ -2258,7 +2291,6 @@ public function female_call_attend(Request $request)
         ],
     ], 200);
 }
-
 
 public function get_remaining_time(Request $request)
 {

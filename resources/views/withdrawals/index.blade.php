@@ -48,9 +48,10 @@
                     <div class="mb-3 d-flex align-items-center">
                         <!-- Select All Checkbox -->
                         <div class="mr-3">
-                            <input type="checkbox" name="select_all" id="select-all">
+                            <input type="checkbox" id="select-all">
                             <label for="select-all">{{ __('Select All') }}</label>
                         </div>
+
 
                         <!-- Paid Button -->
                         <button type="submit" name="status" value="1" class="btn btn-success ml-3" 
@@ -129,42 +130,31 @@
                     </div>
                 </div>
 @endsection
-@section('scripts')
-<script>
-$(document).ready(function () {
-    let table = $('#pc-dt-simple').DataTable({
-        'paging': true,
-        'info': true,
-        'ordering': true,
-        'searching': true
+
+@section('js')
+        <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+        <script>
+         $(document).ready(function () {
+    // Handle "Select All" checkbox
+    $('#select-all').change(function() {
+        // Get the state of the "Select All" checkbox
+        var isChecked = $(this).prop('checked');
+
+        // Select or deselect all individual checkboxes
+        $('input[name="withdrawal_ids[]"]').prop('checked', isChecked);
     });
 
-    let allSelected = false;
-
-    // "Select All" checkbox functionality
-    $('#select-all').on('click', function () {
-        allSelected = $(this).prop('checked');
-
-        // Select/deselect all checkboxes on **all** pages
-        $('input[name="withdrawal_ids[]"]').prop('checked', allSelected);
-    });
-
-    // Individual row checkbox functionality
-    $('#pc-dt-simple tbody').on('change', 'input[name="withdrawal_ids[]"]', function () {
-        let selected = $('input[name="withdrawal_ids[]"]:checked').length;
-        let total = $('input[name="withdrawal_ids[]"]').length;
-
-        // Update "Select All" checkbox state based on individual selections
-        $('#select-all').prop('checked', selected === total);
-    });
-
-    // Ensure checkboxes stay selected when paginating
-    table.on('draw', function () {
-        $('input[name="withdrawal_ids[]"]').each(function () {
-            $(this).prop('checked', allSelected);
-        });
+    // Handle individual checkboxes
+    $('input[name="withdrawal_ids[]"]').change(function() {
+        // If any individual checkbox is unchecked, uncheck the "Select All" checkbox
+        if ($('input[name="withdrawal_ids[]"]:not(:checked)').length > 0) {
+            $('#select-all').prop('checked', false); // Uncheck "Select All" checkbox
+        } else {
+            $('#select-all').prop('checked', true); // Check "Select All" checkbox if all are selected
+        }
     });
 });
 
-</script>
-@endsection
+        </script>
+    @endsection
