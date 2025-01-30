@@ -1063,25 +1063,20 @@ public function female_users_list(Request $request)
 
     $user_id = $request->input('user_id');
 
-    // Validate user_id
-    if (empty($user_id)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'user_id is empty.',
-        ], 200);
+    // Determine the language to use
+    if (!empty($user_id)) {
+        // Find the user
+        $user = Users::find($user_id);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 200);
+        }
+        $callerLanguage = $user->language;
+    } else {
+        $callerLanguage = 'Tamil';
     }
-
-    // Find the user
-    $user = Users::find($user_id);
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'User not found.',
-        ], 200);
-    }
-
-    // Get the caller's language
-    $callerLanguage = $user->language;
 
     // Retrieve total count of female users with the same language
     $totalCount = Users::where('gender', 'female')
