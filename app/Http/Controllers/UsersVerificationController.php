@@ -9,23 +9,30 @@ class UsersVerificationController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the status filter from the query string, default to 1 (Pending)
         $status = $request->get('status', 1);
-
+        $language = $request->get('language', ''); // Get language filter
+    
+        $languages = ['Hindi', 'Telugu', 'Malayalam', 'Kannada', 'Punjabi', 'Tamil']; // Available languages
+    
         // Search users by name, mobile, language, and filter by status
         $users = Users::with('avatar')
             ->when($status, function ($query, $status) {
-                return $query->where('status', $status); // Filter by the selected status
+                return $query->where('status', $status);
+            })
+            ->when($language, function ($query, $language) {
+                return $query->where('language', $language); // Filter by language
             })
             ->when($request->get('search'), function ($query, $search) {
                 $query->where('name', 'like', '%' . $search . '%')
                       ->orWhere('mobile', 'like', '%' . $search . '%')
                       ->orWhere('language', 'like', '%' . $search . '%');
-                    })
-                    ->orderBy('datetime', 'desc') // Order by latest data
-                    ->get();
-        return view('users-verification.index', compact('users'));
+            })
+            ->orderBy('datetime', 'desc')
+            ->get();
+    
+        return view('users-verification.index', compact('users', 'languages', 'status', 'language'));
     }
+    
 
     public function updateStatus(Request $request)
     {

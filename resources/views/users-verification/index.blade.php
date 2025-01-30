@@ -16,27 +16,44 @@
          
             <div class="card-body">
                 <!-- Filter by Status Form -->
-                <form action="{{ route('users-verification.index') }}" method="GET" class="mb-3">
-                    <label for="status">{{ __('Filter by Status') }}</label>
-                    <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
-                        <option value="1" {{ request()->get('status') == '1' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                        <option value="2" {{ request()->get('status') == '2' ? 'selected' : '' }}>{{ __('Verified') }}</option>
-                        <option value="3" {{ request()->get('status') == '3' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
-                    </select>
+              <!-- Filter by Status and Language Form -->
+                    <form action="{{ route('users-verification.index') }}" method="GET" class="mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="status">{{ __('Filter by Status') }}</label>
+                                <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
+                                    <option value="1" {{ request()->get('status') == '1' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                    <option value="2" {{ request()->get('status') == '2' ? 'selected' : '' }}>{{ __('Verified') }}</option>
+                                    <option value="3" {{ request()->get('status') == '3' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="language">{{ __('Filter by Language') }}</label>
+                                <select name="language" id="language" class="form-control language-filter" onchange="this.form.submit()">
+                                    <option value="">{{ __('All Languages') }}</option>
+                                    @foreach ($languages as $lang)
+                                        <option value="{{ $lang }}" {{ request()->get('language') == $lang ? 'selected' : '' }}>
+                                            {{ __($lang) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </form>
 
                     <style>
-                        .status-filter {
-                            width: 200px; /* Default width */
+                        .status-filter, .language-filter {
+                            width: 200px;
                         }
 
                         @media (max-width: 768px) {
-                            .status-filter {
-                                width: 100%; /* Full width on smaller screens */
+                            .status-filter, .language-filter {
+                                width: 100%;
                             }
                         }
                     </style>
 
-                </form>
 
                 <!-- Table for user verifications -->
                 <form action="{{ route('users-verification.updateStatus') }}" method="POST">
@@ -53,6 +70,7 @@
                                         <th>{{ __('ID') }}</th>
                                         <th>{{ __('Name') }}</th>
                                         <th>{{ __('Mobile') }}</th>
+                                        <th>{{ __('Language') }}</th> <!-- New Column -->
                                         <th>{{ __('Voice') }}</th>
                                         <th>{{ __('Status') }}</th>
                                     </tr>
@@ -64,6 +82,7 @@
                                             <td>{{ $user->id }}</td>
                                             <td>{{ ucfirst($user->name) }}</td>
                                             <td>{{ $user->mobile }}</td>
+                                            <td>{{ $user->language }}</td> <!-- Display Language -->
                                             <td>
                                                 @if($user->voice && $user->voice)
                                                     <a href="{{ asset('storage/app/public/voices/' . $user->voice) }}" target="_blank">Play Voice</a>

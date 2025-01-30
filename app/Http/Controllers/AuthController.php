@@ -16,6 +16,8 @@ use App\Models\Transactions;
 use App\Models\DeletedUsers; 
 use App\Models\Withdrawals;  
 use App\Models\UserCalls;
+use App\Models\explaination_video;
+use App\Models\explaination_video_links;
 use Carbon\Carbon;
 use App\Models\News; 
 use Validator;
@@ -30,7 +32,7 @@ use Kreait\Firebase\ServiceAccount;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list']]);
     }
  
     public function register(Request $request)
@@ -1594,7 +1596,12 @@ public function random_user(Request $request)
     $callerAvatar = Avatars::find($caller->avatar_id);
     $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
 
-    // Increment missed_calls for the call_user_id user
+    // Update call status for the receiver
+    // if ($call_type == 'video') {
+    //     $receiver->video_status = 0;
+    // } else {
+    //     $receiver->audio_status = 0;
+    // }
     $receiver->missed_calls += 1;
     $receiver->save();
 
@@ -1729,6 +1736,19 @@ public function update_connected_call(Request $request)
     // Ensure at least 1 minute is counted (ceil rounds up)
     $durationMinutes = max(ceil($effectiveDurationSeconds / 60), 1);
 
+    $callUser = Users::find($call->call_user_id);
+    // Update audio_status or video_status based on call type
+    
+    $currentTime = now();
+  if ($callType == 'audio') {
+    $callUser->audio_status = 1;
+    $callUser->last_audio_time_updated = $currentTime; // Update only audio timestamp
+    } elseif ($callType == 'video') {
+    $callUser->video_status = 1;
+    $callUser->last_video_time_updated = $currentTime; // Update only audio timestamp
+    }
+    $callUser->save();
+
     // Determine coin deduction rates
     if ($callType == 'audio') {
         $coinsPerMinute = 10; // Per minute deduction
@@ -1774,14 +1794,6 @@ public function update_connected_call(Request $request)
     $call->coins_spend = $coins_spend;
     $call->income = $income;
     $call->save();
-
-    // Update audio_status or video_status based on call type
-    if ($callType == 'audio') {
-        $callUser->audio_status = 1;
-    } elseif ($callType == 'video') {
-        $callUser->video_status = 1;
-    }
-    $callUser->save();
 
     $callUser = Users::find($call->call_user_id);
     if ($callUser) {
@@ -1939,6 +1951,17 @@ $effectiveDurationSeconds = max($durationSeconds - 9, 0);
 // Ensure at least 1 minute is counted (ceil rounds up)
 $durationMinutes = max(ceil($effectiveDurationSeconds / 60), 1);
 
+$callUser = Users::find($call->call_user_id);
+    // Update audio_status or video_status based on call type
+    $currentTime = now();
+  if ($callType == 'audio') {
+    $callUser->audio_status = 1;
+    $callUser->last_audio_time_updated = $currentTime; // Update only audio timestamp
+    } elseif ($callType == 'video') {
+    $callUser->last_video_time_updated = $currentTime; // Update only audio timestamp
+    }
+    $callUser->save();
+
 // Determine coin deduction rates
 if ($callType == 'audio') {
     $coinsPerMinute = 10; // Per minute deduction
@@ -1965,6 +1988,7 @@ if ($durationSeconds >= 10) {
    
     // Update the balance of the call_user_id user
     $callUser = Users::find($call->call_user_id);
+
     if ($callUser) {
         $callUser->balance += $income;
         $callUser->total_income += $income;
@@ -1986,6 +2010,7 @@ if ($durationSeconds >= 10) {
     $call->coins_spend = $coins_spend;
     $call->income = $income;
     $call->save();
+
 
     $callUser = Users::find($call->call_user_id);
     if ($callUser) {
@@ -2239,14 +2264,6 @@ public function female_call_attend(Request $request)
     $userCall->started_time = $started_time;
     $userCall->save();
 
-    // Update audio_status or video_status based on call type
-    if ($userCall->type === 'audio') {
-        $user->audio_status = 0;
-    } else {
-        $user->video_status = 0;
-    }
-    $user->save();
-
     // Find the user and fetch balance time
     $coins = $user ? $user->coins : 0;
 
@@ -2264,6 +2281,16 @@ public function female_call_attend(Request $request)
     $caller = Users::find($userCall->user_id);
     $callerAvatar = $caller ? Avatars::find($caller->avatar_id) : '';
     $receiver = Users::find($userCall->call_user_id);
+
+    // Update audio_status or video_status for receiver only
+    if ($receiver) {
+        if ($userCall->type === 'audio') {
+            $receiver->audio_status = 0;
+        } else {
+            $receiver->video_status = 0;
+        }
+        $receiver->save();
+    }
 
     $receiverAvatar = $receiver ? Avatars::find($receiver->avatar_id) : '';
     $callerImageUrl = ($callerAvatar && $callerAvatar->image) ? asset('storage/app/public/' . $callerAvatar->image) : '';
@@ -2418,7 +2445,7 @@ public function update_bank(Request $request)
             'message' => 'Unauthorized. Please provide a valid token.',
         ], 401);
     }
- 
+
     $user_id = $request->input('user_id');
     $bank = $request->input('bank');
     $account_num = $request->input('account_num');
@@ -2457,6 +2484,12 @@ public function update_bank(Request $request)
         return response()->json([
             'success' => false,
             'message' => 'ifsc is empty.',
+        ], 200);
+    }
+    if (!preg_match("/^[A-Z]{4}0[A-Z0-9]{6}$/", $ifsc)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid IFSC code. It should be 11 characters long with the 5th character as 0.',
         ], 200);
     }
 
@@ -2706,6 +2739,12 @@ public function withdrawals(Request $request)
                 'message' => 'Please update your bank details before making a withdrawal.',
             ], 200);
         }
+        if (!preg_match("/^[A-Z]{4}0[A-Z0-9]{6}$/", $user->ifsc)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid IFSC code. It should be 11 characters long with the 5th character as 0.',
+            ], 200);
+        }
     }
 
     // Handle UPI transfer
@@ -2902,22 +2941,36 @@ public function add_coins(Request $request)
 }
 public function cron_jobs(Request $request)
 {
-      $users = Users::all();
+    $users = Users::where('missed_calls', '>', 0)
+                    ->orWhere('attended_calls', '>', 0)
+                    ->get();
+    $currentTime = Carbon::now();
 
-      foreach ($users as $user) {
-          // Calculate total calls
-          $totalCalls = $user->attended_calls + $user->missed_calls;
-  
-          // Calculate avg_call_percentage
-          if ($totalCalls > 0) {
-              $user->avg_call_percentage = ($user->attended_calls / $totalCalls) * 100;
-          } else {
-              $user->avg_call_percentage = 0;
-          }
-  
-          // Save the updated user
-          $user->save();
-      }
+        foreach ($users as $user) {
+        // Calculate total calls
+          if ($user->last_audio_time_updated && $currentTime->diffInHours($user->last_audio_time_updated) >= 1) {
+            $user->audio_status = 0;
+            $user->missed_calls = 0;
+            $user->attended_calls = 0;
+        }
+
+        if ($user->last_video_time_updated && $currentTime->diffInHours($user->last_video_time_updated) >= 1) {
+            $user->video_status = 0;
+            $user->missed_calls = 0;
+            $user->attended_calls = 0;
+        }
+
+        $totalCalls = $user->attended_calls + $user->missed_calls;
+        // Calculate avg_call_percentage
+        if ($totalCalls > 0) {
+        $user->avg_call_percentage = ($user->attended_calls / $totalCalls) * 100;
+        } else {
+        $user->avg_call_percentage = 0;
+        }
+
+        // Save the updated user
+         $user->save();
+        }
 }
 
 public function cron_updates(Request $request)
@@ -2937,4 +2990,47 @@ public function cron_updates(Request $request)
     ]);
 }
 
+    
+public function explaination_video_list(Request $request)
+{
+
+    $language = $request->input('language');
+    
+    if (empty($language)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'language is empty.',
+        ], 200);
+    }
+
+    $explainationVideos = explaination_video_links::where('language', $language)
+                 ->get();
+
+    if ($explainationVideos->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No Explaination Video found for this user.',
+        ], 200);
+    }
+
+    $languageData = [];
+    foreach ($explainationVideos as $video) {
+    foreach ($explainationVideos as $language) {
+        $languageData[] = [
+            'id' => $language->id,
+            'language' => $language->language,
+            'video_link' => $language->video_link,
+            'updated_at' => $language->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => $language->created_at->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Explaination Video Link list retrieved successfully.',
+        'data' => $languageData,
+    ], 200);
+}
+
+}
 }
