@@ -22,6 +22,7 @@ use App\Http\Controllers\SpeechTextController;
 use App\Http\Controllers\UsersVerificationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AvatarsController;
+use App\Http\Controllers\GiftsController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\IncomeTypeController;
 use App\Http\Controllers\ExpenseController;
@@ -302,6 +303,7 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('withdrawals/export', [WithdrawalsController::class, 'export'])->name('withdrawals.export');
     Route::resource('coins', CoinsController::class);
     Route::resource('withdrawals', WithdrawalsController::class);
+    Route::resource('gifts', GiftsController::class);
     // In routes/web.php
 Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('withdrawals.update');
     Route::resource('notifications', NotificationsController::class);

@@ -12,6 +12,7 @@ use App\Models\Coins;
 use App\Models\SpeechText;  
 use App\Models\Appsettings; 
 use App\Models\Ratings; 
+use App\Models\Gifts;
 use App\Models\Transactions;
 use App\Models\DeletedUsers; 
 use App\Models\Withdrawals;  
@@ -32,7 +33,7 @@ use Kreait\Firebase\ServiceAccount;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list','gifts_list']]);
     }
  
     public function register(Request $request)
@@ -2481,12 +2482,12 @@ public function update_bank(Request $request)
             'message' => 'ifsc is empty.',
         ], 200);
     }
-    if (!preg_match("/^[A-Z]{4}0[A-Z0-9]{6}$/", $ifsc)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid IFSC code. It should be 11 characters long with the 5th character as 0.',
-        ], 200);
-    }
+    // if (!preg_match("/^[A-Z]{4}0[A-Z0-9]{6}$/", $ifsc)) {
+    //     return response()->json([
+    //         'success' => false,
+    //         'message' => 'Invalid IFSC code. It should be 11 characters long with the 5th character as 0.',
+    //     ], 200);
+    // }
 
     if (empty($holder_name)) {
         return response()->json([
@@ -2734,12 +2735,6 @@ public function withdrawals(Request $request)
                 'message' => 'Please update your bank details before making a withdrawal.',
             ], 200);
         }
-        if (!preg_match("/^[A-Z]{4}0[A-Z0-9]{6}$/", $user->ifsc)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid IFSC code. It should be 11 characters long with the 5th character as 0.',
-            ], 200);
-        }
     }
 
     // Handle UPI transfer
@@ -2968,22 +2963,22 @@ public function cron_jobs(Request $request)
         }
 }
 
-public function cron_updates(Request $request)
-{
-    // Reset missed_calls, attended_calls, and avg_call_percentage for all users
-    Users::query()->update([
-        'missed_calls' => 0,
-        'attended_calls' => 0,
-        'audio_status' => 0,
-        'video_status' => 0,
-        'avg_call_percentage' => 100,
-    ]);
+// public function cron_updates(Request $request)
+// {
+//     // Reset missed_calls, attended_calls, and avg_call_percentage for all users
+//     Users::query()->update([
+//         'missed_calls' => 0,
+//         'attended_calls' => 0,
+//         'audio_status' => 0,
+//         'video_status' => 0,
+//         'avg_call_percentage' => 100,
+//     ]);
 
-    // Insert datetime into cron_jobs_update table
-    DB::table('cron_jobs_update')->insert([
-        'datetime' => Carbon::now(),
-    ]);
-}
+//     // Insert datetime into cron_jobs_update table
+//     DB::table('cron_jobs_update')->insert([
+//         'datetime' => Carbon::now(),
+//     ]);
+// }
 
     
 public function explaination_video_list(Request $request)
@@ -3028,4 +3023,38 @@ public function explaination_video_list(Request $request)
 }
 
 }
+
+public function gifts_list(Request $request)
+{
+    // Retrieve all gifts
+    $gifts = Gifts::all();
+
+    if ($gifts->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No gifts found.',
+        ], 200);
+    }
+
+    // Prepare the data to be returned
+    $giftsData = [];
+    foreach ($gifts as $item) {
+        $GiftUrl = ($item->gift_icon) ? asset('storage/app/public/' . $item->gift_icon) : '';
+
+        $giftsData[] = [
+            'id' => $item->id,
+            'gift_icon' => $GiftUrl,
+            'coins' => $item->coins,
+            'updated_at' => $item->updated_at->format('Y-m-d H:i:s'),
+            'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Gifts listed successfully.',
+        'data' => $giftsData,
+    ], 200);
+}
+
 }

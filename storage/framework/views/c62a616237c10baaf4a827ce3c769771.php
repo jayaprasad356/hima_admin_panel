@@ -224,6 +224,74 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-currency-dollar"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted"><?php echo e(__('Yesterday')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Recharge Count')); ?></h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary"><?php echo e($yesterday_recharge_count); ?></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-wallet"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted"><?php echo e(__('Yesterday Paid')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Withdrawals')); ?></h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary"><?php echo e($yesterday_paid_withdrawals); ?></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col-auto mb-3 mb-sm-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="theme-avtar bg-primary">
+                                                <i class="ti ti-phone-off"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <small class="text-muted"><?php echo e(__('Today Not-Connected')); ?></small>
+                                                <h6 class="m-0"><?php echo e(__('Calls')); ?></h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-end">
+                                        <h4 class="m-0 text-primary"><?php echo e($today_not_connected_calls); ?></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                  
                  
                 </div>

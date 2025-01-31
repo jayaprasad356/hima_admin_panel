@@ -106,6 +106,14 @@
                         <span class="dash-mtext">{{ __('Notifications') }}</span>
                     </a>
                 </li>
+                <li class="dash-item">
+                <a href="{{ route('gifts.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-gift"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Gifts') }}</span>
+                </a>
+                </li>
             <!--dashboard-->
 
 
