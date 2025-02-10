@@ -38,7 +38,7 @@ if (empty($_POST['phone'])) {
 }
 
 // Assign POST data to variables
-$reference_id = $_POST['reference_id'];
+$reference_id = $_POST['reference_id'] .'-'. time();
 $buyer_name = $_POST['buyer_name'];
 $amount = $_POST['amount'];
 $email = $_POST['email'];
