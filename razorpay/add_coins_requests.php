@@ -44,8 +44,8 @@ $amount = $_POST['amount'];
 $email = $_POST['email'];
 $phone = $_POST['phone'];
 
-$api_key = "YOUR_API_KEY_ID";
-$api_secret = "YOUR_API_KEY_SECRET";
+$api_key = "rzp_live_2TdaIR0uLtc4he";
+$api_secret = "s8APXMnBPEgifDn5ERPPCNUx";
 $amount = $amount * 100; // Convert amount to paise
 $url = "https://api.razorpay.com/v1/payment_links";
 $expire_by = (time() + 20) * 1000;
