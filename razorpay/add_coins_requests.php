@@ -51,13 +51,13 @@ $url = "https://api.razorpay.com/v1/payment_links";
 $expire_by = (time() + 20) * 1000;
 
 $data = [
-    "upi_link" => true,
+    "upi_link" => 'false',
     "amount" => $amount,  // Amount in paise (₹100.00)
     "currency" => "INR",
     "accept_partial" => false,
     "expire_by" => $expire_by,
     "reference_id" => $reference_id,
-    "description" => "Payment for policy no #23456",
+    "description" => "Payment for product",
     "customer" => [
         "name" => $buyer_name,
         "contact" => $phone,
@@ -71,7 +71,7 @@ $data = [
     "notes" => [
         "policy_name" => "Jeevan Bima"
     ],
-    "callback_url" => "https://example-callback-url.com/",
+    "callback_url" => "https://himaapp.in/success.php",
     "callback_method" => "get"
 ];
 
