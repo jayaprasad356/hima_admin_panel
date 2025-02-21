@@ -41,6 +41,14 @@
                 <input type="text" class="form-control" id="minimum_withdrawals" name="minimum_withdrawals" value="{{ $news->minimum_withdrawals }}" required>
             </div>
 
+            <div class="form-group">
+                <label for="payment_gateway_type">Payment Gateway Type</label>
+                <select class="form-control" id="payment_gateway_type" name="payment_gateway_type" required>
+                    <option value="instamojo" {{ $news->payment_gateway_type == 'instamojo' ? 'selected' : '' }}>instamojo</option>
+                    <option value="razorpay" {{ $news->payment_gateway_type == 'razorpay' ? 'selected' : '' }}>razorpay</option>
+                </select>
+            </div>
+
             <div class="box-footer">
                 <button type="submit" class="btn btn-primary">Update</button>
             </div>

@@ -9,6 +9,12 @@
     <li class="breadcrumb-item"><a href="{{ route('notifications.index') }}">{{ __('Notifications') }}</a></li>
     <li class="breadcrumb-item">{{ __('Add Notifications') }}</li>
 @endsection
+<style>
+    #title {
+    font-weight: bold;
+}
+
+</style>
 
 @section('content')
 <div class="row">
@@ -44,7 +50,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="title">{{ __('Title') }}</label>
+                    <label for="title"><strong>{{ __('Title') }}</strong></label>
                     <input type="text" id="title" name="title" class="form-control" required>
                 </div>
                 
@@ -65,3 +71,12 @@
 </div>
 @endsection
 
+
+@section('scripts')
+
+<script>
+    document.getElementById('title').addEventListener('input', function () {
+        this.style.fontWeight = 'bold'; // Make the text bold
+    });
+</script>
+@endsection

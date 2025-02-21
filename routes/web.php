@@ -14,6 +14,7 @@ use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AppsettingsController;
 use App\Http\Controllers\CoinsController;
+use App\Http\Controllers\ScreenNotificationsController;
 use App\Http\Controllers\UserCallsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\NewsController;
@@ -285,6 +286,9 @@ Route::group(['middleware' => ['verified']], function () {
     });
     Route::resource('avatar', AvatarsController::class);
     Route::resource('speech_texts', SpeechTextController::class);
+    Route::resource('screen_notifications', ScreenNotificationsController::class);
+    Route::get('screen_notifications/{id}/edit', [ScreenNotificationsController::class, 'edit'])->name('screen_notifications.edit');
+
     Route::get('news/edit', [NewsController::class, 'edit'])->name('news.edit');
     Route::put('news/update', [NewsController::class, 'update'])->name('news.update');
     Route::get('appsettings/edit', [AppsettingsController::class, 'edit'])->name('appsettings.edit');
@@ -292,6 +296,9 @@ Route::group(['middleware' => ['verified']], function () {
     Route::resource('users', UsersController::class);
     Route::post('/users-verification/update-status', [UsersVerificationController::class, 'updateStatus'])->name('users-verification.updateStatus');
     Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
+    Route::get('/users-verification/{id}/edit', [UsersVerificationController::class, 'edit'])->name('users-verification.edit');
+    Route::put('/users-verification/{id}', [UsersVerificationController::class, 'update'])->name('users-verification.update');
+
     Route::post('/coins/update-status', [CoinsController::class, 'updateStatus'])->name('coins.updateStatus');
     // Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
@@ -305,7 +312,7 @@ Route::group(['middleware' => ['verified']], function () {
     Route::resource('withdrawals', WithdrawalsController::class);
     Route::resource('gifts', GiftsController::class);
     // In routes/web.php
-Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('withdrawals.update');
+    Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('withdrawals.update');
     Route::resource('notifications', NotificationsController::class);
     Route::resource('withdrawals', WithdrawalsController::class);
     Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
@@ -315,12 +322,7 @@ Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('
     // Route to handle the "Add Coins" form submission
     Route::post('users/{id}/add-coins', [UsersController::class, 'addCoins'])->name('users.addCoins');  
     Route::post('users/{id}/add-balance', [UsersController::class, 'addBalance'])->name('users.addBalance');
-    Route::get('/search-users', [NotificationsController::class, 'searchUsers'])->name('search.users');
-    Route::get('/users/{id}', function ($id) {
-        $user = \App\Models\Users::findOrFail($id);
-        return response()->json($user);
-    });
-    
+
     Route::get('profile', [UserController::class, 'profile'])->name('profile')->middleware(
         [
             'auth',

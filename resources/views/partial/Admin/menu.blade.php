@@ -107,6 +107,14 @@
                     </a>
                 </li>
                 <li class="dash-item">
+                    <a href="{{ route('screen_notifications.index') }}" class="dash-link">
+                        <span class="dash-micon">
+                            <i class="ti ti-bell"></i> <!-- Icon for notifications -->
+                        </span>
+                        <span class="dash-mtext">{{ __('Screen Notifications') }}</span>
+                    </a>
+                </li>
+                <li class="dash-item">
                 <a href="{{ route('gifts.index') }}" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-gift"></i> <!-- Icon for withdrawals -->

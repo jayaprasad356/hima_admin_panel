@@ -15,9 +15,9 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header">
-            <form action="<?php echo e(route('users.index')); ?>" method="GET" class="mb-3">
-            <div class="row align-items-end">
-            <div class="col-md-3">
+                <form action="<?php echo e(route('users.index')); ?>" method="GET" class="mb-3">
+                    <div class="row align-items-end">
+                        <div class="col-md-3">
                             <label for="gender"><?php echo e(__('Filter by Gender')); ?></label>
                             <select name="gender" id="gender" class="form-control gender-filter" onchange="this.form.submit()">
                                 <option value=""><?php echo e(__('All')); ?></option>
@@ -25,12 +25,17 @@
                                 <option value="female" <?php echo e(request()->get('gender') == 'female' ? 'selected' : ''); ?>><?php echo e(__('Female')); ?></option>
                             </select>
                         </div>
-                <div class="col-md-3">
+                        <div class="col-md-3">
                             <label for="filter_date"><?php echo e(__('Filter by Date')); ?></label>
                             <input type="date" name="filter_date" id="filter_date" class="form-control" value="<?php echo e(request()->get('filter_date')); ?>" onchange="this.form.submit()">
-                 </div>
-                 </div>
-        </form>
+                        </div>
+                        <div class="col-md-3 ms-auto">
+                            <label for="search"><?php echo e(__('Search All Users')); ?></label>
+                            <input type="text" name="search" id="search" class="form-control"
+                             value="<?php echo e(request()->get('search')); ?>" placeholder="Enter Name, Mobile">
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="card-body table-border-style">
                 <div class="table-responsive">

@@ -60,11 +60,11 @@ class CoinsController extends Controller
 
         // Validate the input data
         $validated = $request->validate([
-            'price' => 'required|string|max:5000',
-            'coins' => 'required|string|max:255',
-            'save' => 'required|string|max:255',
-            'popular' => 'required|string|max:255',
-            'best_offer' => 'required|string|max:255',
+            'price' => 'nullable|string|max:5000',
+            'coins' => 'nullable|string|max:255',
+            'save' => 'nullable|string|max:255',
+            'popular' => 'nullable|string|max:255',
+            'best_offer' => 'nullable|string|max:255',
         ]);
 
         // Update speech text details

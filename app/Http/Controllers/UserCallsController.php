@@ -10,20 +10,43 @@ class UserCallsController extends Controller
 {
     public function index(Request $request)
     {
-        // Fetch user calls with optional type filter
-        $type = $request->get('type'); // Get type from request
+        $search = $request->get('search');
         $filterDate = $request->get('filter_date');
-        
-        // Get the user calls with the relationships
+        $type = $request->get('type'); 
+        $language = $request->get('language'); 
+    
+        // If filters are applied, reset pagination to page 1
+        if ($request->hasAny(['search', 'filter_date', 'type', 'language']) && !$request->has('page')) {
+            return redirect()->route('usercalls.index', array_merge($request->except('page'), ['page' => 1]));
+        }
+    
+        // Get the user calls with relationships
         $usercalls = UserCalls::with(['user', 'callusers'])
-        ->when($filterDate, function ($query) use ($filterDate) {
-            return $query->whereDate('datetime', $filterDate); // Make sure column name matches
-        })
-            ->when($type, function ($query, $type) {
-                return $query->where('type', $type); // Filter by type if provided
+            ->when($filterDate, function ($query, $filterDate) {
+                return $query->whereDate('datetime', Carbon::parse($filterDate)->format('Y-m-d'));
             })
-            ->orderBy('datetime', 'desc') // Order by latest data
-            ->get();
+            ->when($type, function ($query, $type) {
+                return $query->where('type', $type);
+            })
+            ->when($language, function ($query, $language) {
+                if (!empty($language) && $language !== 'all') {
+                    return $query->whereHas('user', function ($query) use ($language) {
+                        return $query->where('language', $language);
+                    });
+                }
+            })
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('user', function ($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search . '%')
+                          ->orWhere('mobile', 'like', '%' . $search . '%');
+                })->orWhereHas('callusers', function ($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search . '%')
+                          ->orWhere('mobile', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('datetime', 'desc')
+            ->paginate(10);
+
 
         // Calculate the duration for each user call
         foreach ($usercalls as $usercall) {

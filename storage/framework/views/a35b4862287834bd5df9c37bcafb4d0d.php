@@ -17,27 +17,45 @@
          
             <div class="card-body">
                 <!-- Filter by Status Form -->
-                <form action="<?php echo e(route('users-verification.index')); ?>" method="GET" class="mb-3">
-                    <label for="status"><?php echo e(__('Filter by Status')); ?></label>
-                    <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
-                        <option value="1" <?php echo e(request()->get('status') == '1' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
-                        <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Verified')); ?></option>
-                        <option value="3" <?php echo e(request()->get('status') == '3' ? 'selected' : ''); ?>><?php echo e(__('Rejected')); ?></option>
-                    </select>
+              <!-- Filter by Status and Language Form -->
+                    <form action="<?php echo e(route('users-verification.index')); ?>" method="GET" class="mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="status"><?php echo e(__('Filter by Status')); ?></label>
+                                <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
+                                    <option value="1" <?php echo e(request()->get('status') == '1' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
+                                    <option value="2" <?php echo e(request()->get('status') == '2' ? 'selected' : ''); ?>><?php echo e(__('Verified')); ?></option>
+                                    <option value="3" <?php echo e(request()->get('status') == '3' ? 'selected' : ''); ?>><?php echo e(__('Rejected')); ?></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="language"><?php echo e(__('Filter by Language')); ?></label>
+                                <select name="language" id="language" class="form-control language-filter" onchange="this.form.submit()">
+                                    <option value=""><?php echo e(__('All Languages')); ?></option>
+                                    <?php $__currentLoopData = $languages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lang): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($lang); ?>" <?php echo e(request()->get('language') == $lang ? 'selected' : ''); ?>>
+                                            <?php echo e(__($lang)); ?>
+
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
 
                     <style>
-                        .status-filter {
-                            width: 200px; /* Default width */
+                        .status-filter, .language-filter {
+                            width: 200px;
                         }
 
                         @media (max-width: 768px) {
-                            .status-filter {
-                                width: 100%; /* Full width on smaller screens */
+                            .status-filter, .language-filter {
+                                width: 100%;
                             }
                         }
                     </style>
 
-                </form>
 
                 <!-- Table for user verifications -->
                 <form action="<?php echo e(route('users-verification.updateStatus')); ?>" method="POST">
@@ -51,20 +69,30 @@
                                 <thead>
                                     <tr>
                                         <th><?php echo e(__('Check Box')); ?></th>
+                                        <th><?php echo e(__('Actions')); ?></th>
                                         <th><?php echo e(__('ID')); ?></th>
                                         <th><?php echo e(__('Name')); ?></th>
                                         <th><?php echo e(__('Mobile')); ?></th>
+                                        <th><?php echo e(__('Language')); ?></th> <!-- New Column -->
                                         <th><?php echo e(__('Voice')); ?></th>
                                         <th><?php echo e(__('Status')); ?></th>
+                                        <th><?php echo e(__('Datetime')); ?></th>
                                     </tr>
-                                </thead>
+                                </thead> 
                                 <tbody>
                                     <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr class="selectable-row">
                                             <td><input type="checkbox" class="user-checkbox" name="user_ids[]" value="<?php echo e($user->id); ?>"></td>
+                                            <td>
+                                            <a href="#" data-url="<?php echo e(route('users-verification.edit', $user->id)); ?>" data-ajax-popup="true" data-title="<?php echo e(__('Edit Bank Details')); ?>"
+                                               class="btn btn-sm align-items-center" data-bs-toggle="tooltip" title="<?php echo e(__('Edit')); ?>">
+                                                <i class="ti ti-pencil text-black"></i>
+                                            </a>
+                                        </td>
                                             <td><?php echo e($user->id); ?></td>
                                             <td><?php echo e(ucfirst($user->name)); ?></td>
                                             <td><?php echo e($user->mobile); ?></td>
+                                            <td><?php echo e($user->language); ?></td> <!-- Display Language -->
                                             <td>
                                                 <?php if($user->voice && $user->voice): ?>
                                                     <a href="<?php echo e(asset('storage/app/public/voices/' . $user->voice)); ?>" target="_blank">Play Voice</a>
@@ -84,6 +112,7 @@
                                                     <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold"><?php echo e(__('Unknown')); ?></span>
                                                 <?php endif; ?>
                                             </td>
+                                            <td><?php echo e($user->datetime); ?></td>
                                         </tr>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
@@ -100,6 +129,8 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('scripts'); ?>
+<script src="<?php echo e(asset('plugins/sweetalert2/sweetalert2.min.js')); ?>"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
 $(document).ready(function() {
     // Initialize DataTable (Optional, for sorting and pagination)

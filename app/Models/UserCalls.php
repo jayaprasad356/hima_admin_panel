@@ -18,6 +18,7 @@ class UserCalls extends Model
         'coins_spend',
         'income',
         'datetime',
+        'update_current_endedtime',
     ];
 
     public function user()

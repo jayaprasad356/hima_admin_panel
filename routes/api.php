@@ -58,6 +58,7 @@ Route::group([
     Route::post('calls_status_update', [AuthController::class, 'calls_status_update']);
     Route::post('random_user', [AuthController::class, 'random_user']);
     Route::post('update_connected_call', [AuthController::class, 'update_connected_call']);
+    Route::post('every_min_update_connected_call', [AuthController::class, 'every_min_update_connected_call']);
     Route::post('individual_update_connected_call', [AuthController::class, 'individual_update_connected_call']);
     Route::post('calls_list', [AuthController::class, 'calls_list']);
     Route::post('call_female_user', [AuthController::class, 'call_female_user']);
@@ -73,4 +74,5 @@ Route::group([
     Route::post('explaination_video_list', [AuthController::class, 'explaination_video_list']);
     Route::get('cron_jobs', [AuthController::class, 'cron_jobs']);
     Route::post('gifts_list', [AuthController::class, 'gifts_list']);
+    Route::post('send_gifts', [AuthController::class, 'send_gifts']);
 });

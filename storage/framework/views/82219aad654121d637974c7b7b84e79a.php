@@ -192,6 +192,21 @@
 
                         </div>
 
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('coins', __('Coins'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::number('coins', null, ['class' => 'form-control'])); ?>
+
+                        </div>
+
+
+                        <div class="form-group col-md-6">
+                            <?php echo e(Form::label('total_coins', __('Total Coins'), ['class' => 'form-label'])); ?>
+
+                            <?php echo e(Form::number('total_coins', null, ['class' => 'form-control'])); ?>
+
+                        </div>
+
 
                         <div class="form-group col-md-6">
                             <?php echo e(Form::label('avg_call_percentage', __('Avg Call Percentage'), ['class' => 'form-label'])); ?>

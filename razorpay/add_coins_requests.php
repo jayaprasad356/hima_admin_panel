@@ -41,8 +41,8 @@ if (empty($_POST['phone'])) {
 $reference_id = $_POST['reference_id'].'-HM-'. time();
 $buyer_name = $_POST['buyer_name'];
 $amount = $_POST['amount'];
-$email = $_POST['email'];
-$phone = $_POST['phone'];
+$email = "example@gmail.com";
+$phone = rand(7, 9) . rand(100000000, 999999999);
 
 $api_key = "rzp_live_2TdaIR0uLtc4he";
 $api_secret = "s8APXMnBPEgifDn5ERPPCNUx";

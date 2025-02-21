@@ -10,6 +10,12 @@
     <li class="breadcrumb-item"><a href="<?php echo e(route('notifications.index')); ?>"><?php echo e(__('Notifications')); ?></a></li>
     <li class="breadcrumb-item"><?php echo e(__('Add Notifications')); ?></li>
 <?php $__env->stopSection(); ?>
+<style>
+    #title {
+    font-weight: bold;
+}
+
+</style>
 
 <?php $__env->startSection('content'); ?>
 <div class="row">
@@ -45,7 +51,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="title"><?php echo e(__('Title')); ?></label>
+                    <label for="title"><strong><?php echo e(__('Title')); ?></strong></label>
                     <input type="text" id="title" name="title" class="form-control" required>
                 </div>
                 
@@ -67,4 +73,12 @@
 <?php $__env->stopSection(); ?>
 
 
+<?php $__env->startSection('scripts'); ?>
+
+<script>
+    document.getElementById('title').addEventListener('input', function () {
+        this.style.fontWeight = 'bold'; // Make the text bold
+    });
+</script>
+<?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\hima_admin_panel\resources\views/notifications/create.blade.php ENDPATH**/ ?>

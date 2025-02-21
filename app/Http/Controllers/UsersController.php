@@ -6,6 +6,7 @@ use App\Models\Users;
 use App\Models\Avatars;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class UsersController extends Controller
 {
@@ -13,28 +14,36 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
-        $filterDate = $request->get('filter_date');
-        $gender = $request->get('gender'); // No default
+        $filterDate = $request->get('filter_date') ?: now()->toDateString(); // Defaults to today's date
+        $gender = $request->get('gender');
+        $language = $request->get('language');
     
-        $users = Users::with('avatar')
-            ->when($filterDate, function ($query) use ($filterDate) {
-                return $query->whereDate('datetime', $filterDate); // Make sure column name matches
+        $users = Users::query()
+            ->when(!$search, function ($query) use ($filterDate) {
+                // Filter only users created today (without time)
+                return $query->whereDate('created_at', $filterDate);
             })
-            ->when($gender, function ($query) use ($gender) {
-                return $query->where('gender', $gender); // Assuming 'type' is the column for transfer type
-            })
-            ->when($search, function ($query, $search) {
+            ->when($search, function ($query) use ($search) {
                 return $query->where(function ($query) use ($search) {
                     $query->where('name', 'like', '%' . $search . '%')
                           ->orWhere('mobile', 'like', '%' . $search . '%')
                           ->orWhere('language', 'like', '%' . $search . '%');
                 });
             })
-            ->orderBy('created_at', 'desc') // Use `created_at` instead of `datetime` if applicable
+            ->when($gender, function ($query) use ($gender) {
+                return $query->where('gender', $gender);
+            })
+            ->when($language, function ($query) use ($language) {
+                return $query->where('language', $language);
+            })
+            ->orderBy('created_at', 'desc')
             ->get();
     
         return view('users.index', compact('users'));
     }
+    
+    
+    
     
     // Show the form to edit an existing user
     public function edit($id)
@@ -72,6 +81,8 @@ class UsersController extends Controller
         $user->missed_calls = $request->missed_calls; 
         $user->avg_call_percentage = $request->avg_call_percentage; 
         $user->blocked = $request->blocked; 
+        $user->coins = $request->coins; 
+        $user->total_coins = $request->total_coins;
         $user->datetime = now();
         $user->save();
 
@@ -138,31 +149,5 @@ class UsersController extends Controller
  
          return redirect()->route('users.index')->with('success', 'Balance Added Successfully.');
      }
-    public function updateStatus(Request $request)
-{
-    // Validate the input data
-    $request->validate([
-        'user_ids' => 'required|array',
-        'user_ids.*' => 'exists:users,id', // Make sure user IDs are valid
-        'status' => 'required|in:1,2,3', // Status must be one of 1 (Pending), 2 (Verified), or 3 (Rejected)
-    ]);
-
-    // Update the status of selected users to the given status
-    $updated = Users::whereIn('id', $request->user_ids)
-                        ->update(['status' => $request->status]);
-
-    // If update is successful, return a success response
-    if ($updated) {
-        return response()->json(['success' => true]);
-    }
-
-    // If update fails, return an error response
-    return response()->json(['success' => false]);
-}
-
-
-
- 
-
     
 }

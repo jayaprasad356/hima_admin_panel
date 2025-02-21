@@ -32,7 +32,6 @@ class NotificationsController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validate input
             $validated = $request->validate([
                 'title' => 'required|string|max:5000',
                 'description' => 'required|string|max:5000',
@@ -40,7 +39,6 @@ class NotificationsController extends Controller
                 'language' => 'required|string|in:all,Hindi,Telugu,Malayalam,Kannada,Punjabi,Tamil,English',
             ]);
     
-            // Insert the notification into the database
             $notification = Notifications::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
@@ -53,39 +51,46 @@ class NotificationsController extends Controller
                 return redirect()->back()->with('error', 'Failed to save notification.');
             }
     
-            // Define tags based on gender
-            $tags = [];
-            if ($validated['gender'] === 'male') {
-                $tags[] = ['field' => 'tag', 'key' => 'gender', 'relation' => '=', 'value' => 'male'];
-            } elseif ($validated['gender'] === 'female') {
-                $tags[] = ['field' => 'tag', 'key' => 'gender', 'relation' => '=', 'value' => 'female'];
-            }
+            $gender = $notification->gender;
+            $language = $notification->language;
     
-             // Format the message with the title and description on separate lines
-            $message = $validated['title'] . "\n" . $validated['description'];
-
-            // Send push notification using OneSignal with tags
-            try {
-                OneSignal::sendNotificationUsingTags(
-                    $message,  // Use the formatted message with title and description on separate lines
-                    $tags,  // Pass tags for gender
-                    $url = null, 
-                    $data = null, 
-                    $buttons = null, 
-                    $schedule = null
-                );
+            $targetUsers = Users::when($language !== 'all', function ($query) use ($language) {
+                    return $query->where('language', $language);
+                })
+                ->when($gender !== 'all', function ($query) use ($gender) {
+                    return $query->where('gender', $gender);
+                })
+                ->get();
     
-            } catch (\Exception $e) {
-                return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());
+            if ($targetUsers->count() > 0 || $gender === 'all' || $language === 'all') {
+                $message = "{$notification->title}\n{$notification->description}";
+                $payload = [
+                    "app_id" => "5cd4154a-1ece-4c3b-b6af-e88bafee64cd",
+                    "filters" => [
+                        ["field" => "tag", "key" => "gender_language", "relation" => "=", "value" => "{$gender}_{$language}"]
+                    ],
+                    "content_available" => true,  // Enables background delivery
+                    "mutable_content" => true,    // Allows processing in the background
+                    "priority" => 5,              // Low priority, ensures silent delivery
+                    "data" => [
+                        "custom_key" => "hello", // Add any extra data here
+                        "another_key" => "another_value"
+                    ]
+                ];
+                OneSignal::sendNotificationCustom($payload);
+    
+                try {
+                    OneSignal::sendNotificationCustom($payload);
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());
+                }
             }
     
             return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
-    
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
-    
     
     // Edit notification
     public function edit($id)

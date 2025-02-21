@@ -67,18 +67,26 @@
                                 <thead>
                                     <tr>
                                         <th>{{ __('Check Box') }}</th>
+                                        <th>{{ __('Actions') }}</th>
                                         <th>{{ __('ID') }}</th>
                                         <th>{{ __('Name') }}</th>
                                         <th>{{ __('Mobile') }}</th>
                                         <th>{{ __('Language') }}</th> <!-- New Column -->
                                         <th>{{ __('Voice') }}</th>
                                         <th>{{ __('Status') }}</th>
+                                        <th>{{ __('Datetime') }}</th>
                                     </tr>
-                                </thead>
+                                </thead> 
                                 <tbody>
                                     @foreach ($users as $user)
                                         <tr class="selectable-row">
                                             <td><input type="checkbox" class="user-checkbox" name="user_ids[]" value="{{ $user->id }}"></td>
+                                            <td>
+                                            <a href="#" data-url="{{ route('users-verification.edit', $user->id)}}" data-ajax-popup="true" data-title="{{ __('Edit Bank Details') }}"
+                                               class="btn btn-sm align-items-center" data-bs-toggle="tooltip" title="{{ __('Edit') }}">
+                                                <i class="ti ti-pencil text-black"></i>
+                                            </a>
+                                        </td>
                                             <td>{{ $user->id }}</td>
                                             <td>{{ ucfirst($user->name) }}</td>
                                             <td>{{ $user->mobile }}</td>
@@ -101,6 +109,7 @@
                                                     <i class="fa fa-question-circle text-secondary"></i> <span class="font-weight-bold">{{ __('Unknown') }}</span>
                                                 @endif
                                             </td>
+                                            <td>{{ $user->datetime }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -117,6 +126,8 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
 $(document).ready(function() {
     // Initialize DataTable (Optional, for sorting and pagination)

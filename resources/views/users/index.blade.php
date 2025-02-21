@@ -14,9 +14,9 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-header">
-            <form action="{{ route('users.index') }}" method="GET" class="mb-3">
-            <div class="row align-items-end">
-            <div class="col-md-3">
+                <form action="{{ route('users.index') }}" method="GET" class="mb-3">
+                    <div class="row align-items-end">
+                        <div class="col-md-3">
                             <label for="gender">{{ __('Filter by Gender') }}</label>
                             <select name="gender" id="gender" class="form-control gender-filter" onchange="this.form.submit()">
                                 <option value="">{{ __('All') }}</option>
@@ -24,12 +24,17 @@
                                 <option value="female" {{ request()->get('gender') == 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
                             </select>
                         </div>
-                <div class="col-md-3">
+                        <div class="col-md-3">
                             <label for="filter_date">{{ __('Filter by Date') }}</label>
                             <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
-                 </div>
-                 </div>
-        </form>
+                        </div>
+                        <div class="col-md-3 ms-auto">
+                            <label for="search">{{ __('Search All Users') }}</label>
+                            <input type="text" name="search" id="search" class="form-control"
+                             value="{{ request()->get('search') }}" placeholder="Enter Name, Mobile">
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="card-body table-border-style">
                 <div class="table-responsive">
