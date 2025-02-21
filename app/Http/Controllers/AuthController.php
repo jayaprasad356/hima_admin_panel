@@ -175,6 +175,44 @@ class AuthController extends Controller
         $numbers = substr(str_shuffle('0123456789'), 0, 3);
         return $letters . $numbers;
     }
+    public function createUpigateway(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'client_txn_id' => 'required|string|max:50',
+        ]);
+        if (empty($user_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user_id is empty.',
+            ], 200);
+        }
+
+        // Set API URL
+        $apiUrl = "https://api.ekqr.in/api/create_order";
+        $user = Users::find($request->user_id);
+
+        // Prepare request payload with default values
+        $payload = [
+            "key" => "698eca21-ee54-42ff-b226-1a969ab4c344",
+            "client_txn_id" => $request->client_txn_id,
+            "amount" => "10",
+            "p_info" => "Hima",
+            "customer_name" => $user->name ?? 'N/A',
+            "customer_email" => $user->email ?? 'N/A',
+            "customer_mobile" => $user->mobile ?? 'N/A',
+            "redirect_url" => "https://himaapp.in/success.php",
+            "udf1" => "user defined field 1 (max 25 char)",
+            "udf2" => "user defined field 2 (max 25 char)",
+            "udf3" => "user defined field 3 (max 25 char)"
+        ];
+
+        // Make POST request to the external API
+        $response = Http::post($apiUrl, $payload);
+
+        // Return API response
+        return response()->json($response->json(), $response->status());
+    }
     
 
     public function login(Request $request)
