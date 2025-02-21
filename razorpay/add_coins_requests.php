@@ -44,8 +44,11 @@ $amount = $_POST['amount'];
 $email = "example@gmail.com";
 $phone = rand(7, 9) . rand(100000000, 999999999);
 
-$api_key = "rzp_live_2TdaIR0uLtc4he";
-$api_secret = "s8APXMnBPEgifDn5ERPPCNUx";
+// $api_key = "rzp_live_2TdaIR0uLtc4he";
+// $api_secret = "s8APXMnBPEgifDn5ERPPCNUx";
+
+$api_key = "rzp_live_3zt6jpOxJUSrfO";
+$api_secret = "EzSEfmmqD6MRKbPFftZUO97Q";
 $amount = $amount * 100; // Convert amount to paise
 $url = "https://api.razorpay.com/v1/payment_links";
 $expire_by = (time() + 20) * 1000;
@@ -57,19 +60,19 @@ $data = [
     "accept_partial" => false,
     "expire_by" => $expire_by,
     "reference_id" => $reference_id,
-    "description" => "Payment for product",
+    "description" => "-",
     "customer" => [
         "name" => $buyer_name,
         "contact" => $phone,
         "email" => $email
     ],
     "notify" => [
-        "sms" => true,
-        "email" => true
+        "sms" => false,
+        "email" => false
     ],
     "reminder_enable" => true,
     "notes" => [
-        "policy_name" => "Jeevan Bima"
+        "policy_name" => "-"
     ],
     "callback_url" => "https://himaapp.in/success.php",
     "callback_method" => "get"

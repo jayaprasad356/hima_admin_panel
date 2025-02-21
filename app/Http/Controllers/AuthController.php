@@ -35,7 +35,7 @@ use Berkayk\OneSignal\OneSignalFacade as OneSignal;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list','gifts_list']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list','gifts_list','createUpigateway']]);
     }
  
     public function register(Request $request)
@@ -177,6 +177,70 @@ class AuthController extends Controller
         $letters = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 5);
         $numbers = substr(str_shuffle('0123456789'), 0, 3);
         return $letters . $numbers;
+    }
+    public function createUpigateway(Request $request)
+    {
+      
+        $user_id = $request->input('user_id');
+        $client_txn_id = $request->input('client_txn_id');
+        $amount = $request->input('amount');
+
+        if (empty($user_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user_id is empty.',
+            ], 200);
+        }
+
+        $user = Users::find($user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user not found.',
+            ], 200);
+        }
+
+        if (empty($client_txn_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'client_txn_id is empty.',
+            ], 200);
+        }
+
+        if (empty($amount)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'amount is empty.',
+            ], 200);
+        }
+
+        // Set API URL
+        $apiUrl = "https://api.ekqr.in/api/create_order";
+
+
+        // Prepare request payload with default values
+        $payload = [
+            "key" => "698eca21-ee54-42ff-b226-1a969ab4c344",
+            "client_txn_id" =>$client_txn_id,
+            "amount" => $amount,
+            "p_info" => "Hima",
+            "customer_name" => $user->name,
+            "customer_email" => 'himaapp123@gmail.com',
+            "customer_mobile" => $user->mobile,
+            "redirect_url" => "https://himaapp.in/success.php",
+            "udf1" => "user defined field 1 (max 25 char)",
+            "udf2" => "user defined field 2 (max 25 char)",
+            "udf3" => "user defined field 3 (max 25 char)"
+        ];
+
+        // Make POST request to the external API
+            $response = Http::post($apiUrl, $payload);
+
+            // Return only the response data
+            return $response->json();
+
+        
     }
 
     public function login(Request $request)
