@@ -46,6 +46,7 @@
                 <select class="form-control" id="payment_gateway_type" name="payment_gateway_type" required>
                     <option value="instamojo" {{ $news->payment_gateway_type == 'instamojo' ? 'selected' : '' }}>instamojo</option>
                     <option value="razorpay" {{ $news->payment_gateway_type == 'razorpay' ? 'selected' : '' }}>razorpay</option>
+                    <option value="upigateway" {{ $news->payment_gateway_type == 'upigateway' ? 'selected' : '' }}>upigateway</option>
                 </select>
             </div>
 
