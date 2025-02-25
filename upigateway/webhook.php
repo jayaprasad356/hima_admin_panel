@@ -47,7 +47,7 @@ if (isset($data['status']) && $data['status'] === "success") {
         logData("Extracted user_id: $user_id, coins_id: $coins_id");
 
         // API endpoint
-        $apiUrl = 'https://himaapp.in/api/auth/add_coins';
+        //$apiUrl = 'https://himaapp.in/api/auth/add_coins';
 
         // Prepare form data
         $formData = [
