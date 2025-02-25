@@ -222,7 +222,7 @@ class AuthController extends Controller
         // Prepare request payload with default values
         $payload = [
             "key" => "698eca21-ee54-42ff-b226-1a969ab4c344",
-            "client_txn_id" =>$client_txn_id,
+            "client_txn_id" =>$client_txn_id.'-HM',
             "amount" => $amount,
             "p_info" => "Hima",
             "customer_name" => $user->name,
@@ -823,7 +823,8 @@ public function settings_list(Request $request)
             'support_mail' => $item->support_mail,
             'demo_video' => $item->demo_video,
             'minimum_withdrawals' => $item->minimum_withdrawals,
-            'payment_gateway' => $item->payment_gateway,
+            'payment_gateway' => 'upigateway',
+            'payment_gateway_type' => 'upigateway',
         ];
     }
 
