@@ -43,6 +43,8 @@
                                 <th><?php echo e(__('Gender')); ?></th>
                                 <th><?php echo e(__('Language')); ?></th>
                                 <th><?php echo e(__('Datetime')); ?></th>
+                                <th><?php echo e(__('Logo')); ?></th>
+                                <th><?php echo e(__('Image')); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,6 +79,22 @@
                                     <td><?php echo e($screen_notification->gender); ?></td>
                                     <td><?php echo e(ucfirst($screen_notification->language)); ?></td>
                                     <td><?php echo e($screen_notification->datetime); ?></td>
+                                    <td>
+                                        <?php if(!empty($screen_notification->logo)): ?>
+                                            <img src="<?php echo e(asset('storage/app/public/' . $screen_notification->logo)); ?>" class="img-fluid" width="50px">
+                                        <?php else: ?>
+                                            <?php echo e(__('No Logo')); ?>
+
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if(!empty($screen_notification->image)): ?>
+                                            <img src="<?php echo e(asset('storage/app/public/' . $screen_notification->image)); ?>" class="img-fluid" width="50px">
+                                        <?php else: ?>
+                                            <?php echo e(__('No Image')); ?>
+
+                                        <?php endif; ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>

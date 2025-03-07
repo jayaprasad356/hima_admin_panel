@@ -91,6 +91,13 @@
                     <span class="dash-mtext">{{ __('Transactions') }}</span>
                 </a>
                 <li class="dash-item">
+                <a href="{{ route('payments.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-credit-card"></i> <!-- Icon for transactions -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Payments') }}</span>
+                </a>
+                <li class="dash-item">
                 <a href="{{ route('withdrawals.index') }}" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-wallet"></i> <!-- Icon for withdrawals -->
@@ -113,6 +120,14 @@
                         </span>
                         <span class="dash-mtext">{{ __('Screen Notifications') }}</span>
                     </a>
+                </li>
+                <li class="dash-item">
+                <a href="{{ route('personal_notifications.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-bell"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Personal Notifications') }}</span>
+                </a>
                 </li>
                 <li class="dash-item">
                 <a href="{{ route('gifts.index') }}" class="dash-link">

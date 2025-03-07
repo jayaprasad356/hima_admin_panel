@@ -33,59 +33,72 @@ class NotificationsController extends Controller
     {
         try {
             $validated = $request->validate([
-                'title' => 'required|string|max:5000',
-                'description' => 'required|string|max:5000',
-                'gender' => 'required|string|in:all,male,female',
-                'language' => 'required|string|in:all,Hindi,Telugu,Malayalam,Kannada,Punjabi,Tamil,English',
+            'title' => 'required|string|max:5000',
+            'description' => 'required|string|max:5000',
+            'gender' => 'required|string|in:all,male,female',
+            'language' => 'required|string|in:all,Hindi,Telugu,Malayalam,Kannada,Punjabi,Tamil,English',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
-    
+
+            // Handle file uploads
+            if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+            }
+
+            if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('images', 'public');
+            }
+
             $notification = Notifications::create([
-                'title' => $validated['title'],
-                'description' => $validated['description'],
-                'gender' => $validated['gender'],
-                'language' => $validated['language'],
-                'datetime' => now(),
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'gender' => $validated['gender'],
+            'language' => $validated['language'],
+            'datetime' => now(),
+            'logo' => $validated['logo'] ?? null,
+            'image' => $validated['image'] ?? null,
             ]);
-    
+
             if (!$notification) {
                 return redirect()->back()->with('error', 'Failed to save notification.');
             }
-    
+
             $gender = $notification->gender;
             $language = $notification->language;
+
+           // Define filters using gender_language tag
+            $filters = [];
     
-            $targetUsers = Users::when($language !== 'all', function ($query) use ($language) {
-                    return $query->where('language', $language);
-                })
-                ->when($gender !== 'all', function ($query) use ($gender) {
-                    return $query->where('gender', $gender);
-                })
-                ->get();
+            if ($gender !== 'all' && $language !== 'all') {
+                $filters[] = ["field" => "tag", "key" => "gender_language", "relation" => "=", "value" => "{$gender}_{$language}"];
+            } elseif ($gender !== 'all') {
+                $filters[] = ["field" => "tag", "key" => "gender", "relation" => "=", "value" => "{$gender}"];
+            } elseif ($language !== 'all') {
+                $filters[] = ["field" => "tag", "key" => "language", "relation" => "=", "value" => "{$language}"];
+            }
     
-            if ($targetUsers->count() > 0 || $gender === 'all' || $language === 'all') {
-                $message = "{$notification->title}\n{$notification->description}";
+            // If both gender and language are 'all', send to everyone (no filters)
+            if ($gender === 'all' && $language === 'all') {
+                $filters = [];
+            }
+    
                 $payload = [
-                    "app_id" => "5cd4154a-1ece-4c3b-b6af-e88bafee64cd",
-                    "filters" => [
-                        ["field" => "tag", "key" => "gender_language", "relation" => "=", "value" => "{$gender}_{$language}"]
-                    ],
-                    "content_available" => true,  // Enables background delivery
-                    "mutable_content" => true,    // Allows processing in the background
-                    "priority" => 5,              // Low priority, ensures silent delivery
-                    "data" => [
-                        "custom_key" => "hello", // Add any extra data here
-                        "another_key" => "another_value"
-                    ]
+                    "app_id" => "2c7d72ae-8f09-48ea-a3c8-68d9c913c592",
+                    "filters" => $filters,
+                    "headings" => ["en" => $notification->title],
+                    "contents" => ["en" => $notification->description],
+                    "small_icon" => "notification_icon",
+                    "large_icon" => isset($validated['logo']) ? "https://himaapp.in/storage/app/public/{$validated['logo']}" : "https://himaapp.in/storage/uploads/logo/notification_icon.webp",
+                    "big_picture" => isset($validated['image']) ? "https://himaapp.in/storage/app/public/{$validated['image']}" : null,
                 ];
-                OneSignal::sendNotificationCustom($payload);
-    
+
                 try {
                     OneSignal::sendNotificationCustom($payload);
                 } catch (\Exception $e) {
                     return redirect()->back()->with('error', 'Error sending notification: ' . $e->getMessage());
                 }
-            }
-    
+
             return redirect()->route('notifications.index')->with('success', 'Notification created and sent successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());

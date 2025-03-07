@@ -36,7 +36,7 @@ class CoinsController extends Controller
             'price' => 'required|string|max:5000',
             'coins' => 'required|string|max:255',
             'save' => 'required|string|max:255',
-            'popular' => 'required|string|max:255',
+            'popular' => 'required|boolean',
         ]);
 
         // Create the speech text record

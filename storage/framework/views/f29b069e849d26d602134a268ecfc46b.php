@@ -35,24 +35,25 @@ endif;
 unset($__errorArgs, $__bag); ?>
                     <div class="form-group">
                         <label for="price"><?php echo e(__('Price')); ?></label>
-                        <input type="number" id="price" name="price" class="form-control" required>
+                        <input type="number" id="price" name="price" class="form-control">
                     </div>
 
                     <div class="form-group">
                         <label for="coins"><?php echo e(__('Coins')); ?></label>
-                        <input type="number" id="coins" name="coins" class="form-control" required>
+                        <input type="number" id="coins" name="coins" class="form-control">
                     </div>
 
                     <div class="form-group">
                         <label for="save"><?php echo e(__('Save')); ?></label>
-                        <input type="number" id="save" name="save" class="form-control" required>
+                        <input type="number" id="save" name="save" class="form-control">
                     </div>
 
                     <div class="form-group">
                         <label for="popular"><?php echo e(__('Popular')); ?></label>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="popular" name="popular">
-                            <label class="form-check-label" for="popular"></label>
+                            <input type="hidden" name="popular" value="0">
+                            <input class="form-check-input" type="checkbox" id="popular" name="popular" value="1">
                         </div>
                     </div>
 

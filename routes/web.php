@@ -9,12 +9,14 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\WithdrawalsController;
 use App\Http\Controllers\RatingsController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AwardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AppsettingsController;
 use App\Http\Controllers\CoinsController;
 use App\Http\Controllers\ScreenNotificationsController;
+use App\Http\Controllers\PersonalNotificationsController;
 use App\Http\Controllers\UserCallsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\NewsController;
@@ -286,6 +288,7 @@ Route::group(['middleware' => ['verified']], function () {
     });
     Route::resource('avatar', AvatarsController::class);
     Route::resource('speech_texts', SpeechTextController::class);
+    Route::resource('personal_notifications', PersonalNotificationsController::class);
     Route::resource('screen_notifications', ScreenNotificationsController::class);
     Route::get('screen_notifications/{id}/edit', [ScreenNotificationsController::class, 'edit'])->name('screen_notifications.edit');
 
@@ -311,14 +314,16 @@ Route::group(['middleware' => ['verified']], function () {
     Route::resource('coins', CoinsController::class);
     Route::resource('withdrawals', WithdrawalsController::class);
     Route::resource('gifts', GiftsController::class);
-    // In routes/web.php
+ 
+    Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
+    Route::get('/payments/download-bulk-range', [PaymentsController::class, 'downloadBulkInvoice'])->name('payments.downloadBulkInvoice');
     Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('withdrawals.update');
     Route::resource('notifications', NotificationsController::class);
     Route::resource('withdrawals', WithdrawalsController::class);
     Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
     Route::get('users/{id}/add-balance', [UsersController::class, 'showAddBalanceForm'])->name('users.addBalanceForm');
     Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
-
+    Route::get('/transactions/{id}/download', [TransactionsController::class, 'downloadInvoice'])->name('transactions.download');
     // Route to handle the "Add Coins" form submission
     Route::post('users/{id}/add-coins', [UsersController::class, 'addCoins'])->name('users.addCoins');  
     Route::post('users/{id}/add-balance', [UsersController::class, 'addBalance'])->name('users.addBalance');

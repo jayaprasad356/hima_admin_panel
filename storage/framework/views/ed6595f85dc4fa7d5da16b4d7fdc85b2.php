@@ -25,7 +25,7 @@
                 <h5><?php echo e(__('Add New Notifications')); ?></h5>
             </div>
             <div class="card-body">
-            <form action="<?php echo e(route('notifications.store')); ?>" method="POST">
+            <form action="<?php echo e(route('notifications.store')); ?>" method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
 
                 <div class="form-group">
@@ -59,6 +59,17 @@
                     <label for="description"><?php echo e(__('Description')); ?></label>
                     <textarea name="description" class="form-control" rows="3" required></textarea>
                 </div>
+
+                <div class="form-group mt-3">
+                        <label for="logo"><?php echo e(__('Logo (optional)')); ?></label>
+                        <input type="file" id="logo" name="logo" class="form-control">
+                    </div>
+
+                    <!-- Image Field -->
+                    <div class="form-group mt-3">
+                        <label for="image"><?php echo e(__('Image (optional)')); ?></label>
+                        <input type="file" id="image" name="image" class="form-control">
+                    </div> 
 
                 <div class="form-group mt-4 text-center">
                     <button type="submit" class="btn btn-primary"><?php echo e(__('Send Notification')); ?></button>

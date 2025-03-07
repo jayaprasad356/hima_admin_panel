@@ -20,6 +20,7 @@ use App\Models\Withdrawals;
 use App\Models\UserCalls;
 use App\Models\explaination_video;
 use App\Models\explaination_video_links;
+use App\Models\PersonalNotifications;
 use Carbon\Carbon;
 use App\Models\News; 
 use Validator;
@@ -35,7 +36,7 @@ use Berkayk\OneSignal\OneSignalFacade as OneSignal;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list','gifts_list','createUpigateway']]);
+        $this->middleware('auth:api', ['except' => ['login','register','send_otp','avatar_list','speech_text','settings_list','appsettings_list','add_coins','cron_jobs','cron_updates','explaination_video_list','gifts_list','createUpigateway','personalized_notifications']]);
     }
  
     public function register(Request $request)
@@ -823,7 +824,7 @@ public function settings_list(Request $request)
             'support_mail' => $item->support_mail,
             'demo_video' => $item->demo_video,
             'minimum_withdrawals' => $item->minimum_withdrawals,
-            'payment_gateway' => $item->payment_gateway,
+            'payment_gateway_type' => $item->payment_gateway_type,
         ];
     }
 
@@ -1372,19 +1373,94 @@ public function calls_status_update(Request $request)
         ], 200);
     }   
 
-    // Update status and relevant timestamp
+  
     $currentTime = now();
+
     if ($call_type === 'audio') {
         $user->audio_status = $status;
-        $user->last_audio_time_updated = $currentTime; // Update only audio timestamp
-    } elseif ($call_type === 'video') {
+        $user->last_audio_time_updated = $currentTime;
+    } else {
         $user->video_status = $status;
-        $user->last_video_time_updated = $currentTime; // Update only video timestamp
+        $user->last_video_time_updated = $currentTime;
     }
-
+    
     $user->datetime = $currentTime;
     $user->save();
-
+    
+    if ($user->gender == 'female') { 
+        // Get male users who talked the longest with this female user
+        $callCounts = UserCalls::select(
+                'user_id', 
+                'call_user_id',
+                DB::raw('SUM(TIMESTAMPDIFF(MINUTE, started_time, ended_time)) as total_minutes')
+            )
+            ->where('call_user_id', $user_id)
+            ->whereNotNull('started_time')
+            ->whereNotNull('ended_time')
+            ->groupBy('user_id', 'call_user_id')
+            ->having('total_minutes', '>=', 5)
+            ->orderByDesc('total_minutes')
+            ->get();
+    
+        // Get the most active female user for each male user
+        $mostActiveUsers = $callCounts->groupBy('user_id')
+            ->map(fn($group) => $group->sortByDesc('total_minutes')->first());
+    
+        // Loop through male users who have the highest conversation with this female user
+        $mostActiveUsers->each(function ($item) use ($currentTime) {
+            $maleUser = Users::find($item->user_id);
+            $femaleUser = Users::find($item->call_user_id);
+    
+            if (!$maleUser || !$femaleUser) {
+                return; // Skip if user data is missing
+            }
+    
+            // Check if this female user is the top caller for the male user
+            $topCaller = UserCalls::select(
+                    'call_user_id',
+                    DB::raw('SUM(TIMESTAMPDIFF(MINUTE, started_time, ended_time)) as total_minutes')
+                )
+                ->where('user_id', $maleUser->id)
+                ->whereNotNull('started_time')
+                ->whereNotNull('ended_time')
+                ->groupBy('call_user_id')
+                ->orderByDesc('total_minutes')
+                ->first();
+    
+            if (!$topCaller || $topCaller->call_user_id != $femaleUser->id) {
+                Log::info("User {$femaleUser->id} is NOT the top caller for {$maleUser->id}. Skipping notification.");
+                return;
+            }
+    
+            // Check if female user is available (either audio or video is enabled)
+            if ($femaleUser->audio_status == 1 || $femaleUser->video_status == 1) {
+                // Fetch last notification time for this male user
+                $lastNotification = PersonalNotifications::where('user_id', $maleUser->id)
+                    ->orderByDesc('datetime')
+                    ->first();
+    
+                // Send notification only if no notification was sent in the last 30 minutes
+                if (!$lastNotification || now()->diffInMinutes(Carbon::parse($lastNotification->datetime)) >= 30) {
+                    PersonalNotifications::create([
+                        'user_id' => $maleUser->id,
+                        'title' => "{$femaleUser->name} is now online",
+                        'description' => "Let's make a conversation!",
+                        'datetime' => now(),
+                    ]);
+    
+                    OneSignal::sendNotificationCustom([
+                        "app_id" => "2c7d72ae-8f09-48ea-a3c8-68d9c913c592",
+                        "include_external_user_ids" => [(string) $maleUser->id],
+                        "headings" => ["en" => "{$femaleUser->name} is now online."],
+                        "contents" => ["en" => "Let's make a conversation!"],
+                        "small_icon" => "notification_icon",
+                        "large_icon" => "https://himaapp.in/storage/uploads/logo/notification_icon.webp"
+                    ]);
+                }
+            }
+        });
+    }
+    
     // Fetch additional details for response
     $avatar = Avatars::find($user->avatar_id);
     $gender = $avatar ? $avatar->gender : '';
@@ -1399,17 +1475,17 @@ public function calls_status_update(Request $request)
         'message' => 'Call status updated successfully.',
         'data' => [
             'id' => $user->id,
-            'name' => $user->name,
-            'user_gender' => $user->gender,
+            'name' => $user->name ?? '',
+            'user_gender' => $user->gender ?? '',
             'avatar_id' => (int) $user->avatar_id,
             'image' => $imageUrl ?? '',
-            'gender' => $gender,
-            'language' => $user->language,
+            'gender' => $gender ?? '',
+            'language' => $user->language ?? '',
             'age' => (int) $user->age ?? '',
             'mobile' => $user->mobile ?? '',
             'interests' => $user->interests ?? '',
             'describe_yourself' => $user->describe_yourself ?? '',
-            'voice' => $voicePath,
+            'voice' => $voicePath ?? '',
             'status' => $user->status ?? '',
             'balance' => (int) $user->balance ?? '',
             'audio_status' => (int) $user->audio_status ?? '',
@@ -1428,6 +1504,12 @@ public function calls_status_update(Request $request)
 
 public function call_female_user(Request $request)
 {
+
+     return response()->json([
+            'success' => false,
+            'message' => 'user_id is empty.',
+        ], 200);
+
     $authenticatedUser = auth('api')->user();
     if (!$authenticatedUser) {
         return response()->json([
@@ -1446,6 +1528,7 @@ public function call_female_user(Request $request)
             'message' => 'user_id is empty.',
         ], 200);
     }
+
 
     // Find the user
     $user = users::find($user_id);
@@ -1818,25 +1901,27 @@ public function update_connected_call(Request $request)
         ], 200);
     }
 
-    $existingCall = UserCalls::where('user_id', $user_id)
-    ->where('call_user_id', $call->call_user_id)
-    ->where('started_time', $started_time)
-    ->first();
+  
 
-        if ($existingCall) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Call already exists with the same details.',
-            ], 200);
-        }
+    // $existingCall = UserCalls::where('user_id', $user_id)
+    // ->where('call_user_id', $call->call_user_id)
+    // ->where('started_time', $started_time)
+    // ->first();
+
+    //     if ($existingCall) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Call already exists with the same details.',
+    //         ], 200);
+    //     }
 
 
-    if (!empty($call->ended_time)) {
-        return response()->json([
-            'success' => false, 
-            'message' => 'Call has already been updated.'
-        ], 200);
-    }
+    // if (!empty($call->ended_time)) {
+    //     return response()->json([
+    //         'success' => false, 
+    //         'message' => 'Call has already been updated.'
+    //     ], 200);
+    // }
 
     // Convert the times to Carbon instances with today's date
     $currentDate = Carbon::now()->format('Y-m-d'); 
@@ -1863,50 +1948,99 @@ public function update_connected_call(Request $request)
     // Update audio_status or video_status based on call type
     
     $currentTime = now();
-  if ($callType == 'audio') {
-    $callUser->audio_status = 1;
-    $callUser->last_audio_time_updated = $currentTime; // Update only audio timestamp
+    if ($callType == 'audio') {
+        $callUser->audio_status = 1;
+        $callUser->last_audio_time_updated = $currentTime; // Update only audio timestamp
     } elseif ($callType == 'video') {
-    $callUser->video_status = 1;
-    $callUser->last_video_time_updated = $currentTime; // Update only audio timestamp
+        $callUser->video_status = 1;
+        $callUser->last_video_time_updated = $currentTime; // Update only audio timestamp
     }
     $callUser->save();
 
-    // Determine coin deduction rates
+    $startHour = $startTime->hour;
+    $endHour = $endTime->hour;
+    $startMinute = $startTime->minute;
+    $endMinute = $endTime->minute;
+    $startSecond = $startTime->second;
+    $endSecond = $endTime->second;
+    $currentCoinsBeforeDeduction = $user->coins; // Store coins before deduction
+
+    $maxMinutesAffordable = 0;
+    $actualCoinsSpend = 0;
+    $actualIncome = 0;
+    
     if ($callType == 'audio') {
-        $coinsPerMinute = 10; // Per minute deduction
-        $incomePerMinute = 2; // Income per minute
+        $coinsPerMinute = 10;
     } elseif ($callType == 'video') {
         $coinsPerMinute = 60;
-        $incomePerMinute = 10;
     }
+    
+    // Determine maximum minutes user can afford
+    $maxMinutesAffordable = floor($currentCoinsBeforeDeduction / $coinsPerMinute);
+    
+    // Ensure at least 1 minute is counted, but don't exceed what they can afford
+    $effectiveMinutes = min($maxMinutesAffordable, $durationMinutes);
+    
+    $durationSeconds = $endTime->diffInSeconds($startTime);
 
-    // Calculate total coins spent and earned
-    $coins_spend = $durationMinutes * $coinsPerMinute;
-    $income = $durationMinutes * $incomePerMinute;
+// If duration is less than 10 seconds, do not charge
+if ($durationSeconds < 10) {
+    $income = 0;
+    $coins_spend = 0;
+    $roundedMinutes = 0;
+} else {
+    $roundedMinutes = ceil($durationSeconds / 60); // **Round up seconds to full minute**
 
-    // Deduct coins only if duration is 10 seconds or more
-    if ($durationSeconds >= 10) {
-        $user->coins -= $coins_spend;
-        $user->save();
-    } else {
-        $coins_spend = 0;
-        $income = 0;
+    $maxMinutesAffordable = floor($currentCoinsBeforeDeduction / $coinsPerMinute);
+
+    // Use the minimum of rounded minutes and what the user can afford
+    $effectiveMinutes = min($maxMinutesAffordable, $roundedMinutes);
+
+    $actualCoinsSpend = $effectiveMinutes * $coinsPerMinute;
+    $actualIncome = 0;
+
+    for ($i = 0; $i < $effectiveMinutes; $i++) {
+        $currentHour = $startHour;
+        $currentMinute = $startMinute + $i;
+
+        if ($currentMinute >= 60) {
+            $currentMinute -= 60;
+            $currentHour++;
+        }
+        if ($currentHour >= 24) {
+            $currentHour -= 24;
+        }
+
+        // Determine income per minute based on time slot
+        if ($callType == 'audio') {
+            $incomePerMinute = ($currentHour >= 16 || $currentHour < 2) ? 2 : 1;
+        } else { // Video
+            $incomePerMinute = ($currentHour >= 16 || $currentHour < 2) ? 8 : 6;
+        }
+
+        $actualIncome += $incomePerMinute;
     }
+}
 
-    // Update the balance of the call_user_id user
-    $callUser = Users::find($call->call_user_id);
+// Deduct coins from the user, ensuring it doesn't go negative
+    $user->coins = max(0, $user->coins - $actualCoinsSpend);
+    $user->save();
+
+    
+    $currentCoinsAfterDeduction = $user->coins;
+  
+    // Update call recipient's balance
     if ($callUser) {
-        $callUser->balance += $income;
-        $callUser->total_income += $income;
+        $callUser->balance += $actualIncome;
+        $callUser->total_income += $actualIncome;
         $callUser->save();
-
-        // Record the transaction for the call_user_id user
+    
+        // Record transaction
         $transaction = new Transactions();
         $transaction->user_id = $callUser->id;
         $transaction->coins = 0;
         $transaction->type = 'call_income';
-        $transaction->amount = $income; // Assuming no monetary amount for call income
+        $transaction->amount = $actualIncome;
         $transaction->datetime = now();
         $transaction->save();
     }
@@ -1914,8 +2048,8 @@ public function update_connected_call(Request $request)
     // Update call details
     $call->started_time = $startTime->format('H:i:s');
     $call->ended_time = $endTime->format('H:i:s'); 
-    $call->coins_spend = $coins_spend;
-    $call->income = $income;
+    $call->coins_spend = $actualCoinsSpend;
+    $call->income = $actualIncome;
     $call->update_current_endedtime = now();
     $call->save();
 
@@ -1929,6 +2063,8 @@ public function update_connected_call(Request $request)
     }
 
     $receiver = Users::find($call->call_user_id);
+
+    $currentCoinsAfterDeduction = $user->coins;
 
     return response()->json([
         'success' => true,
@@ -1945,6 +2081,8 @@ public function update_connected_call(Request $request)
             'ended_time' => $call->ended_time,
             'date_time' => Carbon::parse($call->datetime)->format('Y-m-d H:i:s'),
             'update_current_endedtime' => Carbon::parse($call->update_current_endedtime)->format('Y-m-d H:i:s'),
+            'available_coins_before_deduction' => $currentCoinsBeforeDeduction, // Show coins before deduction
+            'available_coins_after_deduction' => $currentCoinsAfterDeduction, // Show coins after deduction
         ],
     ], 200);
 }
@@ -2091,38 +2229,94 @@ $durationMinutes = max(ceil($effectiveDurationSeconds / 60), 1);
 $callUser = Users::find($call->call_user_id);
     // Update audio_status or video_status based on call type
     $currentTime = now();
-  if ($callType == 'audio') {
-    $callUser->audio_status = 1;
-    $callUser->last_audio_time_updated = $currentTime; // Update only audio timestamp
+    if ($callType == 'audio') {
+        $callUser->audio_status = 1;
+        $callUser->last_audio_time_updated = $currentTime; // Update only audio timestamp
     } elseif ($callType == 'video') {
-    $callUser->last_video_time_updated = $currentTime; // Update only audio timestamp
+        $callUser->video_status = 1;
+        $callUser->last_video_time_updated = $currentTime; // Update only audio timestamp
     }
     $callUser->save();
+    $startHour = $startTime->hour;
+    $endHour = $endTime->hour;
+    $startMinute = $startTime->minute;
+    $endMinute = $endTime->minute;
+    $startSecond = $startTime->second;
+    $endSecond = $endTime->second;
 
-// Determine coin deduction rates
-if ($callType == 'audio') {
-    $coinsPerMinute = 10; // Per minute deduction
-    $incomePerMinute = 2; // Income per minute
-} elseif ($callType == 'video') {
-    $coinsPerMinute = 60;
-    $incomePerMinute = 10;
-}
-
-// Calculate total coins spent and earned
-$coins_spend = $durationMinutes * $coinsPerMinute;
-$income = $durationMinutes * $incomePerMinute;
-
-// Deduct coins only if duration is 10 seconds or more
-if ($durationSeconds >= 10) {
-    $user->coins -= $coins_spend;
-    $user->save();
-} else {
-    $coins_spend = 0;
     $income = 0;
-}
+    $coins_spend = 0;
+    $incomePerMinute = 0;
 
-
-   
+    if ($callType == 'audio') {
+        $durationSeconds = $endTime->diffInSeconds($startTime);
+        
+        // If the duration is less than 10 seconds, do not deduct coins or add income
+        if ($durationSeconds < 10) {
+            $income = 0;
+            $coins_spend = 0;
+        } else {
+            $roundedMinutes = ceil($durationSeconds / 60); // Always round up
+            
+            $income = 0;
+            $coins_spend = $roundedMinutes * 10; // 10 coins per rounded minute
+            
+            for ($i = 0; $i < $roundedMinutes; $i++) {
+                $currentHour = $startHour;
+                $currentMinute = $startMinute + $i;
+            
+                // Adjust the hour and minute if needed
+                if ($currentMinute >= 60) {
+                    $currentMinute -= 60;
+                    $currentHour++;
+                }
+                if ($currentHour >= 24) {
+                    $currentHour -= 24;
+                }
+            
+                // Determine rate based on current time
+                $incomePerMinute = ($currentHour >= 16 || $currentHour < 2) ? 2 : 1;
+                $income += $incomePerMinute;
+            }
+    
+            // Deduct coins from the user
+            $user->coins -= $coins_spend;
+            $user->save();
+        }
+    } elseif ($callType == 'video') {
+        $durationSeconds = $endTime->diffInSeconds($startTime);
+        
+        // If the duration is less than 10 seconds, do not deduct coins or add income
+        if ($durationSeconds < 10) {
+            $income = 0;
+            $coins_spend = 0;
+        } else {
+            $roundedMinutes = ceil($durationSeconds / 60); // Always round up
+            
+            $income = 0;
+            $coins_spend = $roundedMinutes * 60; // 60 coins per rounded minute
+            
+            for ($i = 0; $i < $roundedMinutes; $i++) {
+                $currentHour = $startHour;
+                $currentMinute = $startMinute + $i;
+            
+                // Adjust the hour and minute if needed
+                if ($currentMinute >= 60) {
+                    $currentMinute -= 60;
+                    $currentHour++;
+                }
+                if ($currentHour >= 24) {
+                    $currentHour -= 24;
+                }
+            
+                // Determine rate based on current time
+                $incomePerMinute = ($currentHour >= 16 || $currentHour < 2) ? 8 : 6;
+                $income += $incomePerMinute;
+            }
+            $user->coins -= $coins_spend;
+            $user->save();
+        }
+    }
     // Update the balance of the call_user_id user
     $callUser = Users::find($call->call_user_id);
 
@@ -3394,12 +3588,13 @@ if ($notifications->isNotEmpty()) {
 
         // Prepare notification payload
         $payload = [
-            "app_id" => "5cd4154a-1ece-4c3b-b6af-e88bafee64cd",
+            "app_id" => "2c7d72ae-8f09-48ea-a3c8-68d9c913c592",
             "filters" => $filters,
             "headings" => ["en" => $notification->title],
             "contents" => ["en" => $notification->description],
             "small_icon" => "notification_icon",
-            "large_icon" => "https://himaapp.in/storage/uploads/logo/notification_icon.webp"
+            "large_icon" => $notification['logo'] ? "https://himaapp.in/storage/app/public/{$notification['logo']}" : "https://himaapp.in/storage/uploads/logo/notification_icon.webp",
+            "big_picture" => $notification['image'] ? "https://himaapp.in/storage/app/public/{$notification['image']}" : "",
         ];
 
         // Send notification via OneSignal
@@ -3408,100 +3603,101 @@ if ($notifications->isNotEmpty()) {
   }
 }
 
-// public function cron_jobs(Request $request)
-// {
-//     try {
-//         // Fetch users who have missed or attended calls
-//         $users = Users::where(function($query) {
-//                             $query->where('missed_calls', '>', 0)
-//                                   ->orWhere('attended_calls', '>', 0);
-//                         })
-//                         ->get();
+public function personalized_notifications(Request $request)
+{
+    // Get call counts for male users calling female users (only if both exist in users table)
+    $callCounts = UserCalls::select('user_id', 'call_user_id', DB::raw('SUM(TIMESTAMPDIFF(MINUTE, started_time, ended_time)) as total_minutes'))
+        ->whereIn('user_id', function ($query) {
+            $query->select('id')
+                  ->from('users')
+                  ->where('gender', 'male');
+        })
+        ->whereIn('call_user_id', function ($query) {
+            $query->select('id')
+                  ->from('users')
+                  ->where('gender', 'female')
+                  ->where(function ($query) {
+                      $query->where('audio_status', 1)
+                            ->orWhere('video_status', 1);
+                  });
+        })
+        ->whereNotNull('started_time')
+        ->whereNotNull('ended_time')
+        ->groupBy('user_id', 'call_user_id')
+        ->orderBy('total_minutes', 'desc')
+        ->get();
 
-//         $currentTime = Carbon::now();
+    // Remove entries where users don't exist
+    $callCounts = $callCounts->filter(function ($item) {
+        return Users::where('id', $item->user_id)->exists() && Users::where('id', $item->call_user_id)->exists();
+    });
 
-//         foreach ($users as $user) {
-//             if ($user->last_audio_time_updated && Carbon::parse($user->last_audio_time_updated)->diffInHours($currentTime) >= 1) {
-//                 $user->audio_status = 0;
-//                 $user->missed_calls = 0;
-//                 $user->attended_calls = 0;
-//             }
+    // Fetch user details
+    $callCounts->transform(function ($item) {
+        $user = Users::find($item->user_id);
+        $femaleUser = Users::find($item->call_user_id);
+        if (!$user || !$femaleUser) {
+            return null; // Skip if user or female user not found
+        }
+        $item->male_user_name = $user->name;
+        $item->female_user_name = $femaleUser->name;
+        $item->total_minutes = $item->total_minutes ?? 0;
 
-//             if ($user->last_video_time_updated && Carbon::parse($user->last_video_time_updated)->diffInHours($currentTime) >= 1) {
-//                 $user->video_status = 0;
-//                 $user->missed_calls = 0;
-//                 $user->attended_calls = 0;
-//             }
+        return $item;
+    })->filter(); // Remove null values
 
-//             $totalCalls = $user->attended_calls + $user->missed_calls;
-//             $user->avg_call_percentage = $totalCalls > 0 ? ($user->attended_calls / $totalCalls) * 100 : 0;
-//             $user->save();
-//         }
+    // Filter users with at least 5 minutes of calls
+    $callCounts = $callCounts->filter(fn($item) => $item->total_minutes >= 5);
 
-//         // Notification logic
-//         $currentTimeFormatted = Carbon::now('Asia/Kolkata')->format('Y-m-d H:i');
-//         $notification = ScreenNotifications::whereRaw("DATE_FORMAT(datetime, '%Y-%m-%d %H:%i') = ?", [$currentTimeFormatted])->first();
+    // Get most active users per user_id
+    $mostActiveUsers = $callCounts->groupBy('user_id')->map(fn($group) => $group->sortByDesc('total_minutes')->first());
 
-//         if ($notification) {
-//             $gender = $notification->gender;
-//             $language = $notification->language;
+    // Insert notifications & send push notifications
+    $notifiedUsers = [];
+    $mostActiveUsers->each(function ($item) use (&$notifiedUsers) {
+        $user = Users::find($item->user_id);
+        $femaleUser = Users::find($item->call_user_id);
 
-//             $targetUsers = Users::when($language !== 'all', function ($query) use ($language) {
-//                     return $query->where('language', $language);
-//                 })
-//                 ->when($gender !== 'all', function ($query) use ($gender) {
-//                     return $query->where('gender', $gender);
-//                 })
-//                 ->get();
+        if ($femaleUser && ($femaleUser->audio_status == 1 || $femaleUser->video_status == 1)) {
+            $title = "User Online";
+            $description = "{$femaleUser->name} is now online. Let's make a conversation!";
+            $datetime = now();
 
-//             if ($targetUsers->count() > 0 || $gender === 'all' || $language === 'all') {
-//                 $message = "{$notification->title}\n{$notification->description}";
-//                 $filters = [];
+            // Insert into PersonalNotifications table
+            PersonalNotifications::create([
+                'user_id' => $user->id,
+                'title' => $title,
+                'description' => $description,
+                'datetime' => $datetime,
+            ]);
 
-//                 if ($gender !== 'all' && $language !== 'all') {
-//                     $filters[] = ["field" => "tag", "key" => "gender_language", "relation" => "=", "value" => "{$gender}_{$language}"];
-//                 } elseif ($gender !== 'all') {
-//                     $filters[] = ["field" => "tag", "key" => "gender", "relation" => "=", "value" => "{$gender}"];
-//                 } elseif ($language !== 'all') {
-//                     $filters[] = ["field" => "tag", "key" => "language", "relation" => "=", "value" => "{$language}"];
-//                 }
+            $filters = [
+                ["field" => "tag", "key" => "user_id", "relation" => "=", "value" =>(string) $user->id]
+            ];
 
-//                 $payload = [
-//                     "app_id" => "2c7d72ae-8f09-48ea-a3c8-68d9c913c592",
-//                     "filters" => $filters,
-//                     "headings" => ["en" => $notification->title],
-//                     "contents" => ["en" => $notification->description],
-//                     "small_icon" => "notification_icon",
-//                     "large_icon" => "https://himaapp.in/storage/uploads/logo/notification_icon.webp"
-//                 ];
+            // Prepare notification payload
+            $payload = [
+                "app_id" => "5cd4154a-1ece-4c3b-b6af-e88bafee64cd",
+                "filters" => $filters,
+                "headings" => ["en" => $title],
+                "contents" => ["en" => $description],
+                "small_icon" => "notification_icon",
+                "large_icon" => "https://himaapp.in/storage/uploads/logo/notification_icon.webp"
+            ];
 
-//                 OneSignal::sendNotificationCustom($payload);
-//             }
-//         }
+            // Send notification via OneSignal
+            $response = OneSignal::sendNotificationCustom($payload);
 
-//         return response()->json(['message' => 'Cron job executed successfully'], 200);
-//     } catch (\Exception $e) {
-//         return response()->json(['error' => $e->getMessage()], 500);
-//     }
-// }
-// public function cron_updates(Request $request)
-// {
-//     // Reset missed_calls, attended_calls, and avg_call_percentage for all users
-//     Users::query()->update([
-//         'missed_calls' => 0,
-//         'attended_calls' => 0,
-//         'audio_status' => 0,
-//         'video_status' => 0,
-//         'avg_call_percentage' => 100,
-//     ]);
+        }
+    });
 
-//     // Insert datetime into cron_jobs_update table
-//     DB::table('cron_jobs_update')->insert([
-//         'datetime' => Carbon::now(),
-//     ]);
-// }
-
-    
+    return response()->json([
+        'success' => true,
+        'message' => 'Personalized Notifications Send successfully.',
+        'total' => $mostActiveUsers->count(),
+        'data' => $mostActiveUsers->values(),
+    ], 200);
+}
 public function explaination_video_list(Request $request)
 {
 

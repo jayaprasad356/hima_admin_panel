@@ -50,6 +50,7 @@
                                     <th><?php echo e(__('Amount')); ?></th>
                                     <th><?php echo e(__('Payment Type')); ?></th>
                                     <th><?php echo e(__('Datetime')); ?></th>
+                                    <th><?php echo e(__('Download')); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,6 +64,14 @@
                                         <td><?php echo e($transaction->amount); ?></td>
                                         <td><?php echo e($transaction->payment_type); ?></td>
                                         <td><?php echo e($transaction->datetime); ?></td>
+                                        <td>
+                                            <?php if($transaction->type == 'add_coins'): ?>
+                                                <a href="<?php echo e(route('transactions.download', $transaction->id)); ?>" class="btn btn-primary btn-sm">
+                                                    <?php echo e(__('Download Invoice')); ?>
+
+                                                </a>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>

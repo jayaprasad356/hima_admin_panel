@@ -15,8 +15,8 @@
     #title {
     font-weight: bold;
 }
-
 </style>
+
 <?php $__env->startSection('content'); ?>
 <div class="row">
     <div class="col-md-10 offset-md-1">
@@ -25,7 +25,7 @@
                 <h5><?php echo e(__('Add New Screen Notifications')); ?></h5>
             </div>
             <div class="card-body">
-                <form action="<?php echo e(route('screen_notifications.store')); ?>" method="POST">
+                <form action="<?php echo e(route('screen_notifications.store')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
 
                     <div class="form-group">
@@ -65,6 +65,18 @@
                     <div class="form-group mt-3">
                         <label for="datetime"><?php echo e(__('Datetime')); ?></label>
                         <input type="datetime-local" id="datetime" name="datetime" class="form-control" required>
+                    </div>
+
+                    <!-- Logo Field -->
+                    <div class="form-group mt-3">
+                        <label for="logo"><?php echo e(__('Logo (Optional)')); ?></label>
+                        <input type="file" id="logo" name="logo" class="form-control">
+                    </div>
+
+                    <!-- Image Field -->
+                    <div class="form-group mt-3">
+                        <label for="image"><?php echo e(__('Image (Optional)')); ?></label>
+                        <input type="file" id="image" name="image" class="form-control">
                     </div>
 
                     <!-- Save Button -->

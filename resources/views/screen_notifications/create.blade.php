@@ -14,8 +14,8 @@
     #title {
     font-weight: bold;
 }
-
 </style>
+
 @section('content')
 <div class="row">
     <div class="col-md-10 offset-md-1">
@@ -24,7 +24,7 @@
                 <h5>{{ __('Add New Screen Notifications') }}</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('screen_notifications.store') }}" method="POST">
+                <form action="{{ route('screen_notifications.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="form-group">
@@ -64,6 +64,18 @@
                     <div class="form-group mt-3">
                         <label for="datetime">{{ __('Datetime') }}</label>
                         <input type="datetime-local" id="datetime" name="datetime" class="form-control" required>
+                    </div>
+
+                    <!-- Logo Field -->
+                    <div class="form-group mt-3">
+                        <label for="logo">{{ __('Logo (Optional)') }}</label>
+                        <input type="file" id="logo" name="logo" class="form-control">
+                    </div>
+
+                    <!-- Image Field -->
+                    <div class="form-group mt-3">
+                        <label for="image">{{ __('Image (Optional)') }}</label>
+                        <input type="file" id="image" name="image" class="form-control">
                     </div>
 
                     <!-- Save Button -->

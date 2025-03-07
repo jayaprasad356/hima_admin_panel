@@ -1,4 +1,5 @@
-{{ Form::model($screen_notifications, ['route' => ['screen_notifications.update', $screen_notifications->id], 'method' => 'PUT']) }}
+
+{{ Form::model($screen_notifications, ['route' => ['screen_notifications.update', $screen_notifications->id], 'method' => 'PUT', 'enctype' => 'multipart/form-data']) }}
 <style>
     #title {
     font-weight: bold;
@@ -48,6 +49,27 @@
             {{ Form::label('datetime', __('Datetime'), ['class' => 'form-label']) }}
             {{ Form::datetimeLocal('datetime', null, ['class' => 'form-control', 'required' => 'required']) }}
         </div>
+
+   
+
+        <div class="form-group col-md-12">
+            {{ Form::label('logo', __('logo (Optional)'), ['class' => 'form-label']) }}
+            <div class="mb-2">
+                <img src="{{ asset('storage/app/public/' . $screen_notifications->logo) }}" class="img-thumbnail" width="100" alt="Gift Icon">
+            </div>
+            <input type="file" name="logo" class="form-control">
+        </div>
+
+        <div class="form-group col-md-12">
+            {{ Form::label('image', __('Image (Optional)'), ['class' => 'form-label']) }}
+            <div class="mb-2">
+                <img src="{{ asset('storage/app/public/' . $screen_notifications->image) }}" class="img-thumbnail" width="100" alt="Gift Icon">
+            </div>
+            <input type="file" name="image" class="form-control">
+        </div>
+
+      
+            
     </div>
 </div>
 <div class="modal-footer">

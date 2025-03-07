@@ -91,6 +91,13 @@
                     <span class="dash-mtext"><?php echo e(__('Transactions')); ?></span>
                 </a>
                 <li class="dash-item">
+                <a href="<?php echo e(route('payments.index')); ?>" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-credit-card"></i> <!-- Icon for transactions -->
+                    </span>
+                    <span class="dash-mtext"><?php echo e(__('Payments')); ?></span>
+                </a>
+                <li class="dash-item">
                 <a href="<?php echo e(route('withdrawals.index')); ?>" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-wallet"></i> <!-- Icon for withdrawals -->
@@ -113,6 +120,14 @@
                         </span>
                         <span class="dash-mtext"><?php echo e(__('Screen Notifications')); ?></span>
                     </a>
+                </li>
+                <li class="dash-item">
+                <a href="<?php echo e(route('personal_notifications.index')); ?>" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-bell"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext"><?php echo e(__('Personal Notifications')); ?></span>
+                </a>
                 </li>
                 <li class="dash-item">
                 <a href="<?php echo e(route('gifts.index')); ?>" class="dash-link">

@@ -24,7 +24,7 @@
                 <h5>{{ __('Add New Notifications') }}</h5>
             </div>
             <div class="card-body">
-            <form action="{{ route('notifications.store') }}" method="POST">
+            <form action="{{ route('notifications.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -58,6 +58,17 @@
                     <label for="description">{{ __('Description') }}</label>
                     <textarea name="description" class="form-control" rows="3" required></textarea>
                 </div>
+
+                <div class="form-group mt-3">
+                        <label for="logo">{{ __('Logo (optional)') }}</label>
+                        <input type="file" id="logo" name="logo" class="form-control">
+                    </div>
+
+                    <!-- Image Field -->
+                    <div class="form-group mt-3">
+                        <label for="image">{{ __('Image (optional)') }}</label>
+                        <input type="file" id="image" name="image" class="form-control">
+                    </div> 
 
                 <div class="form-group mt-4 text-center">
                     <button type="submit" class="btn btn-primary">{{ __('Send Notification') }}</button>

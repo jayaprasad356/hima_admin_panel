@@ -41,6 +41,8 @@
                                 <th>{{ __('Gender') }}</th>
                                 <th>{{ __('Language') }}</th>
                                 <th>{{ __('Datetime') }}</th>
+                                <th>{{ __('Logo') }}</th>
+                                <th>{{ __('Image') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,6 +75,20 @@
                                     <td>{{ $screen_notification->gender }}</td>
                                     <td>{{ ucfirst($screen_notification->language) }}</td>
                                     <td>{{ $screen_notification->datetime }}</td>
+                                    <td>
+                                        @if (!empty($screen_notification->logo))
+                                            <img src="{{ asset('storage/app/public/' . $screen_notification->logo) }}" class="img-fluid" width="50px">
+                                        @else
+                                            {{ __('No Logo') }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if (!empty($screen_notification->image))
+                                            <img src="{{ asset('storage/app/public/' . $screen_notification->image) }}" class="img-fluid" width="50px">
+                                        @else
+                                            {{ __('No Image') }}
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
