@@ -35,12 +35,19 @@ if (isset($data['status']) && $data['status'] === "success") {
         // Ensure we have at least 2 parts
         $user_id = isset($purposeParts[0]) ? $purposeParts[0] : null;
         $coins_id = isset($purposeParts[1]) ? $purposeParts[1] : null;
+        $app_id = isset($purposeParts[3]) ? $purposeParts[3] : null;
+        if($app_id == 'HM') {
+            $apiUrl = 'https://himaapp.in/api/auth/add_coins';
+        }else{
+            $apiUrl = 'https://hidude.in/api/auth/add_coins';
+        }
+
 
         // Log extracted details
         logData("Extracted user_id: $user_id, coins_id: $coins_id");
 
         // API endpoint
-        $apiUrl = 'https://hidude.in/api/auth/add_coins';
+        //$apiUrl = 'https://himaapp.in/api/auth/add_coins';
 
         // Prepare form data
         $formData = [
