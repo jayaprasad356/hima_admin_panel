@@ -146,10 +146,13 @@ class EloquentUserProvider implements UserProvider
      * @param  array  $credentials
      * @return bool
      */
-    public function validateCredentials($customer, array $credentials)
+    public function validateCredentials(UserContract $user, array $credentials)
     {
-        // Check for other credentials like 'username' or 'email' instead of 'password'
-        return $customer->mobile === $credentials['mobile'];
+        if (is_null($plain = $credentials['password'])) {
+            return false;
+        }
+
+        return $this->hasher->check($plain, $user->getAuthPassword());
     }
 
     /**
