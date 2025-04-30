@@ -187,6 +187,7 @@ return [
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         //Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         Lab404\Impersonate\ImpersonateServiceProvider::class,
+        Berkayk\OneSignal\OneSignalServiceProvider::class,
         
         /*
          * Package Service Providers...
@@ -220,9 +221,11 @@ return [
     | the aliases are "lazy" loaded so they don't hinder performance.
     |
     */
+    
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'OneSignal' => Berkayk\OneSignal\OneSignalFacade::class,
         'PayPal' => Srmklive\PayPal\Facades\PayPal::class,
         'Utility' => App\Models\Utility::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
