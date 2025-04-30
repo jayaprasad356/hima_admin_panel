@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Payments;
 use Illuminate\Http\Request;
+use App\Exports\PaymentsExport; 
+use Maatwebsite\Excel\Facades\Excel;
 require_once public_path('fpdf/fpdf.php');
 
 class PaymentsController extends Controller
@@ -21,6 +23,22 @@ class PaymentsController extends Controller
 
         return view('payments.index', compact('payments', 'types'));
     }
+
+    public function handleDownloadOrExport(Request $request)
+    {
+        $startDate = $request->get('start_date') . ' 00:00:00';
+        $endDate = $request->get('end_date') . ' 23:59:59';
+        $action = $request->get('action');
+    
+        if ($action === 'download') {
+            return $this->downloadBulkInvoice($request);
+        } elseif ($action === 'export') {
+            return $this->export($request);
+        }
+    
+        return back()->with('error', 'Invalid action selected.');
+    }
+    
 
     public function downloadBulkInvoice(Request $request)
     {
@@ -149,6 +167,16 @@ class PaymentsController extends Controller
         // Output as single PDF file
         $pdf->Output('D', "bulk_invoice_" . date('Y-m-d') . ".pdf");
     }
+   
+    public function export(Request $request)
+    {
+        $startDate = $request->get('start_date') ? date('Y-m-d 00:00:00', strtotime($request->get('start_date'))) : null;
+        $endDate = $request->get('end_date') ? date('Y-m-d 23:59:59', strtotime($request->get('end_date'))) : null;
+    
+        return Excel::download(new PaymentsExport($startDate, $endDate), 'payments_' . date('Y-m-d') . '.xlsx');
+    }
+    
+    
     
  } 
 

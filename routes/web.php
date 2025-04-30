@@ -8,17 +8,18 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\WithdrawalsController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\RatingsController;
-use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AwardController;
+use App\Http\Controllers\FcmNotificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AppsettingsController;
 use App\Http\Controllers\CoinsController;
 use App\Http\Controllers\ScreenNotificationsController;
-use App\Http\Controllers\PersonalNotificationsController;
 use App\Http\Controllers\UserCallsController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\WhatsapplinkController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\SpeechTextController;
@@ -61,6 +62,7 @@ use App\Http\Controllers\PayeesController;
 use App\Http\Controllers\PayerController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\TransferBalanceController;
+use App\Http\Controllers\PersonalNotificationsController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PlanController;
@@ -80,6 +82,7 @@ use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\JobCategoryController;
 use App\Http\Controllers\JobStageController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\CustomQuestionController;
 use App\Http\Controllers\InterviewScheduleController;
@@ -287,8 +290,10 @@ Route::group(['middleware' => ['verified']], function () {
         Route::resource('avatars', AvatarsController::class);
     });
     Route::resource('avatar', AvatarsController::class);
+    Route::resource('fcm_token', FcmNotificationController::class);
+       Route::resource('whatsapplinks', WhatsapplinkController::class);
     Route::resource('speech_texts', SpeechTextController::class);
-    Route::resource('personal_notifications', PersonalNotificationsController::class);
+     Route::resource('personal_notifications', PersonalNotificationsController::class);
     Route::resource('screen_notifications', ScreenNotificationsController::class);
     Route::get('screen_notifications/{id}/edit', [ScreenNotificationsController::class, 'edit'])->name('screen_notifications.edit');
 
@@ -301,10 +306,13 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('/users-verification', [UsersVerificationController::class, 'index'])->name('users-verification.index');
     Route::get('/users-verification/{id}/edit', [UsersVerificationController::class, 'edit'])->name('users-verification.edit');
     Route::put('/users-verification/{id}', [UsersVerificationController::class, 'update'])->name('users-verification.update');
+     Route::get('/payments/download-export', [PaymentsController::class, 'handleDownloadOrExport'])->name('payments.downloadOrExport');
+
 
     Route::post('/coins/update-status', [CoinsController::class, 'updateStatus'])->name('coins.updateStatus');
     // Route::get('/coins', [CoinsController::class, 'index'])->name('coins.index');
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
+    Route::delete('/transactions/{id}', [TransactionsController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/withdrawals', [WithdrawalsController::class, 'index'])->name('withdrawals.index');
     Route::get('/ratings', [RatingsController::class, 'index'])->name('ratings.index');
     Route::get('/usercalls', [UserCallsController::class, 'index'])->name('usercalls.index');
@@ -312,9 +320,9 @@ Route::group(['middleware' => ['verified']], function () {
     Route::patch('/withdrawals/bulk-cancel', [WithdrawalsController::class, 'bulkCancelStatus'])->name('withdrawals.bulkCancelStatus');
     Route::get('withdrawals/export', [WithdrawalsController::class, 'export'])->name('withdrawals.export');
     Route::resource('coins', CoinsController::class);
+      Route::resource('orders', OrdersController::class);
     Route::resource('withdrawals', WithdrawalsController::class);
     Route::resource('gifts', GiftsController::class);
- 
     Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
     Route::get('/payments/download-bulk-range', [PaymentsController::class, 'downloadBulkInvoice'])->name('payments.downloadBulkInvoice');
     Route::put('withdrawals/{id}', [WithdrawalsController::class, 'update'])->name('withdrawals.update');
@@ -323,7 +331,15 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('users/{id}/add-coins', [UsersController::class, 'showAddCoinsForm'])->name('users.addCoinsForm');
     Route::get('users/{id}/add-balance', [UsersController::class, 'showAddBalanceForm'])->name('users.addBalanceForm');
     Route::post('/usercalls/update-user', [UserCallsController::class, 'updateuser'])->name('usercalls.updateuser');
-    Route::get('/transactions/{id}/download', [TransactionsController::class, 'downloadInvoice'])->name('transactions.download');
+        Route::get('/transactions/{id}/download', [TransactionsController::class, 'downloadInvoice'])->name('transactions.download');
+         Route::get('/withdrawalsreports', [WithdrawalsController::class, 'withdrawalsReport'])
+     ->name('withdrawalsreports.index');
+          Route::get('/usersreports', [UsersController::class, 'usersreports'])
+     ->name('usersreports.index');
+          Route::get('/femalereports', [UsersController::class, 'femalereports'])
+     ->name('femalereports.index');
+ 
+
     // Route to handle the "Add Coins" form submission
     Route::post('users/{id}/add-coins', [UsersController::class, 'addCoins'])->name('users.addCoins');  
     Route::post('users/{id}/add-balance', [UsersController::class, 'addBalance'])->name('users.addBalance');

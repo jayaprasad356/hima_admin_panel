@@ -20,6 +20,7 @@ class AppsettingsController extends Controller
             'description' => 'required|string',
             'bank' => 'required|string',
             'upi' => 'required|string',
+             'minimum_required_version' => 'required|string',
         ]);
     
         $appsettings = Appsettings::findOrFail(1);
@@ -28,6 +29,7 @@ class AppsettingsController extends Controller
         $appsettings->description = $request->input('description');
         $appsettings->bank = $request->input('bank');
         $appsettings->upi = $request->input('upi');
+        $appsettings->minimum_required_version = $request->input('minimum_required_version');
     
         if ($appsettings->save()) {
             return redirect()->route('appsettings.edit')->with('success', 'Success, App Settings has been updated.');

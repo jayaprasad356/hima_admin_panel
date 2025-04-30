@@ -9,100 +9,93 @@
     <li class="breadcrumb-item">{{ __('UserCalls List') }}</li>
 @endsection
 
-<style>
-.pagination .page-item .page-link {
-    color: #d67291 !important; /* Lighter pink shade */
-    border: none !important;
-    background: transparent !important;
-    font-size: 14px; /* Decrease font size */
-    padding: 10px 10px; /* Reduce padding */
-    font-weight: bold;
-}
-
-.pagination .page-item.active .page-link {
-    background: #f2f2f2 !important; /* Softer background */
-    color: #d67291 !important; /* Keep lighter pink color */
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Softer shadow */
-    border-radius: 4px;
-    font-size: 14px; /* Smaller font size */
-    padding: 5px 8px;
-}
-
-.pagination .page-item .page-link:hover {
-    background: rgba(214, 114, 145, 0.1) !important; /* Light hover effect */
-    border-radius: 4px;
-}
-
-.pagination .page-item.disabled .page-link {
-    color: #ccc !important;
-}
-
-</style>
-
 @section('content')
 <div class="row">
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
                 <!-- Filter by Type and Buttons in the same row -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <!-- Filter by Type Form -->
-                    <form action="{{ route('usercalls.index') }}" method="GET" class="d-flex align-items-center">
-                        <div class="me-5">
-                            <label for="type">{{ __('Filter by Type') }}</label>
-                            <select name="type" id="type" class="form-control status-filter" onchange="this.form.submit()">
-                                <option value="">{{ __('All') }}</option>
-                                <option value="audio" {{ request()->get('type') == 'audio' ? 'selected' : '' }}>{{ __('Audio') }}</option>
-                                <option value="video" {{ request()->get('type') == 'video' ? 'selected' : '' }}>{{ __('Video') }}</option>
-                            </select>
-                        </div>
+                <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap">
+    
+    <!-- Filter Form (Aligned to the left) -->
+    <form action="{{ route('usercalls.index') }}" method="GET" class="d-flex align-items-center flex-wrap">
+        <!-- Entries per Page Dropdown -->
+        <div class="me-5">
+            <label for="per_page">{{ __('Show Entries') }}</label>
+            <select name="per_page" id="per_page" class="form-control" onchange="this.form.submit()">
+                @foreach([10, 25, 50, 100] as $limit)
+                    <option value="{{ $limit }}" {{ request('per_page', 10) == $limit ? 'selected' : '' }}>
+                        {{ $limit }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-                        <div class="me-5">
-                            <label for="language">{{ __('Filter by Language') }}</label>
-                            <select name="language" id="language" class="form-control status-filter" onchange="this.form.submit()">
-                            <option value="all" {{ request('language') == 'all' ? 'selected' : '' }}>All</option>
-                            <option value="Tamil" {{ request('language') == 'Tamil' ? 'selected' : '' }}>Tamil</option>
-                            <option value="Telugu" {{ request('language') == 'Telugu' ? 'selected' : '' }}>Telugu</option>
-                            <option value="Hindi" {{ request('language') == 'Hindi' ? 'selected' : '' }}>Hindi</option>
-                            <option value="Kannada" {{ request('language') == 'Kannada' ? 'selected' : '' }}>Kannada</option>
-                            <option value="Punjabi" {{ request('language') == 'Punjabi' ? 'selected' : '' }}>Punjabi</option>
-                            <option value="Malayalam" {{ request('language') == 'Malayalam' ? 'selected' : '' }}>Malayalam</option>
-                            </select>
-                        </div>
+        <!-- Filter by Type -->
+        <div class="me-5">
+            <label for="type">{{ __('Filter by Type') }}</label>
+            <select name="type" id="type" class="form-control" onchange="this.form.submit()">
+                <option value="">{{ __('All') }}</option>
+                <option value="audio" {{ request('type') == 'audio' ? 'selected' : '' }}>{{ __('Audio') }}</option>
+                <option value="video" {{ request('type') == 'video' ? 'selected' : '' }}>{{ __('Video') }}</option>
+            </select>
+        </div>
 
-                        <div class="me-2">
-                            <label for="filter_date">{{ __('Filter by Date') }}</label>
-                            <input type="date" name="filter_date" id="filter_date" class="form-control" 
-                             value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
-                        </div>
-                    </form>
+        <!-- Filter by Language -->
+        <div class="me-5">
+            <label for="language">{{ __('Filter by Language') }}</label>
+            <select name="language" id="language" class="form-control" onchange="this.form.submit()">
+                <option value="all" {{ request('language') == 'all' ? 'selected' : '' }}>All</option>
+                <option value="Tamil" {{ request('language') == 'Tamil' ? 'selected' : '' }}>Tamil</option>
+                <option value="Telugu" {{ request('language') == 'Telugu' ? 'selected' : '' }}>Telugu</option>
+                <option value="Hindi" {{ request('language') == 'Hindi' ? 'selected' : '' }}>Hindi</option>
+                <option value="Kannada" {{ request('language') == 'Kannada' ? 'selected' : '' }}>Kannada</option>
+                <option value="Punjabi" {{ request('language') == 'Punjabi' ? 'selected' : '' }}>Punjabi</option>
+                <option value="Malayalam" {{ request('language') == 'Malayalam' ? 'selected' : '' }}>Malayalam</option>
+            </select>
+        </div>
 
-                    <!-- Buttons aligned to the right -->
-                    <div>
-                        <!-- Reset Audio Call Form -->
-                        <form action="{{ route('usercalls.updateuser') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <input type="hidden" name="audio_status" value="0">
-                            <button type="submit" class="btn btn-warning me-2">{{ __('Reset Audio Call') }}</button>
-                        </form>
+        <!-- Filter by Date -->
+        <div class="me-5">
+            <label for="filter_date">{{ __('Filter by Date') }}</label>
+            <input type="date" name="filter_date" id="filter_date" 
+                   class="form-control" 
+                   value="{{ request('filter_date') }}" 
+                   onchange="this.form.submit()">
+        </div>
+        
+       <div class="me-5">
+            <label for="search" class="form-label">{{ __('Search Users') }}</label>
+            <input type="text" name="search" id="search" class="form-control"
+                   value="{{ request('search') }}" placeholder="Enter Name, Mobile"
+                   onkeydown="if(event.key === 'Enter') this.form.submit();">
+        </div>
+    </form>
 
-                        <!-- Reset Video Call Form -->
-                        <form action="{{ route('usercalls.updateuser') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <input type="hidden" name="video_status" value="0">
-                            <button type="submit" class="btn btn-danger">{{ __('Reset Video Call') }}</button>
-                        </form>
-                    </div>
-                </div>
-                     <!-- Search Box -->
-                <form action="{{ route('usercalls.index') }}" method="GET" class="mb-3">
-                <div class="col-md-3 ms-auto">
-                    <label for="search">{{ __('Search') }}</label>
-                    <input type="text" name="search" id="search" class="form-control" 
-                    value="{{ request()->get('search') }}" placeholder="Enter Name" onkeyup="startFilterTimer()">
-                </div>
-                </form>
-                <br>
+    <!-- Search Section and Reset Buttons (Aligned to the right) -->
+    <div class="d-flex flex-column align-items-end ms-auto">
+        <br>
+        <!-- Search Users -->
+        <!-- Reset Buttons (Aligned to the right) -->
+        <div class="d-flex">
+            <!-- Reset Audio Call -->
+            <form action="{{ route('usercalls.updateuser') }}" method="POST" class="me-2">
+                @csrf
+                <input type="hidden" name="audio_status" value="0">
+                <button type="submit" class="btn btn-warning">{{ __('Reset Audio Call') }}</button>
+            </form>
+
+            <!-- Reset Video Call -->
+            <form action="{{ route('usercalls.updateuser') }}" method="POST">
+                @csrf
+                <input type="hidden" name="video_status" value="0">
+                <button type="submit" class="btn btn-danger">{{ __('Reset Video Call') }}</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
                 <!-- Table -->
                 <div class="table-responsive">
                     <table class="table">
@@ -143,11 +136,21 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <p class="m-3">Showing {{ $usercalls->firstItem() }} to {{ $usercalls->lastItem() }} of {{ $usercalls->total() }} entries</p>
-                        {{ $usercalls->appends(request()->except('page'))->links('pagination::bootstrap-4') }}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <p class="mb-0">
+                                Showing 
+                                <strong>{{ $usercalls->firstItem() }}</strong> 
+                                to 
+                                <strong>{{ $usercalls->lastItem() }}</strong> 
+                                of 
+                                <strong>{{ $usercalls->total() }}</strong> usercalls
+                            </p>
+                        </div>
+                        <div>
+                            {{ $usercalls->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -156,21 +159,10 @@
 @endsection
 
 @section('scripts')
-<!-- DataTables CSS -->
-<link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-    let filterTimer;
-
-    $(document).ready(function () {
-        $('#search').on('input', function () {
-            clearTimeout(filterTimer); // Clear previous timer
-            filterTimer = setTimeout(() => {
-                $('form').submit(); // Auto-submit form after 3 seconds
-            }, 3000); // 3 seconds delay
-        });
-    });
+$(document).ready(function() {
+    // Initialize DataTable
+    $('#pc-dt-simple').DataTable();
+});
 </script>
-
 @endsection

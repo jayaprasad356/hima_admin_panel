@@ -19,7 +19,7 @@
               <!-- Filter by Status and Language Form -->
                     <form action="{{ route('users-verification.index') }}" method="GET" class="mb-3">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="status">{{ __('Filter by Status') }}</label>
                                 <select name="status" id="status" class="form-control status-filter" onchange="this.form.submit()">
                                     <option value="1" {{ request()->get('status') == '1' ? 'selected' : '' }}>{{ __('Pending') }}</option>
@@ -28,7 +28,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="language">{{ __('Filter by Language') }}</label>
                                 <select name="language" id="language" class="form-control language-filter" onchange="this.form.submit()">
                                     <option value="">{{ __('All Languages') }}</option>
@@ -39,6 +39,10 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="col-md-3">
+                            <label for="filter_date">{{ __('Filter by Date') }}</label>
+                            <input type="date" name="date" id="date" class="form-control" value="{{ request()->get('date') }}" onchange="this.form.submit()">
+                        </div>
                         </div>
                     </form>
 
@@ -72,6 +76,7 @@
                                         <th>{{ __('Name') }}</th>
                                         <th>{{ __('Mobile') }}</th>
                                         <th>{{ __('Language') }}</th> <!-- New Column -->
+                                         <th>{{ __('Age') }}</th>
                                         <th>{{ __('Voice') }}</th>
                                         <th>{{ __('Status') }}</th>
                                         <th>{{ __('Datetime') }}</th>
@@ -91,6 +96,7 @@
                                             <td>{{ ucfirst($user->name) }}</td>
                                             <td>{{ $user->mobile }}</td>
                                             <td>{{ $user->language }}</td> <!-- Display Language -->
+                                              <td>{{ $user->age }}</td>
                                             <td>
                                                 @if($user->voice && $user->voice)
                                                     <a href="{{ asset('storage/app/public/voices/' . $user->voice) }}" target="_blank">Play Voice</a>

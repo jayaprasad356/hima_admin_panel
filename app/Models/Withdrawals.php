@@ -15,6 +15,7 @@ class Withdrawals extends Model
         'datetime',
         'status',
         'type',
+        'reason',
     ];
 
     public function users()
@@ -24,6 +25,10 @@ class Withdrawals extends Model
     public function upi()
 {
     return $this->hasOne(Upis::class, 'user_id', 'user_id');
+}
+public function bankDetails()
+{
+    return $this->hasOne(WithdrawalBankDetail::class, 'withdrawal_id');
 }
 
 }

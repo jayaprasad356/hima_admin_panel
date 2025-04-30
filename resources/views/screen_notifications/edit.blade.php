@@ -46,11 +46,27 @@
 
         <!-- Datetime Input -->
         <div class="form-group col-md-12 mt-3">
-            {{ Form::label('datetime', __('Datetime'), ['class' => 'form-label']) }}
-            {{ Form::datetimeLocal('datetime', null, ['class' => 'form-control', 'required' => 'required']) }}
+            {{ Form::label('time', __('Time'), ['class' => 'form-label']) }}
+            {{ Form::time('time', null, ['class' => 'form-control', 'required' => 'required']) }}
         </div>
 
-   
+
+         <div class="form-group col-md-12 mt-3">
+            {{ Form::label('day', __('Day'), ['class' => 'form-label']) }}
+            {{ Form::select('day', [
+                '' => __('Select Day'),
+                'all' => __('all'),
+                'Monday' => __('Monday'),
+                'Tuesday' => __('Tuesday'),
+                'Wednesday' => __('Wednesday'),
+                'Thursday' => __('Thursday'),
+                'Friday' => __('Friday'),
+                'Saturday' => __('Saturday'),
+                'Sunday' => __('Sunday')
+            ], old('day', $screen_notifications->day), ['class' => 'form-control', 'required' => 'required']) }}
+        </div>
+
+        
 
         <div class="form-group col-md-12">
             {{ Form::label('logo', __('logo (Optional)'), ['class' => 'form-label']) }}

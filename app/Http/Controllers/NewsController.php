@@ -19,11 +19,16 @@ class NewsController extends Controller
             'support_mail' => 'required|string',
             'demo_video' => 'required|string',
             'minimum_withdrawals' => 'required|string',
-            'payment_gateway' => 'required|string',
+            'payment_gateway_type' => 'required|string',
+            'auto_disable_info' => 'required|string',
+             'coins_per_referral' => 'required|integer',
+            'money_per_referral' => 'required|integer',
+            'terms_conditions' => 'required|string',
+            'refund_cancellation' => 'required|string',
         ]);
 
         $news = News::findOrFail(1); // Editing record with ID 1
-        $news->update($request->only(['privacy_policy', 'support_mail', 'demo_video', 'minimum_withdrawals','payment_gateway']));
+        $news->update($request->only(['privacy_policy', 'support_mail', 'demo_video', 'minimum_withdrawals','payment_gateway_type','auto_disable_info','coins_per_referral','money_per_referral','terms_conditions','refund_cancellation']));
 
         return redirect()->route('news.edit')->with('success', 'Settings updated successfully.');
     }

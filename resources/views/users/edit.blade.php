@@ -215,6 +215,17 @@
                             </div>
                         </div>
 
+                        <div class="form-group col-md-6">
+                            {{ Form::label('priority', __('priority'), ['class' => 'form-label']) }}
+                            <div class="switch-container">
+                                <div class="switch">
+                                    <input type="hidden" name="priority" value="0">
+                                    <input type="checkbox" id="priority" name="priority" value="1" {{ $user->priority == 1 ? 'checked' : '' }}>
+                                    <label for="priority"></label>
+                                </div>
+                            </div>
+                        </div>
+
                      
                         <div class="form-group col-md-12">
                             {{ Form::label('describe_yourself', __('Describe Yourself'), ['class' => 'form-label']) }}

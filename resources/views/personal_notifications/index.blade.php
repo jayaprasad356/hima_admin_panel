@@ -41,7 +41,8 @@
                             @foreach ($personal_notifications as $personal_notification)
                                 <tr>
                                     <td>{{ $personal_notification->id }}</td>  
-                                    <td>{{ $personal_notification->users->name }}</td> 
+
+                                      <td>{{ ucfirst($personal_notification->users->name ?? '') }}</td>
                                     <td>{{ $personal_notification->title }}</td>
                                     <td>{{ $personal_notification->description}}</td>
                                     <td>{{ $personal_notification->datetime }}</td>

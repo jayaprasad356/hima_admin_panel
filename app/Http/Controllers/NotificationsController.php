@@ -9,19 +9,34 @@ use Berkayk\OneSignal\OneSignalFacade as OneSignal;
 
 class NotificationsController extends Controller
 {
-    // List all notifications with optional search functionality
+       // List all notifications with optional search functionality
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $language = $request->get('language');
+        $gender = $request->get('gender');
+    
         $notifications = Notifications::when($search, function ($query, $search) {
-            $query->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
-        })->orderBy('datetime', 'desc')->get();
+                $query->where('title', 'like', '%' . $search . '%')
+                      ->orWhere('description', 'like', '%' . $search . '%');
+            })
+            ->when($language, function ($query, $language) {
+                return $query->where('language', $language);
+            })
+            ->when($gender, function ($query, $gender) {
+                return $query->where('gender', $gender);
+            })
+            ->orderBy('datetime', 'desc')
+            ->get();
     
         $users = Users::all();
+        $languages = Notifications::select('language')->distinct()->pluck('language'); // Get unique languages
+        $genders = Notifications::select('gender')->distinct()->pluck('gender'); // Get unique genders
     
-        return view('notifications.index', compact('notifications', 'users'));
+        return view('notifications.index', compact('notifications', 'users', 'languages', 'genders'));
     }
+    
+
 
     // Show the form to create a new notification
     public function create()

@@ -40,10 +40,10 @@
                     <a href="{{ route('users.index') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-users"></i></span><span class="dash-mtext">{{ __('users') }}</span></a>
                 </li>
-            <!-- <li class="dash-item">
-                    <a href="{{ route('avatar.index') }}" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-user"></i></span><span class="dash-mtext">{{ __('Avatar') }}</span></a>
-                </li> -->
+            <!--<li class="dash-item">-->
+            <!--        <a href="{{ route('avatar.index') }}" class="dash-link"><span class="dash-micon"><i-->
+            <!--                    class="ti ti-user"></i></span><span class="dash-mtext">{{ __('Avatar') }}</span></a>-->
+            <!--    </li> -->
                 <li class="dash-item">
                     <a href="{{ route('speech_texts.index') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-file"></i></span><span class="dash-mtext">{{ __('Speech Texts') }}</span></a>
@@ -90,7 +90,7 @@
                     </span>
                     <span class="dash-mtext">{{ __('Transactions') }}</span>
                 </a>
-                <li class="dash-item">
+                  <li class="dash-item">
                 <a href="{{ route('payments.index') }}" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-credit-card"></i> <!-- Icon for transactions -->
@@ -105,6 +105,38 @@
                     <span class="dash-mtext">{{ __('Withdrawals') }}</span>
                 </a>
                 </li>
+                  <li class="dash-item">
+                <a href="{{ route('withdrawalsreports.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-wallet"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Withdrawals Reports') }}</span>
+                </a>
+                </li>
+                 <li class="dash-item">
+                <a href="{{ route('usersreports.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-users"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Users Reports') }}</span>
+                </a>
+                </li>
+                  <li class="dash-item">
+                <a href="{{ route('femalereports.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-users"></i> <!-- Icon for withdrawals -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Female Reports') }}</span>
+                </a>
+                </li>
+                 <li class="dash-item">
+                <a href="{{ route('whatsapplinks.index') }}" class="dash-link">
+                    <span class="dash-micon">
+                        <i class="ti ti-brand-whatsapp"></i> <!-- Icon for WhatsApp -->
+                    </span>
+                    <span class="dash-mtext">{{ __('Whatsapp Links') }}</span>
+                </a>
+                </li>
                 <li class="dash-item">
                     <a href="{{ route('notifications.index') }}" class="dash-link">
                         <span class="dash-micon">
@@ -113,7 +145,7 @@
                         <span class="dash-mtext">{{ __('Notifications') }}</span>
                     </a>
                 </li>
-                <li class="dash-item">
+                    <li class="dash-item">
                     <a href="{{ route('screen_notifications.index') }}" class="dash-link">
                         <span class="dash-micon">
                             <i class="ti ti-bell"></i> <!-- Icon for notifications -->
@@ -121,7 +153,7 @@
                         <span class="dash-mtext">{{ __('Screen Notifications') }}</span>
                     </a>
                 </li>
-                <li class="dash-item">
+                  <li class="dash-item">
                 <a href="{{ route('personal_notifications.index') }}" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-bell"></i> <!-- Icon for withdrawals -->
@@ -129,7 +161,15 @@
                     <span class="dash-mtext">{{ __('Personal Notifications') }}</span>
                 </a>
                 </li>
-                <li class="dash-item">
+                   <li class="dash-item">
+                    <a href="{{ route('orders.index') }}" class="dash-link">
+                        <span class="dash-micon">
+                            <i class="ti ti-shopping-cart"></i> <!-- Icon for notifications -->
+                        </span>
+                        <span class="dash-mtext">{{ __('Orders') }}</span>
+                    </a>
+                </li>
+                  <li class="dash-item">
                 <a href="{{ route('gifts.index') }}" class="dash-link">
                     <span class="dash-micon">
                         <i class="ti ti-gift"></i> <!-- Icon for withdrawals -->
@@ -137,6 +177,17 @@
                     <span class="dash-mtext">{{ __('Gifts') }}</span>
                 </a>
                 </li>
+           
+                 <li class="dash-item">
+                    <a href="{{ route('fcm_token.index') }}" class="dash-link">
+                        <span class="dash-micon">
+                        <i class="ti ti-bell"></i> <!-- Updated icon for notifications -->
+                        </span>
+                        <span class="dash-mtext">{{ __('Fcm Tokens') }}</span>
+                    </a>
+                </li>
+                
+             
             <!--dashboard-->
 
 

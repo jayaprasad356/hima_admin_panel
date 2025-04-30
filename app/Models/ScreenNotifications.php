@@ -9,11 +9,12 @@ class ScreenNotifications extends Model
     protected $fillable = [
         'title',
         'description',
-        'datetime',
+        'time',
         'gender',
         'language',
         'logo',
         'image',
+        'day',
     ];
 
     public function users()

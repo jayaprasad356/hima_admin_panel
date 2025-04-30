@@ -47,7 +47,33 @@
                     <option value="instamojo" {{ $news->payment_gateway_type == 'instamojo' ? 'selected' : '' }}>instamojo</option>
                     <option value="razorpay" {{ $news->payment_gateway_type == 'razorpay' ? 'selected' : '' }}>razorpay</option>
                     <option value="upigateway" {{ $news->payment_gateway_type == 'upigateway' ? 'selected' : '' }}>upigateway</option>
+                    <option value="gpay" {{ $news->payment_gateway_type == 'gpay' ? 'selected' : '' }}>gpay</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="auto_disable_info">Auto Disable Info</label>
+                <textarea name="auto_disable_info" id="auto_disable_info" class="form-control" rows="3" required>{{ $news->auto_disable_info }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="coins_per_referral">Coins Per Referral</label>
+                <input type="number" class="form-control" id="coins_per_referral" name="coins_per_referral" value="{{ $news->coins_per_referral }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="money_per_referral">Money Per Referral</label>
+                <input type="number" class="form-control" id="money_per_referral" name="money_per_referral" value="{{ $news->money_per_referral }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="terms_conditions">Terms & Conditions</label>
+                <input type="text" class="form-control" id="terms_conditions" name="terms_conditions" value="{{ $news->terms_conditions }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="refund_cancellation">Refund & Cancellation</label>
+                <input type="text" class="form-control" id="refund_cancellation" name="refund_cancellation" value="{{ $news->refund_cancellation }}" required>
             </div>
 
             <div class="box-footer">

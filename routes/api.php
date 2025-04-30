@@ -27,6 +27,7 @@ use App\Http\Controllers\AuthControllerApi;
  Route::post('calls_list', [AuthController::class, 'calls_list']);
  Route::post('call_female_user', [AuthController::class, 'call_female_user']);
  Route::post('female_call_attend', [AuthController::class, 'female_call_attend']);
+ Route::post('createUpigateway', [AuthController::class, 'createUpigateway']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -40,6 +41,7 @@ Route::group([
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::post('register', [AuthController::class, 'register']);
+     Route::post('check_refer_code', [AuthController::class, 'check_refer_code']);
     Route::post('/userdetails', [AuthController::class, 'userdetails']);
      Route::post('/update_profile', [AuthController::class, 'update_profile']);
      Route::post('/coins_list', [AuthController::class, 'coins_list']);
@@ -76,6 +78,10 @@ Route::group([
     Route::post('gifts_list', [AuthController::class, 'gifts_list']);
     Route::post('send_gifts', [AuthController::class, 'send_gifts']);
     Route::post('createUpigateway', [AuthController::class, 'createUpigateway']);
-    Route::post('personalized_notifications', [AuthController::class, 'personalized_notifications']);
+      Route::post('whatsapplink_list', [AuthController::class, 'whatsapplink_list']);
+         Route::post('send_fcm_token', [AuthController::class, 'send_fcm_token']);
+            Route::post('/try_coins', [AuthController::class, 'try_coins']);
+     Route::post('user_avatar_image', [AuthController::class, 'user_avatar_image']);
+    Route::post('/send-fcm-notification', [AuthController::class, 'sendNotification']);
+        Route::post('update_pancard', [AuthController::class, 'update_pancard']);
 });
-

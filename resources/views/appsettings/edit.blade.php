@@ -90,10 +90,15 @@
                 <label for="link">Link</label>
                 <input type="text" class="form-control" id="link" name="link" value="{{ old('link', $appsettings->link) }}" required>
             </div>
-
-            <div class="form-group">
-                <label for="app_version">App Version</label>
+            
+               <div class="form-group">
+                <label for="app_version">Latest Version</label>
                 <input type="text" class="form-control" id="app_version" name="app_version" value="{{ old('app_version', $appsettings->app_version) }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="minimum_required_version">Minimum Required Version</label>
+                <input type="text" class="form-control" id="minimum_required_version" name="minimum_required_version" value="{{ $appsettings->minimum_required_version }}" required>
             </div>
 
             <div class="form-group">

@@ -62,8 +62,24 @@
 
                     <!-- Datetime Field -->
                     <div class="form-group mt-3">
-                        <label for="datetime">{{ __('Datetime') }}</label>
-                        <input type="datetime-local" id="datetime" name="datetime" class="form-control" required>
+                        <label for="time">{{ __('Time') }}</label>
+                        <input type="time" id="time" name="time" class="form-control" required>
+                    </div>
+
+
+                   <div class="form-group mt-3">
+                        <label for="day" class="form-label">{{ __('Day') }}</label>
+                        <select name="day" class="form-control" required>
+                        <option value="">{{ __('Select Day') }}</option>
+                           <option value="all">{{ __('all') }}</option>
+                            <option value="Monday">{{ __('Monday') }}</option>
+                            <option value="Tuesday">{{ __('Tuesday') }}</option>
+                            <option value="Wednesday">{{ __('Wednesday') }}</option>
+                            <option value="Thursday">{{ __('Thursday') }}</option>
+                            <option value="Friday">{{ __('Friday') }}</option>
+                            <option value="Saturday">{{ __('Saturday') }}</option>
+                            <option value="Sunday">{{ __('Sunday') }}</option>
+                        </select>
                     </div>
 
                     <!-- Logo Field -->

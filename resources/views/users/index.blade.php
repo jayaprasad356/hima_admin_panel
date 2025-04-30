@@ -28,8 +28,15 @@
                             <label for="filter_date">{{ __('Filter by Date') }}</label>
                             <input type="date" name="filter_date" id="filter_date" class="form-control" value="{{ request()->get('filter_date') }}" onchange="this.form.submit()">
                         </div>
+                         <div class="col-md-3">
+                            <label for="priority">{{ __('Filter by Priority') }}</label>
+                            <select name="priority" id="priority" class="form-control gender-filter" onchange="this.form.submit()">
+                                <option value="">{{ __('All') }}</option>
+                                <option value="1" {{ request()->get('priority') === '1' ? 'selected' : '' }}>{{ __('Enable') }}</option>
+                            </select>
+                        </div>
                         <div class="col-md-3 ms-auto">
-                            <label for="search">{{ __('Search All Users') }}</label>
+                            <label for="search">{{ __('Search Users') }}</label>
                             <input type="text" name="search" id="search" class="form-control"
                              value="{{ request()->get('search') }}" placeholder="Enter Name, Mobile">
                         </div>
@@ -38,7 +45,7 @@
             </div>
             <div class="card-body table-border-style">
                 <div class="table-responsive">
-                    <table class="table" id="pc-dt-simple">
+                    <table class="table">
                         <thead>
                             <tr>
                             <th>{{ __('Actions') }}</th>
@@ -49,6 +56,11 @@
                                 <th>{{ __('Gender') }}</th>
                                 <th>{{ __('Coins') }}</th>
                                 <th>{{ __('Total Coins') }}</th>
+                                <th>{{ __('Refer Code') }}</th>
+                                <th>{{ __('Referred By') }}</th>
+                                <th>{{ __('Total Referrals') }}</th>
+                                 <th>{{ __('Pancard Name') }}</th>
+                                 <th>{{ __('Pancard Number') }}</th>
                                 <th>{{ __('Language') }}</th>
                                 <th>{{ __('Balance') }}</th>
                                 <th>{{ __('DateTime') }}</th>
@@ -59,6 +71,8 @@
                                 <th>{{ __('Missed Calls') }}</th>
                                 <th>{{ __('Avg Call Percentage') }}</th>
                                 <th>{{ __('Blocked') }}</th>
+                                <th>{{ __('Last Seen') }}</th>
+                                <th>{{ __('Priority') }}</th>
                                 <th>{{ __('Avatar') }}</th>
                             </tr>
                         </thead>
@@ -91,6 +105,11 @@
                                     <td>{{ ucfirst($user->gender) }}</td>
                                     <td>{{ $user->coins }}</td>
                                     <td>{{ $user->total_coins }}</td>
+                                      <td>{{ optional($user)->refer_code ?: '' }}</td>
+                                    <td>{{ optional($user)->referred_by ?: '' }}</td>
+                                    <td>{{ optional($user)->total_referrals}}</td>
+                                      <td>{{ optional($user)->pancard_name ?: '' }}</td>
+                                    <td>{{ optional($user)->pancard_number ?: '' }}</td>
                                     <td>{{ ucfirst($user->language) }}</td>
                                     <td>{{ $user->balance }}</td>
                                     <td>{{ $user->datetime }}</td>
@@ -134,10 +153,20 @@
                                         @endif
                                     </td>
                                     <!-- Avatar Image -->
+                                     <td>{{ $user->last_seen }}</td>
+                                       <td>
+                                        @if($user->priority == 1)
+                                            <i class="fa fa-star text-warning"></i> 
+                                            <span class="font-weight-bold text-warning">{{ __('Enabled') }}</span>
+                                        @else
+                                            <i class="fa fa-star-o text-secondary"></i> 
+                                            <span class="font-weight-bold text-muted">{{ __('Disabled') }}</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($user->avatar && $user->avatar->image)
                                         <a href="{{ asset('storage/app/public/' . $user->avatar->image) }}" data-lightbox="image-{{ $user->avatar->id }}">
-                                                <img class="user-img img-thumbnail img-fluid" 
+                                                <img loading="lazy" class="user-img img-thumbnail img-fluid" 
                                                     src="{{ asset('storage/app/public/' . $user->avatar->image) }}" 
                                                     alt="Avatar Image" 
                                                     style="max-width: 100px; max-height: 100px;">
@@ -152,6 +181,21 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <p class="mb-0">
+                                Showing 
+                                <strong>{{ $users->firstItem() }}</strong> 
+                                to 
+                                <strong>{{ $users->lastItem() }}</strong> 
+                                of 
+                                <strong>{{ $users->total() }}</strong> users
+                            </p>
+                        </div>
+                        <div>
+                            {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

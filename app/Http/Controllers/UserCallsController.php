@@ -11,16 +11,12 @@ class UserCallsController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
-        $filterDate = $request->get('filter_date');
+        $filterDate = $request->get('filter_date');  // Only apply if provided
         $type = $request->get('type'); 
         $language = $request->get('language'); 
-    
-        // If filters are applied, reset pagination to page 1
-        if ($request->hasAny(['search', 'filter_date', 'type', 'language']) && !$request->has('page')) {
-            return redirect()->route('usercalls.index', array_merge($request->except('page'), ['page' => 1]));
-        }
-    
-        // Get the user calls with relationships
+        
+        $perPage = $request->get('per_page', 10);
+
         $usercalls = UserCalls::with(['user', 'callusers'])
             ->when($filterDate, function ($query, $filterDate) {
                 return $query->whereDate('datetime', Carbon::parse($filterDate)->format('Y-m-d'));
@@ -35,33 +31,41 @@ class UserCallsController extends Controller
                     });
                 }
             })
-            ->when($search, function ($query, $search) {
-                return $query->whereHas('user', function ($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                          ->orWhere('mobile', 'like', '%' . $search . '%');
-                })->orWhereHas('callusers', function ($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                          ->orWhere('mobile', 'like', '%' . $search . '%');
+                    ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', '%' . $search . '%')
+                              ->orWhere('mobile', 'like', '%' . $search . '%');
+                })->orWhereHas('callusers', function ($callUserQuery) use ($search) {
+                    $callUserQuery->where('name', 'like', '%' . $search . '%');
                 });
-            })
+            });
+        })
+
             ->orderBy('datetime', 'desc')
-            ->paginate(10);
+            ->paginate($perPage); // ← here
+        
+    
 
-
-        // Calculate the duration for each user call
         foreach ($usercalls as $usercall) {
-            if ($usercall->started_time && $usercall->ended_time) {
-                // Parse the times using Carbon
-                $started = Carbon::parse($usercall->started_time);
-                $ended = Carbon::parse($usercall->ended_time);
-                
-                // Calculate the duration difference
-                $duration = $started->diff($ended); // Get the difference as a Carbon interval
-                // Format the duration as H:i:s
-                $usercall->duration = $duration->format('%H:%I:%S');
-            } else {
-                $usercall->duration = ''; // Handle cases where times are missing
-            }
+                if ($usercall->started_time && $usercall->ended_time) {
+                    // Parse the times using Carbon
+                    $started = Carbon::parse($usercall->started_time);
+                    $ended = Carbon::parse($usercall->ended_time);
+            
+                    // Handle case when call crosses midnight
+                    if ($ended->lessThan($started)) {
+                        $ended->addDay();
+                    }
+            
+                    // Calculate the duration
+                    $duration = $started->diff($ended);
+            
+                    // Format the duration as H:i:s
+                    $usercall->duration = $duration->format('%H:%I:%S');
+                } else {
+                    $usercall->duration = ''; // Handle cases where times are missing
+                }
         
           // Get the user's current coins (without before and after calculations)
           $user = $usercall->user;

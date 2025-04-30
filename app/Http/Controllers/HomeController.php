@@ -79,7 +79,7 @@ class HomeController extends Controller
      
          // Recharge and withdrawal data for selected language users
          $today_recharge_count = Transactions::where('type', 'add_coins')->whereDate('datetime', $today)->whereIn('user_id', $user_ids)->sum('amount');
-         $today_recharge_id_count = Transactions::where('type', 'add_coins')->whereDate('datetime', $today)->whereIn('user_id', $user_ids)->distinct('user_id')->count('user_id');
+         $today_recharge_id_count = Transactions::where('type', 'add_coins')->whereDate('datetime', $today)->whereIn('user_id', $user_ids)->whereNotNull('amount')->where('amount', '>', 0)->distinct('user_id')->count('user_id');
          $pending_withdrawals = Withdrawals::where('status', 0)->whereIn('user_id', $user_ids)->sum('amount');
          $yesterday_recharge_count = Transactions::where('type', 'add_coins')->whereDate('datetime', $yesterday)->whereIn('user_id', $user_ids)->sum('amount');
          $yesterday_paid_withdrawals = Withdrawals::where('status', 1)->whereDate('datetime', $yesterday)->whereIn('user_id', $user_ids)->sum('amount');

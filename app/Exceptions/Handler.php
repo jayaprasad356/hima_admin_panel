@@ -12,10 +12,10 @@ class Handler extends ExceptionHandler
     {
         // Check for authentication exceptions and force JSON response
         if ($exception instanceof AuthenticationException) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated. Please log in again.'
-            ], 401);
+            // Redirect to the login page for non-AJAX requests
+            return $request->expectsJson()
+                ? response()->json(['success' => false], 401) // Minimal JSON response
+                : redirect()->guest(route('login')); // Redirect without message
         }
     
         return parent::render($request, $exception);

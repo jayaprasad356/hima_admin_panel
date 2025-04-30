@@ -8,25 +8,35 @@ use Illuminate\Support\Facades\Storage;
 
 class ScreenNotificationsController extends Controller
 {
-    // List all speech texts with optional search functionality
-    public function index(Request $request)
+   public function index(Request $request)
     {
-        $search = $request->get('search');
-        $filterDate = $request->get('filter_date');
-
-        // Search speech texts by text content or language
-        $screen_notifications = ScreenNotifications::when($search, function ($query, $search) {
-            $query->where('text', 'like', '%' . $search . '%')
-                  ->orWhere('language', 'like', '%' . $search . '%');
-        })
-        ->when($filterDate, function ($query) use ($filterDate) {
-            return $query->whereDate('datetime', $filterDate); // Make sure column name matches
-        })
-        ->orderBy('datetime', 'desc') // Order by latest data
-        ->get();
-
-        return view('screen_notifications.index', compact('screen_notifications'));
+        $query = ScreenNotifications::query();
+    
+        // Filter by day if provided
+        if ($request->has('day') && !empty($request->day)) {
+            $query->where('day', $request->day);
+        }
+    
+        // Filter by language if provided
+        if ($request->has('language') && !empty($request->language)) {
+            $query->where('language', $request->language);
+        }
+    
+        // Filter by gender if provided
+        if ($request->has('gender') && !empty($request->gender)) {
+            $query->where('gender', $request->gender);
+        }
+    
+        // Fetch all matching records
+        $screen_notifications = $query->latest()->get();
+    
+        // Define available languages (Modify this based on your actual language data source)
+        $languages = ScreenNotifications::select('language')->distinct()->pluck('language')->toArray();
+    
+        return view('screen_notifications.index', compact('screen_notifications', 'languages'));
     }
+    
+
 
     // Show the form to create a new speech text
     public function create()
@@ -43,9 +53,10 @@ class ScreenNotificationsController extends Controller
             'description' => 'required|string|max:5000',
             'language' => 'required|string|max:255',
             'gender' => 'required|in:all,male,female',
-            'datetime' => 'required|date',
+            'time' => 'required|date_format:H:i', // Ensure time format
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+             'day' => 'required|string',
         ]);
 
         // Handle file uploads
@@ -71,19 +82,21 @@ class ScreenNotificationsController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $screen_notifications = ScreenNotifications::findOrFail($id);
-
-    // Validate input data
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string|max:5000',
-        'language' => 'required|string|max:255',
-        'gender' => 'required|in:all,male,female',
-        'datetime' => 'required|date',
-        'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ]);
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'gender' => 'required|string',
+            'language' => 'required|string',
+            'time' => 'required',
+            'day' => 'required|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+    
+        $screen_notifications = ScreenNotifications::findOrFail($id);
+        $screen_notifications->update($request->only(['title', 'description', 'gender', 'language', 'time', 'day']));
+    
 
     // Handle logo upload
     if ($request->hasFile('logo')) {
@@ -107,8 +120,7 @@ class ScreenNotificationsController extends Controller
         $validated['image'] = $request->file('image')->store('images', 'public');
     }
 
-    // Update the record with validated data
-    $screen_notifications->update($validated);
+
 
     return redirect()->route('screen_notifications.index')->with('success', 'Screen Notification successfully updated.');
 }

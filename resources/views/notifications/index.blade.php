@@ -14,18 +14,37 @@
         <i class="ti ti-plus"></i> {{ __('Add New Notifications') }}
     </a>
 @endsection
-
 @section('content')
 <div class="row">
     <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+            <form action="{{ route('notifications.index') }}" method="GET" class="mb-3">
+            <div class="row align-items-end">
+                <!-- Gender Filter -->
+                <div class="col-md-3">
+                    <label for="gender">{{ __('Filter by Gender') }}</label>
+                    <select name="gender" id="gender" class="form-control" onchange="this.form.submit()">
+                        <option value="">{{ __('All') }}</option>
+                        <option value="male" {{ request()->get('gender') == 'male' ? 'selected' : '' }}>{{ __('Male') }}</option>
+                        <option value="female" {{ request()->get('gender') == 'female' ? 'selected' : '' }}>{{ __('Female') }}</option>
+                    </select>
+                </div>
 
-        <!-- SUCCESS MESSAGE ALERT -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {!! session('success') !!}  <!-- Display full message with filters -->
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <!-- Language Filter -->
+                <div class="col-md-3">
+                    <label for="language">{{ __('Filter by Language') }}</label>
+                    <select name="language" id="language" class="form-control" onchange="this.form.submit()">
+                        @foreach ($languages as $language)
+                            <option value="{{ $language }}" {{ request()->get('language') == $language ? 'selected' : '' }}>
+                                {{ ucfirst($language) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-        @endif
+        </form>
+            </div>
 
         <div class="card">
             <div class="card-body">
@@ -48,15 +67,17 @@
                             </thead>
                             <tbody>
                                 @foreach ($notifications as $notification)
-                                    <tr>
+                                    <tr class="selectable-row">
                                         <td class="Action">
                                             <span>
+                                                <!-- Edit Button -->
                                                 <div class="action-btn bg-info ms-2">
                                                     <a href="#" data-url="{{ route('notifications.edit', $notification->id) }}" data-ajax-popup="true" data-title="{{ __('Edit notifications') }}"
                                                     class="btn btn-sm align-items-center" data-bs-toggle="tooltip" title="{{ __('Edit') }}">
                                                         <i class="ti ti-pencil text-white"></i>
                                                     </a>
                                                 </div>
+                                                <!-- Delete Button -->
                                                 <div class="action-btn bg-danger ms-2">
                                                     {!! Form::open(['method' => 'DELETE', 'route' => ['notifications.destroy', $notification->id], 'id' => 'delete-form-' . $notification->id]) !!}
                                                         <button type="button" class="btn btn-sm align-items-center bs-pass-para" data-bs-toggle="tooltip" title="{{ __('Delete') }}"
@@ -69,9 +90,9 @@
                                         </td>
                                         <td>{{ $notification->id }}</td>
                                         <td>{{ $notification->title }}</td>
-                                        <td>{{ $notification->description }}</td>
+                                        <td>{{ $notification->description}}</td>
                                         <td>{{ $notification->gender }}</td>
-                                        <td>{{ $notification->language }}</td>
+                                        <td>{{ $notification->language}}</td>
                                         <td>{{ $notification->datetime }}</td>
                                         <td>
                                             @if (!empty($notification->logo))
@@ -109,6 +130,7 @@
 
     function confirmDelete(event, notificationId) {
         event.preventDefault();
+
         if (confirm('Are you sure you want to delete this notification?')) {
             document.getElementById('delete-form-' + notificationId).submit();
         }

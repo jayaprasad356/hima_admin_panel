@@ -87,22 +87,7 @@
     <link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('assets/css/stylesheet.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
     <!-- vendor css -->
-<!-- jQuery (Required) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- DataTables (For Select All to Work on All Pages) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-
-<!-- Lightbox (If Needed) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-
-<!-- Pusher (If Needed for Real-Time Updates) -->
-<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 
     <style>
         :root {
@@ -195,19 +180,6 @@
     <script>
         feather.replace();
     </script>
-<!-- jQuery (Required) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- DataTables (For Select All to Work on All Pages) -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-
-<!-- Lightbox (If Needed) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-
-<!-- Pusher (If Needed for Real-Time Updates) -->
-<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 
     <input type="checkbox" class="d-none" id="cust-theme-bg"
         {{ \App\Models\Utility::getValByName('cust_theme_bg') == 'on' ? 'checked' : '' }} />
